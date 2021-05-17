@@ -1,0 +1,6 @@
+rtmidi~=2.3.4
+pynput~=1.7.3
+pygame~=2.0.1
+numpy~=1.20.3
+samplerate~=0.1.0
+scipy~=1.6.3
