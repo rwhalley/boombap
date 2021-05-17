@@ -5,14 +5,13 @@ from os import listdir
 from os.path import isfile, join
 from threading import Thread
 
-
 class MidiControl:
 
     def __init__(self):
 
         self.basepath = './samples/'
         self.current_bank = 1
-        self.max_sample_length_seconds = 1
+        self.max_sample_length_seconds = 2
         self.max_bank_size = 16
         self.load_samples()
 
@@ -45,11 +44,11 @@ class MidiControl:
             sound.restrict_length(self.max_sample_length_seconds)  # Truncate Samples longer than n seconds
             sound.remove_artifacts()
 
-
     def print_message(self,midi):
         try:
             #print('ON: ', midi.getMidiNoteName(midi.getNoteNumber()), midi.getVelocity())
             note = midi.getNoteNumber()
+            #print(note)
             if midi.isNoteOn():
 
                 if note != 22 and note !=23:
@@ -71,6 +70,7 @@ class MidiControl:
                             self.load_samples()
                         except FileNotFoundError:
                             self.current_bank += 1
+
             elif midi.isNoteOff():
                 #print('OFF:', midi.getMidiNoteName(midi.getNoteNumber()))
                 i = midi.getNoteNumber()-36
