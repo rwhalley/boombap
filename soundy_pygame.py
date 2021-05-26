@@ -18,6 +18,11 @@ class Soundy:
     def restrict_length(self,len_in_seconds):
         self.pgsound = pg.sndarray.make_sound(pg.sndarray.array(self.pgsound)[:int(self.sample_rate*len_in_seconds),:])
 
+    def normalize(self):
+        snd_array = pg.sndarray.array(self.pgsound)
+
+        self.pgsound = pg.sndarray.make_sound(np.array([(snd_array / np.max(np.abs(snd_array))) * 32767], np.int16)[0])
+
 
 
     def remove_artifacts(self):

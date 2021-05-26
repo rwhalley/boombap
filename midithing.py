@@ -11,7 +11,7 @@ class MidiControl:
 
         self.basepath = './samples/'
         self.current_bank = 1
-        self.max_sample_length_seconds = 2
+        self.max_sample_length_seconds = 3
         self.max_bank_size = 16
         self.load_samples()
 
@@ -43,6 +43,7 @@ class MidiControl:
         for sound in self.sounds:
             sound.restrict_length(self.max_sample_length_seconds)  # Truncate Samples longer than n seconds
             sound.remove_artifacts()
+            sound.normalize()
 
     def print_message(self,midi):
         try:
