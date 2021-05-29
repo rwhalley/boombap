@@ -6,10 +6,13 @@ from scipy import signal
 from threading import Thread
 #import resampy
 
+import dsp
+
 class Soundy:
 
     def __init__(self,soundpath):
         self.sample_rate = 44100
+        self.repeat = False
         pg.mixer.init(frequency=self.sample_rate, size=-16, channels=2, buffer=32)
         pg.init()
         self.pgsound = pg.mixer.Sound(soundpath)
@@ -20,9 +23,14 @@ class Soundy:
 
     def normalize(self):
         snd_array = pg.sndarray.array(self.pgsound)
-
         self.pgsound = pg.sndarray.make_sound(np.array([(snd_array / np.max(np.abs(snd_array))) * 32767], np.int16)[0])
 
+    def make_loud(self):
+        snd_array = pg.sndarray.array(self.pgsound)
+
+        #print(dsp.arctan_compressor(dsp.limiter(snd_array[:])))
+        self.pgsound = pg.sndarray.make_sound(np.array([dsp.limiter(snd_array[:])], np.int16)[0])
+        print(np.array([dsp.arctan_compressor(dsp.limiter(snd_array[:]))], np.int16)[0])
 
 
     def remove_artifacts(self):
@@ -75,8 +83,13 @@ class Soundy:
         self.pgsound.set_volume(normalized_vel)
 
     def play(self, block = True):
-
         self.pgsound.play()
+
+        if(self.repeat):
+            sleep(0.1)
+            self.pgsound.play()
+            sleep(0.1)
+            self.pgsound.play()
 
         if block:
             sleep(self.nssound.duration())

@@ -44,6 +44,7 @@ class MidiControl:
             sound.restrict_length(self.max_sample_length_seconds)  # Truncate Samples longer than n seconds
             sound.remove_artifacts()
             sound.normalize()
+            sound.make_loud()
 
     def print_message(self,midi):
         try:
@@ -83,6 +84,9 @@ class MidiControl:
                         print(factor)
                         x = Thread(sound.change_pitch(factor))
                         x.start()
+                        sound.normalize()
+                        sound.make_loud()
+
 
                 #print('CONTROLLER', midi.getControllerNumber(), midi.getControllerValue())
         except IndexError:
