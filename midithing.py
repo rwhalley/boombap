@@ -5,6 +5,7 @@ from os import listdir
 from os.path import isfile, join
 from threading import Thread
 from metronome import Metronome
+import sys
 
 class MidiControl:
 
@@ -62,6 +63,8 @@ class MidiControl:
 
                 if note != 22 and note !=23 and note!=26:
                     i = note-36
+                    if (i==12):
+                        sys.exit()
                     for sound in self.sounds:
                         sound.stop()
                     #self.sounds[i].set_volume(midi.getVelocity())
