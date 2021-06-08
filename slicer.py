@@ -14,8 +14,8 @@ class Slicer:
                 break
             else:
                 print(onset)
-                data =(self.input_wav[onset:self.onsets[i+1]-2000])
-                sf.write('./samples/4/test'+str(i)+'.wav', data, self.sample_rate, subtype='PCM_24')
+                data =(self.input_wav[onset:self.onsets[i+1]])
+                sf.write('./samples/4/test'+str(i)+'.wav', data, self.sample_rate, subtype='PCM_16')
 
 
 
