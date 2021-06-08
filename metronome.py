@@ -31,7 +31,7 @@ class Metronome:
 
     def set_bpm(self,input):
         self.wait = True
-        new_bpm = 10+input*300
+        new_bpm = 40+input*200
         print(f"BPM: {new_bpm}")
         self.bpm = new_bpm
         self._update_interval(new_bpm)
