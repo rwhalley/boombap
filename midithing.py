@@ -1,3 +1,4 @@
+#!/usr/bin/python
 import rtmidi
 from soundy_pygame import Soundy
 from os import listdir
@@ -11,7 +12,7 @@ class MidiControl:
     def __init__(self):
 
         self.basepath = '/samples/'
-        self.current_bank = 1
+        self.current_bank = 0
         self.max_sample_length_seconds = 3
         self.max_bank_size = 16
         self.load_samples()
