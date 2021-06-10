@@ -1,6 +1,5 @@
 import rtmidi
 from soundy_pygame import Soundy
-from pynput import keyboard
 from os import listdir
 from os.path import isfile, join
 from threading import Thread
