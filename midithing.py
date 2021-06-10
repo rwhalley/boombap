@@ -10,12 +10,12 @@ class MidiControl:
 
     def __init__(self):
 
-        self.basepath = './samples/'
+        self.basepath = '/samples/'
         self.current_bank = 1
         self.max_sample_length_seconds = 3
         self.max_bank_size = 16
         self.load_samples()
-        self.metronome = Metronome(120,path='./metronome/metronome.wav')
+        self.metronome = Metronome(120,path='/metronome/metronome.wav')
 
 
         midiin = rtmidi.RtMidiIn()
