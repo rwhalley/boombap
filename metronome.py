@@ -39,7 +39,7 @@ class Metronome:
             self._update_meter(4)
         elif self.is_on == 2:
             self.metronome_seq = self.lumbuel
-            self._update_meter(4)
+            self._update_meter(3)
 
 
 
