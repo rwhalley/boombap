@@ -69,7 +69,7 @@ class MidiControl:
 
                 if note != 22 and note !=23 and note!=26 and note != 24:
                     i = note-36
-                    if self.sample_bank < 3:
+                    if self.current_bank < 3:
                         for sound in self.sounds:
                             sound.stop()
                     if self.VOL_SENS:
@@ -100,7 +100,7 @@ class MidiControl:
             elif midi.isNoteOff():
                 #print('OFF:', midi.getMidiNoteName(midi.getNoteNumber()))
                 i = midi.getNoteNumber()-36
-                if self.sample_bank > 2:
+                if self.current_bank > 2:
                     self.sounds[i].stop()
             elif midi.isController():
                 if(midi.getNoteNumber() == 10):
