@@ -35,9 +35,11 @@ class Metronome:
     def switch(self):
         self.is_on = (self.is_on + 1) % 3
         if self.is_on == 1:
+            print("KAOLACK")
             self.metronome_seq = self.kaolack
             self._update_meter(4)
         elif self.is_on == 2:
+            print("LUMBUEL")
             self.metronome_seq = self.lumbuel
             self._update_meter(3)
         else:
@@ -58,8 +60,11 @@ class Metronome:
             now = int(round(time.time() * 1000))%self.note_length
 
             if(now)<self.last_time:
-                if self.metronome_seq[self.current_note]:
-                    self.sound.play(block=False)
+                try:
+                    if self.metronome_seq[self.current_note]:
+                        self.sound.play(block=False)
+                except:
+                    pass
                 self.current_note = ((self.current_note+1)%self.max_notes)
             self.last_time = now
 
