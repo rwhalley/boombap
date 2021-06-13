@@ -25,15 +25,21 @@ class Metronome:
         self.measure_length = int(self.beat_length * 4)
         self.note_length = int(self.beat_length / 4)
 
+    def _update_meter(self,notes_per_beat):
+        self.notes_per_beat = notes_per_beat
+        self.max_notes = self.max_beats * self.notes_per_beat
+        self.measure_length = int(self.beat_length * 4)
+        self.note_length = int(self.beat_length / 4)
+
 
     def switch(self):
         self.is_on = (self.is_on + 1) % 3
         if self.is_on == 1:
             self.metronome_seq = self.kaolack
-            self.notes_per_beat = 4
+            self._update_meter(4)
         elif self.is_on == 2:
             self.metronome_seq = self.lumbuel
-            self.notes_per_beat = 3
+            self._update_meter(4)
 
 
 
