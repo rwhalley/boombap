@@ -63,10 +63,8 @@ class MidiControl:
             print(note)
             if midi.isNoteOn():
 
-                if note != 22 and note !=23 and note!=26:
+                if note != 22 and note !=23 and note!=26 and note != 24:
                     i = note-36
-                    if (i==12):
-                        sys.exit()
                     for sound in self.sounds:
                         sound.stop()
                     #self.sounds[i].set_volume(midi.getVelocity())
@@ -87,6 +85,8 @@ class MidiControl:
                             self.load_samples()
                         except FileNotFoundError:
                             self.current_bank += 1
+                    elif note ==24:
+                        sys.exit()
 
 
             elif midi.isNoteOff():
