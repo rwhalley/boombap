@@ -34,6 +34,7 @@ class Metronome:
 
     def switch(self):
         self.is_on = (self.is_on + 1) % 3
+        print(self.is_on)
         if self.is_on == 1:
             self.metronome_seq = self.kaolack
             self._update_meter(4)

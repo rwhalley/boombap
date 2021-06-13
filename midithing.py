@@ -60,7 +60,7 @@ class MidiControl:
             #print('ON: ', midi.getMidiNoteName(midi.getNoteNumber()), midi.getVelocity())
             note = midi.getNoteNumber()
 
-            print(note)
+            #print(note)
             if midi.isNoteOn():
 
                 if note != 22 and note !=23 and note!=26 and note != 24:
