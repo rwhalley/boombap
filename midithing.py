@@ -19,6 +19,7 @@ class MidiControl:
         self.load_samples()
         self.metronome_path = Path(__file__).parent.resolve() / 'metronome/metronome.wav'
         self.metronome = Metronome(120,path=self.metronome_path)
+        self.VOL_SENS = False
 
 
         midiin = rtmidi.RtMidiIn()
@@ -55,6 +56,9 @@ class MidiControl:
             sound.normalize()
             sound.make_loud()
 
+    def switch_vol_sens(self):
+        self.VOL_SENS = not self.VOL_SENS
+
     def print_message(self,midi):
         try:
             #print('ON: ', midi.getMidiNoteName(midi.getNoteNumber()), midi.getVelocity())
@@ -65,9 +69,11 @@ class MidiControl:
 
                 if note != 22 and note !=23 and note!=26 and note != 24:
                     i = note-36
-                    for sound in self.sounds:
-                        sound.stop()
-                    #self.sounds[i].set_volume(midi.getVelocity())
+                    if self.sample_bank < 3:
+                        for sound in self.sounds:
+                            sound.stop()
+                    if self.VOL_SENS:
+                        self.sounds[i].set_volume(midi.getVelocity())
                     self.sounds[i].play(block=False)
 
                 else:
@@ -87,12 +93,15 @@ class MidiControl:
                             self.current_bank += 1
                     elif note ==24:
                         sys.exit()
+                    elif note ==25:
+                        self.switch_vol_sens()
 
 
             elif midi.isNoteOff():
                 #print('OFF:', midi.getMidiNoteName(midi.getNoteNumber()))
                 i = midi.getNoteNumber()-36
-                #self.sounds[i].stop()
+                if self.sample_bank > 2:
+                    self.sounds[i].stop()
             elif midi.isController():
                 if(midi.getNoteNumber() == 10):
                     for sound in self.sounds:
