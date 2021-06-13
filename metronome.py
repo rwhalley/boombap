@@ -40,6 +40,8 @@ class Metronome:
         elif self.is_on == 2:
             self.metronome_seq = self.lumbuel
             self._update_meter(3)
+        else:
+            self._update_meter(4)
 
 
 
