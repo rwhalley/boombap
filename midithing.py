@@ -58,6 +58,7 @@ class MidiControl:
 
     def switch_vol_sens(self):
         self.VOL_SENS = not self.VOL_SENS
+        print(self.VOL_SENS)
 
     def print_message(self,midi):
         try:
@@ -74,6 +75,8 @@ class MidiControl:
                             sound.stop()
                     if self.VOL_SENS:
                         self.sounds[i].set_volume(midi.getVelocity())
+                    else:
+                        self.sounds[i].set_volume(128)
                     self.sounds[i].play(block=False)
 
                 else:
@@ -93,8 +96,7 @@ class MidiControl:
                             self.current_bank += 1
                     elif note ==24:
                         sys.exit()
-                    elif note ==25:
-                        self.switch_vol_sens()
+
 
 
             elif midi.isNoteOff():
@@ -102,6 +104,8 @@ class MidiControl:
                 i = midi.getNoteNumber()-36
                 if self.current_bank > 2:
                     self.sounds[i].stop()
+                if note ==25:
+                    self.switch_vol_sens()
             elif midi.isController():
                 if(midi.getNoteNumber() == 10):
                     for sound in self.sounds:
