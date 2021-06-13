@@ -6,17 +6,20 @@ from os.path import isfile, join
 from threading import Thread
 from metronome import Metronome
 import sys
+from pathlib import Path
 
 class MidiControl:
 
     def __init__(self):
 
-        self.basepath = '/samples/'
+        self.basepath = str(Path(__file__).parent / 'samples/')+'/'
+        print(self.basepath)
         self.current_bank = 0
         self.max_sample_length_seconds = 3
         self.max_bank_size = 16
         self.load_samples()
-        self.metronome = Metronome(120,path='/metronome/metronome.wav')
+        self.metronome_path = Path(__file__).parent.resolve() / 'metronome/metronome.wav'
+        self.metronome = Metronome(120,path=self.metronome_path)
 
 
         midiin = rtmidi.RtMidiIn()
