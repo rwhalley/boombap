@@ -15,8 +15,9 @@ class Metronome:
         self.current_note = 0
         self.current_beat = 0
         self.sound = Soundy(path)
-        self.metronome_seq_kaolack = [1,0,0,0,0,0,1,0,1,0,0,0,1,0,0,0]
-        self.metronome_seq_lumbuel = [1,0,0,0,1,0,1,0,0,1,0,0]
+        self.kaolack = [1,0,0,0,0,0,1,0,1,0,0,0,1,0,0,0]
+        self.lumbuel = [1,0,0,0,1,0,1,0,0,1,0,0]
+        self.metronome_seq = self.kaolack
 
 
     def _update_interval(self, new_bpm):
@@ -26,7 +27,13 @@ class Metronome:
 
 
     def switch(self):
-        self.is_on = not self.is_on
+        self.is_on = (self.is_on + 1) % 3
+        if self.is_on == 1:
+            self.metronome_seq = self.kaolack
+        elif self.is_on == 2:
+            self.metronome_seq = self.lumbuel
+
+
 
 
     def set_bpm(self,input):
@@ -41,7 +48,7 @@ class Metronome:
             now = int(round(time.time() * 1000))%self.note_length
 
             if(now)<self.last_time:
-                if self.metronome_seq_lumbuel[self.current_note]:
+                if self.metronome_seq[self.current_note]:
                     self.sound.play(block=False)
                 self.current_note = ((self.current_note+1)%self.max_notes)
             self.last_time = now

@@ -23,9 +23,9 @@ def limiter(x, treshold=1):
 # stronger the compression
 def arctan_compressor(x, factor=10):
     constant = np.linspace(-1, 1, len(x))
-    print(constant)
+    #print(constant)
     transfer = np.arctan(factor * constant)
-    print(transfer)
+    #print(transfer)
     transfer /= np.abs(transfer).max()
-    print(transfer)
+    #print(transfer)
     return apply_transfer(x, transfer*32767)
