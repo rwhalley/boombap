@@ -7,7 +7,7 @@ class Metronome:
         self.bpm = bpm
         self.beat_length = int(60 / self.bpm * 1000)
         self.max_beats = 4
-        self.notes_per_beat = 3
+        self.notes_per_beat = 4
         self.max_notes = self.max_beats * self.notes_per_beat
         self.measure_length = int(self.beat_length * 4)
         self.note_length = int(self.beat_length / 4)
@@ -30,8 +30,10 @@ class Metronome:
         self.is_on = (self.is_on + 1) % 3
         if self.is_on == 1:
             self.metronome_seq = self.kaolack
+            self.notes_per_beat = 4
         elif self.is_on == 2:
             self.metronome_seq = self.lumbuel
+            self.notes_per_beat = 3
 
 
 
