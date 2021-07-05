@@ -1,5 +1,8 @@
 import time
 from soundy_pygame import Soundy
+from pathlib import Path
+from os import listdir
+from os.path import isfile, join
 
 class Metronome:
     def __init__(self, bpm=120, path=None):
@@ -15,10 +18,32 @@ class Metronome:
         self.current_note = 0
         self.current_beat = 0
         self.sound = Soundy(path)
+        self.accompaniment_path = self.basepath = str(Path(__file__).parent / 'samples/')+'/2/'
+        self.accompaniment_sounds = self._load_sounds()
         self.kaolack = [1,0,0,0,0,0,1,0,1,0,0,0,1,0,0,0]
+        self.accompaniment = [[1,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0],
+                              [0,0,0,1,0,0,0,0,0,0,0,1,1,0,0,0],
+                              [0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,1],
+                              [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]]
         self.lumbuel = [1,0,0,0,1,0,1,0,0,1,0,0]
         self.metronome_seq = self.kaolack
 
+
+    def _load_sounds(self):
+        path = self.accompaniment_path
+        sounds = []
+        onlyfiles = [f for f in sorted(listdir(path)) if isfile(join(path, f))]
+        for file in onlyfiles:
+            if file.endswith('.wav'):
+                if file.startswith('.'):
+                    pass
+                else:
+                    sounds.append(Soundy(path+file))
+        for sound in sounds:
+            sound.remove_artifacts()
+            sound.normalize()
+            sound.make_loud()
+        return sounds
 
     def _update_interval(self, new_bpm):
         self.beat_length = int(60 / new_bpm * 1000)
@@ -61,6 +86,17 @@ class Metronome:
 
             if(now)<self.last_time:
                 try:
+                    for i,x in enumerate(self.accompaniment):
+                        if self.accompaniment[i][self.current_note]:
+                            if (i==0):
+                                self.accompaniment_sounds[0].play(block=False)
+                            if (i==1):
+                                self.accompaniment_sounds[4].play(block=False)
+                            if (i==2):
+                                self.accompaniment_sounds[2].play(block=False)
+                            if (i==3):
+                                self.accompaniment_sounds[3].play(block=False)
+
                     if self.metronome_seq[self.current_note]:
                         self.sound.play(block=False)
                 except:
