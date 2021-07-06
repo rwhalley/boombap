@@ -18,32 +18,60 @@ class Metronome:
         self.current_note = 0
         self.current_beat = 0
         self.sound = Soundy(path)
-        self.accompaniment_path = self.basepath = str(Path(__file__).parent / 'samples/')+'/2/'
+        self.mbungmbung_path = str(Path(__file__).parent / 'samples/')+'/2/'
+        self.col_path = str(Path(__file__).parent / 'samples/')+'/1/'
+        self.nder_path = str(Path(__file__).parent / 'samples/')+'/0/'
+        self.accompaniment_paths = [self.mbungmbung_path,self.col_path]
+
         self.accompaniment_sounds = self._load_sounds()
         self.kaolack = [1,0,0,0,0,0,1,0,1,0,0,0,1,0,0,0]
-        self.accompaniment = [[1,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0],
-                              [0,0,0,1,0,0,0,0,0,0,0,1,1,0,0,0],
-                              [0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,1],
-                              [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]]
+
+        self.kaolack_accompaniment =   [[[1,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0],  # pax
+                                         [0,0,0,1,0,0,0,0,0,0,0,1,1,0,0,0],  # gin
+                                         [0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,1],  # tan
+                                         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]], # tet
+
+                                        [[0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0],  # pax 4
+                                         [1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],  # gin 0
+                                         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],  # ran 1
+                                         [0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1],  # tan 2
+                                         [0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0]]] # tet 3
+
         self.lumbuel = [1,0,0,0,1,0,1,0,0,1,0,0]
+        self.lumbuel_accompaniment = [[[0,0,0,0,1,0,0,0,0,0,1,0],
+                                       [0,0,1,0,0,0,0,0,1,0,0,0],
+                                       [1,1,0,0,0,1,1,1,0,0,0,1],
+                                       [0,0,0,0,0,0,0,0,0,0,0,0]],
+
+                                      [[0,0,0,0,0,0,0,0,0,0,0,0],
+                                       [1,0,0,0,0,0,1,0,0,0,0,0],
+                                       [0,0,0,0,0,0,0,0,0,0,0,0],
+                                       [0,0,0,0,0,1,0,0,0,0,0,1],
+                                       [0,1,0,1,0,0,0,1,0,1,0,0]]]
+
         self.metronome_seq = self.kaolack
+        self.accompaniment = self.kaolack_accompaniment
 
 
     def _load_sounds(self):
-        path = self.accompaniment_path
-        sounds = []
-        onlyfiles = [f for f in sorted(listdir(path)) if isfile(join(path, f))]
-        for file in onlyfiles:
-            if file.endswith('.wav'):
-                if file.startswith('.'):
-                    pass
-                else:
-                    sounds.append(Soundy(path+file))
-        for sound in sounds:
-            sound.remove_artifacts()
-            sound.normalize()
-            sound.make_loud()
-        return sounds
+
+        paths = self.accompaniment_paths
+        all_sounds = []
+        for path in paths:
+            sounds = []
+            onlyfiles = [f for f in sorted(listdir(path)) if isfile(join(path, f))]
+            for file in onlyfiles:
+                if file.endswith('.wav'):
+                    if file.startswith('.'):
+                        pass
+                    else:
+                        sounds.append(Soundy(path+file))
+            for sound in sounds:
+                sound.remove_artifacts()
+                sound.normalize()
+                sound.make_loud()
+            all_sounds.append(sounds)
+        return all_sounds
 
     def _update_interval(self, new_bpm):
         self.beat_length = int(60 / new_bpm * 1000)
@@ -62,10 +90,12 @@ class Metronome:
         if self.is_on == 1:
             print("KAOLACK")
             self.metronome_seq = self.kaolack
+            self.accompaniment=self.kaolack_accompaniment
             self._update_meter(4)
         elif self.is_on == 2:
             print("LUMBUEL")
             self.metronome_seq = self.lumbuel
+            self.accompaniment = self.lumbuel_accompaniment
             self._update_meter(3)
         else:
             self._update_meter(4)
@@ -86,16 +116,31 @@ class Metronome:
 
             if(now)<self.last_time:
                 try:
-                    for i,x in enumerate(self.accompaniment):
-                        if self.accompaniment[i][self.current_note]:
-                            if (i==0):
-                                self.accompaniment_sounds[0].play(block=False)
-                            if (i==1):
-                                self.accompaniment_sounds[4].play(block=False)
-                            if (i==2):
-                                self.accompaniment_sounds[2].play(block=False)
-                            if (i==3):
-                                self.accompaniment_sounds[3].play(block=False)
+                    print(len(self.accompaniment))
+                    for i,drum in enumerate(self.accompaniment):
+                        print(drum)
+                        for j,seq in enumerate(drum):
+                            if seq[self.current_note] and i==0:  # mbung mbung
+                                if (j==0):
+                                    self.accompaniment_sounds[i][0].play(block=False)
+                                if (j==1):
+                                    self.accompaniment_sounds[i][4].play(block=False)
+                                if (j==2):
+                                    self.accompaniment_sounds[i][2].play(block=False)
+                                if (j==3):
+                                    self.accompaniment_sounds[i][3].play(block=False)
+                            if seq[self.current_note] and i==1:  # col
+                                if (j==0):
+                                    self.accompaniment_sounds[i][4].play(block=False)
+                                if (j==1):
+                                    self.accompaniment_sounds[i][0].play(block=False)
+                                if (j==2):
+                                    self.accompaniment_sounds[i][1].play(block=False)
+                                if (j==3):
+                                    self.accompaniment_sounds[i][2].play(block=False)
+                                if (j==4):
+                                    self.accompaniment_sounds[i][3].play(block=False)
+
 
                     if self.metronome_seq[self.current_note]:
                         self.sound.play(block=False)
