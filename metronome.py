@@ -48,6 +48,17 @@ class Metronome:
                                        [0,0,0,0,0,0,0,0,0,0,0,0],
                                        [0,0,0,0,0,1,0,0,0,0,0,1],
                                        [0,1,0,1,0,0,0,1,0,1,0,0]]]
+        self.njouk = [1,0,0,0,0,0,1,0,1,0,0,0,1,0,0,0]
+        self.njouk_accompaniment = [[[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],  # pax
+                                     [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],  # gin
+                                     [0,0,0,0,0,1,0,1,0,0,0,1,0,0,0,0],  # tan
+                                     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]], # tet
+
+                                    [[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],  # pax 4
+                                     [1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],  # gin 0
+                                     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],  # ran 1
+                                     [0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0],  # tan 2
+                                     [0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0]]] # tet 3
 
         self.metronome_seq = self.kaolack
         self.accompaniment = self.kaolack_accompaniment
@@ -86,7 +97,7 @@ class Metronome:
 
 
     def switch(self):
-        self.is_on = (self.is_on + 1) % 3
+        self.is_on = (self.is_on + 1) % 4
         if self.is_on == 1:
             print("KAOLACK")
             self.metronome_seq = self.kaolack
@@ -97,6 +108,10 @@ class Metronome:
             self.metronome_seq = self.lumbuel
             self.accompaniment = self.lumbuel_accompaniment
             self._update_meter(3)
+        elif self.is_on == 3:
+            self.metronome_seq = self.njouk
+            self.accompaniment = self.njouk_accompaniment
+            self._update_meter(4)
         else:
             self._update_meter(4)
 
