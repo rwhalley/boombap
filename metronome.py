@@ -22,8 +22,9 @@ class Metronome:
         self.col_path = str(Path(__file__).parent / 'samples/')+'/1/'
         self.nder_path = str(Path(__file__).parent / 'samples/')+'/0/'
         self.accompaniment_paths = [self.mbungmbung_path,self.col_path]
-
         self.accompaniment_sounds = self._load_sounds()
+        self.mbungmbung_volume = 128
+        self.col_volume = 128
         self.kaolack = [1,0,0,0,0,0,1,0,1,0,0,0,1,0,0,0]
 
         self.kaolack_accompaniment =   [[[1,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0],  # pax
@@ -33,8 +34,8 @@ class Metronome:
 
                                         [[0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0],  # pax 4
                                          [1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],  # gin 0
-                                         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],  # ran 1
-                                         [0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1],  # tan 2
+                                         [0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0],  # ran 1
+                                         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],  # tan 2
                                          [0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0]]] # tet 3
 
         self.lumbuel = [1,0,0,0,1,0,1,0,0,1,0,0]
@@ -49,17 +50,23 @@ class Metronome:
                                        [0,0,0,0,0,1,0,0,0,0,0,1],
                                        [0,1,0,1,0,0,0,1,0,1,0,0]]]
         self.njouk = [1,0,0,0,0,0,1,0,1,0,0,0,1,0,0,0]
-        self.njouk_accompaniment = [[[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],  # pax
-                                     [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],  # gin
-                                     [0,0,0,0,0,1,0,1,0,0,0,1,0,0,0,0],  # tan
+        self.njouk_accompaniment = [[[0,0,0,0,0,0,1,0,0,1,0,0,0,0,1,0],  # pax
+                                     [1,0,0,1,0,0,0,0,1,0,0,1,0,0,0,0],  # gin
+                                     [0,0,1,0,1,0,0,1,0,0,1,0,1,0,0,1],  # tan
                                      [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]], # tet
 
                                     [[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],  # pax 4
-                                     [1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],  # gin 0
+                                     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],  # gin 0
                                      [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],  # ran 1
-                                     [0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0],  # tan 2
-                                     [0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0]]] # tet 3
+                                     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],  # tan 2
+                                     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]]] # tet 3
 
+
+        self.nothing=              [[[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],  # pax 4
+                                     [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],  # gin 0
+                                     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],  # ran 1
+                                     [0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1],  # tan 2
+                                     [0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0]]] # tet 3
         self.metronome_seq = self.kaolack
         self.accompaniment = self.kaolack_accompaniment
 
@@ -109,6 +116,7 @@ class Metronome:
             self.accompaniment = self.lumbuel_accompaniment
             self._update_meter(3)
         elif self.is_on == 3:
+            print("NJOUK")
             self.metronome_seq = self.njouk
             self.accompaniment = self.njouk_accompaniment
             self._update_meter(4)
@@ -116,7 +124,9 @@ class Metronome:
             self._update_meter(4)
 
 
-
+    def update_volume(self,drum,volume):
+        for sound in self.accompaniment_sounds[drum]:
+            sound.set_volume(volume)
 
     def set_bpm(self,input):
         self.wait = True
@@ -135,6 +145,8 @@ class Metronome:
                     for i,drum in enumerate(self.accompaniment):
                         print(drum)
                         for j,seq in enumerate(drum):
+                            if seq[self.current_note] == 2:  # grace note
+                                time.sleep((self.note_length/1000.)*0.80)
                             if seq[self.current_note] and i==0:  # mbung mbung
                                 if (j==0):
                                     self.accompaniment_sounds[i][0].play(block=False)
