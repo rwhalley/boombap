@@ -141,9 +141,9 @@ class Metronome:
 
             if(now)<self.last_time:
                 try:
-                    print(len(self.accompaniment))
+                    #print(len(self.accompaniment))
                     for i,drum in enumerate(self.accompaniment):
-                        print(drum)
+                        #print(drum)
                         for j,seq in enumerate(drum):
                             if seq[self.current_note] == 2:  # grace note
                                 time.sleep((self.note_length/1000.)*0.80)

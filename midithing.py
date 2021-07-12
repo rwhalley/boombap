@@ -64,8 +64,9 @@ class MidiControl:
         try:
             #print('ON: ', midi.getMidiNoteName(midi.getNoteNumber()), midi.getVelocity())
             note = midi.getNoteNumber()
+            #print(f"note = {note}")
 
-            #print(note)
+
             if midi.isNoteOn():
 
                 if note != 22 and note !=23 and note!=26 and note != 24:
@@ -99,6 +100,7 @@ class MidiControl:
 
 
 
+
             elif midi.isNoteOff():
                 #print('OFF:', midi.getMidiNoteName(midi.getNoteNumber()))
                 i = midi.getNoteNumber()-36
@@ -107,6 +109,7 @@ class MidiControl:
                 if note ==25:
                     self.switch_vol_sens()
             elif midi.isController():
+                #print(f"controller = {midi.getControllerValue()}")
                 if(midi.getNoteNumber() == 10):
                     for sound in self.sounds:
                         factor = 1.5 - midi.getControllerValue()/128.
@@ -118,6 +121,12 @@ class MidiControl:
 
                 elif note == 6:
                     self.metronome.set_bpm(midi.getControllerValue()/128.)
+                elif note == 0:  # mbungmbung volume
+                    drum = 0
+                    self.metronome.update_volume(drum,midi.getControllerValue())
+                elif note == 1:  # col volume
+                    drum = 1
+                    self.metronome.update_volume(drum,midi.getControllerValue())
 
 
                 #print('CONTROLLER', midi.getControllerNumber(), midi.getControllerValue())
