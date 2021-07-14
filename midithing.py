@@ -67,7 +67,7 @@ class MidiControl:
 
     def adjust_volume(self, turn_up):
         try:
-            m = alsaaudio.Mixer()
+            m = alsaaudio.Mixer('PCM')
             current_volume = m.getvolume()
             if turn_up:
                 m.setvolume(current_volume+10)
