@@ -71,15 +71,14 @@ class MidiControl:
         current_volume = m.getvolume()
         print(current_volume)
         if turn_up:
-            new_volume = []
-            for num in current_volume:
-                new_volume.append(num+10)
-            m.setvolume(new_volume)
+            new_volume = current_volume[0]+10
         else:
-            new_volume = []
-            for num in current_volume:
-                new_volume.append(num-10)
-            m.setvolume(new_volume)
+            new_volume = current_volume[0]-10
+        if new_volume<0:
+            new_volume = 0
+        elif new_volume>100:
+            new_volume = 100
+        m.setvolume(new_volume)
 
 
     def print_message(self,midi):
