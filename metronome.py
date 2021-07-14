@@ -149,8 +149,11 @@ class Metronome:
                         #print(drum)
                         for j,seq in enumerate(drum):
                             if seq[self.current_note] == 2:  # grace note
-                                self.offset = 0.25*self.note_length
-                                return
+                                if not self.offset:
+                                    self.offset = 0.25*self.note_length
+                                    return
+                                else:
+                                    pass
                             if seq[self.current_note] and i==0:  # mbung mbung
                                 if (j==0):
                                     self.accompaniment_sounds[i][0].play(block=False)
