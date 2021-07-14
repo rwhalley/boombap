@@ -139,7 +139,7 @@ class Metronome:
 
     def get_time(self):
         if self.is_on:
-            now = int(round(time.time() * 1000))%self.note_length - self.offset
+            now = int(round(time.time() * 1000))%(self.note_length - self.offset)
             print(now)
 
             if(now)<self.last_time:
@@ -149,7 +149,7 @@ class Metronome:
                         #print(drum)
                         for j,seq in enumerate(drum):
                             if seq[self.current_note] == 2:  # grace note
-                                self.offset = 0.75*self.note_length
+                                self.offset = 0.25*self.note_length
                                 return
                             if seq[self.current_note] and i==0:  # mbung mbung
                                 if (j==0):
