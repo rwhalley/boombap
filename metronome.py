@@ -139,7 +139,7 @@ class Metronome:
 
     def get_time(self):
         if self.is_on:
-            now = int(round(time.time() * 1000))%(self.note_length - self.offset)
+            now = int(round(time.time() * 1000))%(self.note_length + self.offset)
             print(now)
 
             if(now)<self.last_time:
