@@ -66,16 +66,15 @@ class MidiControl:
         print(self.VOL_SENS)
 
     def adjust_volume(self, turn_up):
-        try:
-            m = alsaaudio.Mixer('PCM')
-            current_volume = m.getvolume()
-            if turn_up:
-                m.setvolume(current_volume+10)
-            else:
-                m.setvolume(current_volume-10)
-            print("adjusted volume")
-        except:
-            print("Can't Adjust Volume - Linux Only")
+
+        m = alsaaudio.Mixer()
+        current_volume = m.getvolume()
+        print(current_volume)
+        if turn_up:
+            m.setvolume(current_volume+10)
+        else:
+            m.setvolume(current_volume-10)
+
 
     def print_message(self,midi):
         try:
