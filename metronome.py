@@ -4,6 +4,7 @@ from pathlib import Path
 from os import listdir
 from os.path import isfile, join
 
+
 class Metronome:
     def __init__(self, bpm=120, path=None):
         self.is_on = False
@@ -146,7 +147,7 @@ class Metronome:
                         #print(drum)
                         for j,seq in enumerate(drum):
                             if seq[self.current_note] == 2:  # grace note
-                                time.sleep((self.note_length/1000.)*0.80)
+                                time.sleep((self.note_length/1000.)*0.75)
                             if seq[self.current_note] and i==0:  # mbung mbung
                                 if (j==0):
                                     self.accompaniment_sounds[i][0].play(block=False)
