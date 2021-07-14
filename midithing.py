@@ -7,6 +7,11 @@ from threading import Thread
 from metronome import Metronome
 import sys
 from pathlib import Path
+try:
+    import alsaaudio
+    print("Linux OS")
+except:
+    print("Non-Linux OS")
 
 class MidiControl:
 
@@ -60,6 +65,18 @@ class MidiControl:
         self.VOL_SENS = not self.VOL_SENS
         print(self.VOL_SENS)
 
+    def adjust_volume(self, turn_up):
+        try:
+            m = alsaaudio.Mixer()
+            current_volume = m.getvolume()
+            if turn_up:
+                m.setvolume(current_volume+10)
+            else:
+                m.setvolume(current_volume-10)
+            print("adjusted volume")
+        except:
+            print("Can't Adjust Volume - Linux Only")
+
     def print_message(self,midi):
         try:
             #print('ON: ', midi.getMidiNoteName(midi.getNoteNumber()), midi.getVelocity())
@@ -68,8 +85,8 @@ class MidiControl:
 
 
             if midi.isNoteOn():
-
-                if note != 22 and note !=23 and note!=26 and note != 24:
+                print(note)
+                if note != 22 and note !=23 and note!=26 and note != 24 and note != 20 and note != 21:
                     i = note-36
                     if self.current_bank < 3:
                         for sound in self.sounds:
@@ -97,6 +114,10 @@ class MidiControl:
                             self.current_bank += 1
                     elif note ==24:
                         sys.exit()
+                    elif note == 20:
+                        self.adjust_volume(True)  # Turn Volume Up
+                    elif note == 21:
+                        self.adjust_volume(False)  #Turn Volume Down
 
 
 
