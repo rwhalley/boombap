@@ -93,7 +93,7 @@ class MidiControl:
                 #if note != 22 and note !=23 and note!=26 and note != 24 and note != 20 and note != 21:
                 try:
                     i = note-36
-                    if i<=1:
+                    if i<0:
                         raise IndexError
                     if self.current_bank < 3:
                         for sound in self.sounds:
