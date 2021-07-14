@@ -17,6 +17,7 @@ class Metronome:
         self.note_length = int(self.beat_length / 4)
         self.last_time = 0
         self.current_note = 0
+        self.offset = 0
         self.current_beat = 0
         self.sound = Soundy(path)
         self.mbungmbung_path = str(Path(__file__).parent / 'samples/')+'/2/'
@@ -138,7 +139,7 @@ class Metronome:
 
     def get_time(self):
         if self.is_on:
-            now = int(round(time.time() * 1000))%self.note_length
+            now = int(round(time.time() * 1000))%self.note_length - self.offset
 
             if(now)<self.last_time:
                 try:
@@ -147,7 +148,8 @@ class Metronome:
                         #print(drum)
                         for j,seq in enumerate(drum):
                             if seq[self.current_note] == 2:  # grace note
-                                time.sleep((self.note_length/1000.)*0.75)
+                                self.offset = 0.75*self.note_length
+                                return
                             if seq[self.current_note] and i==0:  # mbung mbung
                                 if (j==0):
                                     self.accompaniment_sounds[i][0].play(block=False)
@@ -168,7 +170,7 @@ class Metronome:
                                     self.accompaniment_sounds[i][2].play(block=False)
                                 if (j==4):
                                     self.accompaniment_sounds[i][3].play(block=False)
-
+                            self.offset = 0
 
                     if self.metronome_seq[self.current_note]:
                         self.sound.play(block=False)

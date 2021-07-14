@@ -66,26 +66,28 @@ class MidiControl:
         #print(self.VOL_SENS)
 
     def adjust_volume(self, turn_up):
-
-        m = alsaaudio.Mixer()
-        current_volume = m.getvolume()
-        #print(current_volume)
-        if turn_up:
-            new_volume = current_volume[0]+10
-        else:
-            new_volume = current_volume[0]-10
-        if new_volume<0:
-            new_volume = 0
-        elif new_volume>100:
-            new_volume = 100
-        m.setvolume(new_volume)
+        try:
+            m = alsaaudio.Mixer()
+            current_volume = m.getvolume()
+            #print(current_volume)
+            if turn_up:
+                new_volume = current_volume[0]+10
+            else:
+                new_volume = current_volume[0]-10
+            if new_volume<0:
+                new_volume = 0
+            elif new_volume>100:
+                new_volume = 100
+            m.setvolume(new_volume)
+        except ImportError:
+            print("Volume Adjustment Not Available for Non-Linux")
 
 
     def print_message(self,midi):
         try:
-            #print('ON: ', midi.getMidiNoteName(midi.getNoteNumber()), midi.getVelocity())
+            print('ON: ', midi.getMidiNoteName(midi.getNoteNumber()), midi.getVelocity())
             note = midi.getNoteNumber()
-            #print(f"note = {note}")
+            print(f"note = {note}")
 
 
             if midi.isNoteOn():
