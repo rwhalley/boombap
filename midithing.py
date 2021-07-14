@@ -63,13 +63,13 @@ class MidiControl:
 
     def switch_vol_sens(self):
         self.VOL_SENS = not self.VOL_SENS
-        print(self.VOL_SENS)
+        #print(self.VOL_SENS)
 
     def adjust_volume(self, turn_up):
 
         m = alsaaudio.Mixer()
         current_volume = m.getvolume()
-        print(current_volume)
+        #print(current_volume)
         if turn_up:
             new_volume = current_volume[0]+10
         else:
@@ -89,8 +89,9 @@ class MidiControl:
 
 
             if midi.isNoteOn():
-                print(note)
-                if note != 22 and note !=23 and note!=26 and note != 24 and note != 20 and note != 21:
+                #print(note)
+                #if note != 22 and note !=23 and note!=26 and note != 24 and note != 20 and note != 21:
+                try:
                     i = note-36
                     if self.current_bank < 3:
                         for sound in self.sounds:
@@ -101,7 +102,7 @@ class MidiControl:
                         self.sounds[i].set_volume(128)
                     self.sounds[i].play(block=False)
 
-                else:
+                except:
                     if note == 26:
                         self.metronome.switch()
                     elif note == 22:
