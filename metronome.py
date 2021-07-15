@@ -21,6 +21,7 @@ class Metronome:
         self.offset = 0
         self.current_beat = 0
         self.sound = Soundy(path)
+        self.grace_note_active = False
         self.mbungmbung_path = str(Path(__file__).parent / 'samples/')+'/2/'
         self.col_path = str(Path(__file__).parent / 'samples/')+'/1/'
         self.nder_path = str(Path(__file__).parent / 'samples/')+'/0/'
