@@ -3,6 +3,7 @@ from soundy_pygame import Soundy
 from pathlib import Path
 from os import listdir
 from os.path import isfile, join
+import threading
 
 
 class Metronome:
@@ -137,11 +138,11 @@ class Metronome:
         self.bpm = new_bpm
         self._update_interval(new_bpm)
 
+
+
     def get_time(self):
         if self.is_on:
-            now = int(round(time.time() * 1000))%(self.note_length + self.offset)
-            print(now)
-            print(f"offset + {self.offset}")
+            now = int(round(time.time() * 1000))%(self.note_length)
 
             if(now)<self.last_time:
                 try:
@@ -150,12 +151,13 @@ class Metronome:
                         #print(drum)
                         for j,seq in enumerate(drum):
                             if seq[self.current_note] == 2:  # grace note
-                                if self.offset < 0:
-                                    self.offset = int(0.25*self.note_length)
-                                    return
-                                else:
-                                    self.offset = -int(0.25*self.note_length)
-                                    pass
+                               t0 = time.time()
+                               t1 = time.time()
+                               len = (self.note_length/1000.)*0.75
+                               while (t1-t0)>len:
+                                   t1 = time.time()
+
+
                             if seq[self.current_note] and i==0:  # mbung mbung
                                 if (j==0):
                                     self.accompaniment_sounds[i][0].play(block=False)
