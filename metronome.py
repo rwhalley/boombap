@@ -151,7 +151,7 @@ class Metronome:
                         for j,seq in enumerate(drum):
                             if seq[self.current_note] == 2:  # grace note
                                 if self.offset == 0:
-                                    self.offset = 0#int(0.25*self.note_length)
+                                    self.offset = int(0.5*self.note_length)
                                     return
                                 else:
                                     self.offset = 0
