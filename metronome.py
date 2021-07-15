@@ -154,8 +154,9 @@ class Metronome:
                                t0 = time.time()
                                t1 = time.time()
                                len = (self.note_length/1000.)*0.75
-                               while (t1-t0)>len:
+                               while (t1-t0)<len:
                                    t1 = time.time()
+
 
 
                             if seq[self.current_note] and i==0:  # mbung mbung
