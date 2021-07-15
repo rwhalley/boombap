@@ -35,7 +35,8 @@ class MidiControl:
             print("Opening port 0!")
             midiin.openPort(0)
             while True:
-                self.metronome.get_time()
+                x = Thread(self.metronome.get_time())
+                x.start()
                 m = midiin.getMessage(10) # some timeout in ms
                 if m:
                     self.print_message(m)
