@@ -163,13 +163,13 @@ class Metronome:
                     for i,seq in enumerate(self.accompaniment[0]):
                         if seq[self.current_note]:  # mbung mbung
                             if (i==0):
-                                self.accompaniment_sounds[i][0].play(block=False)
+                                self.accompaniment_sounds[0][0].play(block=False)
                             if (i==1):
-                                self.accompaniment_sounds[i][4].play(block=False)
+                                self.accompaniment_sounds[0][4].play(block=False)
                             if (i==2):
-                                self.accompaniment_sounds[i][2].play(block=False)
+                                self.accompaniment_sounds[0][2].play(block=False)
                             if (i==3):
-                                self.accompaniment_sounds[i][3].play(block=False)
+                                self.accompaniment_sounds[0][3].play(block=False)
 
 
             # If Grace note active
@@ -179,13 +179,13 @@ class Metronome:
                     for i,seq in enumerate(self.accompaniment[0]):
                         if seq[self.current_note]:  # mbung mbung
                             if (i==0):
-                                self.accompaniment_sounds[i][0].play(block=False)
+                                self.accompaniment_sounds[0][0].play(block=False)
                             if (i==1):
-                                self.accompaniment_sounds[i][4].play(block=False)
+                                self.accompaniment_sounds[0][4].play(block=False)
                             if (i==2):
-                                self.accompaniment_sounds[i][2].play(block=False)
+                                self.accompaniment_sounds[0][2].play(block=False)
                             if (i==3):
-                                self.accompaniment_sounds[i][3].play(block=False)
+                                self.accompaniment_sounds[0][3].play(block=False)
                     self.grace_note_active = False
 
             self.last_time = now
