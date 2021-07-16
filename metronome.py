@@ -160,10 +160,10 @@ class Metronome:
                 ### MBUNG MBUNG ###
                 if i==0:
                     if (state=="normal" and j == self.grace_note_active):
-                        print("SKIP MBUNG")
+                        #print("SKIP MBUNG")
                         pass
                     elif(state == "normal" and place != 0 and j != self.grace_note_active):
-                        print("PLAY NOTES")
+                        #print("PLAY NOTES")
                         for sound in self.accompaniment_sounds[i]:
                             sound.stop()
                         if (j==0):
@@ -176,7 +176,7 @@ class Metronome:
                             self.accompaniment_sounds[i][3].play(block=False)
 
                     elif (state=="grace" and i==0 and j==self.grace_note_active):
-                        print("PLAY GRACE NOTES")
+                        #print("PLAY GRACE NOTES")
                         for sound in self.accompaniment_sounds[i]:
                             sound.stop()
                         if (j==0):
@@ -192,10 +192,10 @@ class Metronome:
                 ### COL ###
                 if i==1:
                     if (state=="normal" and j == self.col_grace_seq):
-                        print("SKIP COL")
+                        #print("SKIP COL")
                         pass
                     elif (state=="normal" and place != 0 and j != self.col_grace_seq):
-                        print("PLAY COL")
+                        #print("PLAY COL")
                         for sound in self.accompaniment_sounds[i]:
                             sound.stop()
                         if (j==0):
@@ -223,7 +223,7 @@ class Metronome:
                         if (j==4):
                             self.accompaniment_sounds[i][3].play(block=False)
                         self.col_grace_seq = -1
-                        print("PLAY COL GRACE")
+                        #print("PLAY COL GRACE")
 
 
 
@@ -277,13 +277,13 @@ class Metronome:
                 if True:
                     if self.bpm<self.grace_BPM_thresh:
                         if (grace and self.grace_note_active>=0) :
-                            print("Grace")
+                            #print("Grace")
 
                             self.play_accompaniment("grace")
                             self.grace_note_active = -1
 
                         if (grace and self.col_grace_seq >=0):
-                            print("Col Grace")
+                            #print("Col Grace")
                             self.play_accompaniment("col_grace")
 
                             self.col_grace_seq = -1

@@ -98,7 +98,7 @@ class MidiControl:
                     i = note-36
                     if i<0:
                         raise IndexError
-                    if self.current_bank < 3:
+                    if self.current_bank < 4:
                         for sound in self.sounds:
                             sound.stop()
                     if self.VOL_SENS:
@@ -135,7 +135,7 @@ class MidiControl:
             elif midi.isNoteOff():
                 #print('OFF:', midi.getMidiNoteName(midi.getNoteNumber()))
                 i = midi.getNoteNumber()-36
-                if self.current_bank > 2:
+                if self.current_bank > 3:
                     self.sounds[i].stop()
                 if note ==25:
                     self.switch_vol_sens()
