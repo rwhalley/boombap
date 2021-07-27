@@ -4,6 +4,8 @@ from pathlib import Path
 from os import listdir
 from os.path import isfile, join
 import threading
+from midiout import MIDIPlayer
+from midi_recorder import MIDIRecorder
 
 
 class Metronome:
@@ -77,6 +79,8 @@ class Metronome:
                                      [0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0]]] # tet 3
         self.metronome_seq = self.kaolack
         self.accompaniment = self.kaolack_accompaniment
+        self.midi_player = MIDIPlayer()
+        self.midi_recorder = MIDIRecorder()
 
 
     def _load_sounds(self):
@@ -263,6 +267,15 @@ class Metronome:
                 #         self.accompaniment_sounds[i][3].play(block=False)
                 #     self.grace_note_active = False
 
+
+    def get_position(self):
+        "Get float 0 to 1 that represents current position in bar."
+        pos = 0
+        normalizer = float(self.max_beats*self.notes_per_beat)
+        now = int(round(time.time() * 1000))%(self.note_length)
+        micro_pos = now/float(self.note_length)
+        pos = (self.current_note + micro_pos) / normalizer
+        return pos
 
     def get_time(self):
         try:
