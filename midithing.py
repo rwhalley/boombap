@@ -1,5 +1,5 @@
 #!/usr/bin/python
-import rtmidi
+import rtmidi as rtmidi
 from soundy_pygame import Soundy
 from os import listdir
 from os.path import isfile, join
@@ -7,6 +7,9 @@ from threading import Thread
 from metronome import Metronome
 import sys
 from pathlib import Path
+
+from midiparse import MIDIParse as mp
+
 try:
     import alsaaudio
     print("Linux OS")
@@ -27,17 +30,17 @@ class MidiControl:
         self.VOL_SENS = False
 
 
-        midiin = rtmidi.RtMidiIn()
-        ports = range(midiin.getPortCount())
+        midiin = rtmidi.MidiIn()
+        ports = midiin.get_ports()
         if ports:
-            for i in ports:
-                print(midiin.getPortName(i))
+            for i,port in enumerate(ports):
+                print(midiin.get_port_name(i))
             print("Opening port 0!")
-            midiin.openPort(0)
+            midiin.open_port(0)
             while True:
                 self.metronome.get_time()
 
-                m = midiin.getMessage(10) # some timeout in ms
+                m = midiin.get_message() # some timeout in ms
                 if m:
                     self.print_message(m)
         else:
@@ -86,13 +89,11 @@ class MidiControl:
 
     def print_message(self,midi):
         try:
-            print('ON: ', midi.getMidiNoteName(midi.getNoteNumber()), midi.getVelocity())
-            note = midi.getNoteNumber()
+            note = mp.getNoteNumber(midi)
             print(f"note = {note}")
 
 
-            if midi.isNoteOn():
-                #print(note)
+            if mp.isNoteOn(midi):
                 #if note != 22 and note !=23 and note!=26 and note != 24 and note != 20 and note != 21:
                 try:
                     i = note-36
@@ -102,7 +103,7 @@ class MidiControl:
                         for sound in self.sounds:
                             sound.stop()
                     if self.VOL_SENS:
-                        self.sounds[i].set_volume(midi.getVelocity())
+                        self.sounds[i].set_volume(mp.getVelocity(midi))
                     else:
                         self.sounds[i].set_volume(128)
                     self.sounds[i].play(block=False)
@@ -132,18 +133,18 @@ class MidiControl:
 
 
 
-            elif midi.isNoteOff():
+            elif mp.isNoteOff(midi):
                 #print('OFF:', midi.getMidiNoteName(midi.getNoteNumber()))
-                i = midi.getNoteNumber()-36
+                i = mp.getNoteNumber(midi)-36
                 if self.current_bank > 3:
                     self.sounds[i].stop()
                 if note ==25:
                     self.switch_vol_sens()
-            elif midi.isController():
+            elif mp.isController(midi):
                 #print(f"controller = {midi.getControllerValue()}")
                 if(midi.getNoteNumber() == 10):
                     for sound in self.sounds:
-                        factor = 1.5 - midi.getControllerValue()/128.
+                        factor = 1.5 - mp.getControllerValue(midi)/128.
                         print(factor)
                         x = Thread(sound.change_pitch(factor))
                         x.start()
@@ -151,13 +152,13 @@ class MidiControl:
                         sound.make_loud()
 
                 elif note == 6:
-                    self.metronome.set_bpm(midi.getControllerValue()/128.)
+                    self.metronome.set_bpm(mp.getControllerValue(midi)/128.)
                 elif note == 0:  # mbungmbung volume
                     drum = 0
-                    self.metronome.update_volume(drum,midi.getControllerValue())
+                    self.metronome.update_volume(drum,mp.getControllerValue(midi))
                 elif note == 1:  # col volume
                     drum = 1
-                    self.metronome.update_volume(drum,midi.getControllerValue())
+                    self.metronome.update_volume(drum,mp.getControllerValue(midi))
 
 
                 #print('CONTROLLER', midi.getControllerNumber(), midi.getControllerValue())
