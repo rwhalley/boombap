@@ -94,7 +94,15 @@ class MidiControl:
 
 
             if mp.isNoteOn(midi):
+                # try:
+                #     if self.metronome.midi_recorder.RECORD:
+                #         self.metronome.midi_recorder.add_entry(midi)
+                #     print("ADDED")
+                #     print(self.metronome.midi_recorder.my_loop)
+                # except:
+                #     pass
                 #if note != 22 and note !=23 and note!=26 and note != 24 and note != 20 and note != 21:
+
                 try:
                     i = note-36
                     if i<0:
@@ -110,6 +118,7 @@ class MidiControl:
 
                 except:
                     if note == 26:
+                        #self.metronome.midi_player.play_note(midi)
                         self.metronome.switch()
                     elif note == 22:
                         self.current_bank += 1
@@ -124,6 +133,10 @@ class MidiControl:
                         except FileNotFoundError:
                             self.current_bank += 1
                     elif note ==24:
+                        try:
+                            self.metronome.midi_player.cleanup()
+                        except:
+                            pass
                         sys.exit()
                     elif note == 20:
                         self.adjust_volume(True)  # Turn Volume Up
@@ -134,7 +147,13 @@ class MidiControl:
 
 
             elif mp.isNoteOff(midi):
-                #print('OFF:', midi.getMidiNoteName(midi.getNoteNumber()))
+                # try:
+                #     if self.metronome.midi_recorder.RECORD:
+                #         self.metronome.midi_recorder.add_entry(midi)
+                #     print("ADDED")
+                #     print(self.metronome.midi_recorder.my_loop)
+                # except:
+                #     pass
                 i = mp.getNoteNumber(midi)-36
                 if self.current_bank > 3:
                     self.sounds[i].stop()

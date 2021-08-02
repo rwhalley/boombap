@@ -9,7 +9,7 @@ from midi_recorder import MIDIRecorder
 
 
 class Metronome:
-    def __init__(self, bpm=120, path=None):
+    def __init__(self, bpm=100, path=None):
         self.is_on = False
         self.bpm = bpm
         self.beat_length = int(60 / self.bpm * 1000)
@@ -79,8 +79,14 @@ class Metronome:
                                      [0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0]]] # tet 3
         self.metronome_seq = self.kaolack
         self.accompaniment = self.kaolack_accompaniment
+        self.midi_player = None
+        self.midi_recorder = None
         self.midi_player = MIDIPlayer()
-        self.midi_recorder = MIDIRecorder()
+        print("START MIDIPLAYER")
+        self.midi_recorder = MIDIRecorder(self)
+        print("START RECORDER")
+
+
 
 
     def _load_sounds(self):
@@ -127,6 +133,8 @@ class Metronome:
             self.metronome_seq = self.lumbuel
             self.accompaniment = self.lumbuel_accompaniment
             self._update_meter(3)
+            self.midi_recorder.start_record()
+
         elif self.is_on == 3:
             print("NJOUK")
             self.metronome_seq = self.njouk
@@ -283,6 +291,27 @@ class Metronome:
                 now = int(round(time.time() * 1000))%(self.note_length)
                 normal = now < self.last_time
                 grace = now > (int(0.50*self.note_length))
+
+                # if(len(self.midi_recorder.my_loop)>0):
+                #     current_pos = self.get_position()
+                #     #print(f"current pos {current_pos}")
+                #     for entry in self.midi_recorder.my_loop:
+                #         midi = entry[1][0]
+                #         entry_pos = entry[0]
+                #         #print(f"entry pos {entry_pos}")
+                #         prox = abs((current_pos-entry_pos))
+                #         #print(f"prox {prox}")
+                #         if prox < 0.05:
+                #             self.midi_player.play_note(midi)
+
+
+                    #midi = self.midi_recorder.my_loop[0][1][0]
+                # if len(self.midi_recorder.my_loop)>0:
+                #    print("PLAY LOOP")
+                #     midis = self.midi_recorder.play_loop(1,self.get_position())
+                #     for midi in midis:
+                #         self.midi_player.play_note(midi)
+                #     self.midi_recorder.add_entry(midi)
 
                 if normal:
                     if self.metronome_seq[self.current_note]:
