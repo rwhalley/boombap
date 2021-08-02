@@ -90,17 +90,19 @@ class MidiControl:
     def print_message(self,midi):
         try:
             note = mp.getNoteNumber(midi)
-            print(f"note = {note}")
+            #print(f"note = {note}")
 
 
             if mp.isNoteOn(midi):
-                # try:
-                #     if self.metronome.midi_recorder.RECORD:
-                #         self.metronome.midi_recorder.add_entry(midi)
-                #     print("ADDED")
-                #     print(self.metronome.midi_recorder.my_loop)
-                # except:
-                #     pass
+                try:
+                    if self.metronome.midi_recorder.RECORD:
+                        self.metronome.midi_recorder.add_entry(midi)
+                        print("ADDED")
+                        print(self.metronome.midi_recorder.my_loop)
+                except:
+                    pass
+
+
                 #if note != 22 and note !=23 and note!=26 and note != 24 and note != 20 and note != 21:
 
                 try:

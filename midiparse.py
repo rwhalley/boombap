@@ -30,7 +30,6 @@ class MIDIParse:
 
     @staticmethod
     def getControllerValue(msg):
-        print(msg)
         return msg[0][2]
 
     @staticmethod

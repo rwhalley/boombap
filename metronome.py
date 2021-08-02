@@ -97,6 +97,8 @@ class Metronome:
         print("START MIDIPLAYER")
         self.midi_recorder = MIDIRecorder(self)
         print("START RECORDER")
+        self.loop_whitelist = []
+        self.last_pos = 0
 
 
 
@@ -140,13 +142,13 @@ class Metronome:
             self.metronome_seq = self.kaolack
             self.accompaniment=self.kaolack_accompaniment
             self._update_meter(4)
+            self.midi_recorder.start_record()
+
         elif self.is_on == 2:
             print("LUMBUEL")
             self.metronome_seq = self.lumbuel
             self.accompaniment = self.lumbuel_accompaniment
             self._update_meter(3)
-            #self.midi_recorder.start_record()
-
         elif self.is_on == 3:
             print("NJOUK")
             self.metronome_seq = self.njouk
@@ -309,20 +311,39 @@ class Metronome:
                 normal = now < self.last_time
                 grace = now > (int(0.50*self.note_length))
 
-                # if(len(self.midi_recorder.my_loop)>0):
-                #     current_pos = self.get_position()
-                #     #print(f"current pos {current_pos}")
-                #     for entry in self.midi_recorder.my_loop:
-                #         midi = entry[1][0]
-                #         entry_pos = entry[0]
-                #         #print(f"entry pos {entry_pos}")
-                #         prox = abs((current_pos-entry_pos))
-                #         #print(f"prox {prox}")
-                #         if prox < 0.05:
-                #             self.midi_player.play_note(midi)
+                ### --- MIDI LOoPER ---
+                current_pos = self.get_position()
+                if(len(self.midi_recorder.my_loop)>0):
+                    #print(f"current pos {current_pos}")
+
+                    for i, entry in enumerate(self.midi_recorder.my_loop):
+                        midi = entry[1][0]
+                        entry_pos = entry[0]
+                        #print(f"entry pos {entry_pos}")
+                        if (current_pos > entry_pos) and not (i in self.loop_whitelist):
+                            print("WOO")
+                            self.loop_whitelist.append(i)
+                            self.midi_player.play_note(midi)
+
+
+
+                    if self.last_pos > 0.9 and current_pos < 0.1:  # loop has ended
+                        print(f"current_pos {current_pos}")
+                        print(f"last pos {self.last_pos}")
+                        print("ENDLOOP")
+                        self.loop_whitelist = []  # clear loop whitelist
+                self.last_pos = current_pos
+
+                # --- End MIDI looper ---
+
+                        #prox = abs((current_pos-entry_pos))
+                        #print(f"prox {prox}")
+                        #if prox < 0.05:
+                            #self.midi_player.play_note(midi)
 
 
                     #midi = self.midi_recorder.my_loop[0][1][0]
+
                 # if len(self.midi_recorder.my_loop)>0:
                 #    print("PLAY LOOP")
                 #     midis = self.midi_recorder.play_loop(1,self.get_position())
