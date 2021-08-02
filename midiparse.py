@@ -30,8 +30,9 @@ class MIDIParse:
 
     @staticmethod
     def getControllerValue(msg):
-        return msg[0][1]
+        print(msg)
+        return msg[0][2]
 
     @staticmethod
-    def getTimeSinceLast(self,msg):
+    def getTimeSinceLast(msg):
         return msg[1]

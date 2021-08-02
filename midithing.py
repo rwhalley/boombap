@@ -161,7 +161,7 @@ class MidiControl:
                     self.switch_vol_sens()
             elif mp.isController(midi):
                 #print(f"controller = {midi.getControllerValue()}")
-                if(midi.getNoteNumber() == 10):
+                if(mp.getNoteNumber(midi) == 10):
                     for sound in self.sounds:
                         factor = 1.5 - mp.getControllerValue(midi)/128.
                         print(factor)
@@ -171,6 +171,7 @@ class MidiControl:
                         sound.make_loud()
 
                 elif note == 6:
+                    print(mp.getControllerValue(midi))
                     self.metronome.set_bpm(mp.getControllerValue(midi)/128.)
                 elif note == 0:  # mbungmbung volume
                     drum = 0

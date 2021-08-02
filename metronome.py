@@ -59,7 +59,7 @@ class Metronome:
                                        [0,0,0,0,0,0,0,0,0,0,0,0],
                                        [0,0,0,0,0,1,0,0,0,0,0,1],
                                        [0,1,0,1,0,0,0,1,0,1,0,0]]]
-        self.njouk = [1,0,0,0,0,0,1,0,1,0,0,0,1,0,0,0]
+        self.njouk = self.kaolack  # Same Metronome
         self.njouk_accompaniment = [[[0,0,2,0,0,0,0,0,0,0,2,0,0,0,1,0],  # pax
                                      [1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],  # gin
                                      [0,0,0,1,1,0,1,0,0,0,0,1,1,0,1,0],  # tan
@@ -70,6 +70,18 @@ class Metronome:
                                      [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],  # ran 1
                                      [0,0,1,0,1,0,0,1,0,0,1,0,1,0,0,1],  # tan 2
                                      [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]]] # tet 3
+
+        self.thieboudjeun = self.kaolack # Same Metronome
+        self.thieboudjeun_accompaniment =  [[[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],  # pax
+                                             [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],  # gin
+                                             [0,0,1,1,0,0,1,1,0,0,1,1,0,0,1,1],  # tan
+                                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]], # tet
+
+                                            [[1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],  # pax 4
+                                             [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],  # gin 0
+                                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],  # ran 1
+                                             [0,0,1,0,0,1,0,0,0,0,1,0,0,1,0,0],  # tan 2
+                                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]]] # tet 3
 
 
         self.nothing=              [[[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],  # pax 4
@@ -122,7 +134,7 @@ class Metronome:
 
 
     def switch(self):
-        self.is_on = (self.is_on + 1) % 4
+        self.is_on = (self.is_on + 1) % 5
         if self.is_on == 1:
             print("KAOLACK")
             self.metronome_seq = self.kaolack
@@ -133,12 +145,17 @@ class Metronome:
             self.metronome_seq = self.lumbuel
             self.accompaniment = self.lumbuel_accompaniment
             self._update_meter(3)
-            self.midi_recorder.start_record()
+            #self.midi_recorder.start_record()
 
         elif self.is_on == 3:
             print("NJOUK")
             self.metronome_seq = self.njouk
             self.accompaniment = self.njouk_accompaniment
+            self._update_meter(4)
+        elif self.is_on == 4:
+            print("THIEBOUDJEUN")
+            self.metronome_seq = self.thieboudjeun
+            self.accompaniment = self.thieboudjeun_accompaniment
             self._update_meter(4)
         else:
             self._update_meter(4)
