@@ -9,7 +9,7 @@ from midi_recorder import MIDIRecorder
 
 
 class Metronome:
-    def __init__(self, bpm=100, path=None):
+    def __init__(self,bpm=100, path=None):
         self.is_on = False
         self.bpm = bpm
         self.beat_length = int(60 / self.bpm * 1000)
@@ -324,7 +324,7 @@ class Metronome:
                             print("WOO")
                             self.loop_whitelist.append(i)
                             self.midi_player.play_note(midi)
-
+                            # ---- PLAY NOTE HERE SOMEHOW ---
 
 
                     if self.last_pos > 0.9 and current_pos < 0.1:  # loop has ended

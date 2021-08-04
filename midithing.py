@@ -26,7 +26,7 @@ class MidiControl:
         self.max_bank_size = 16
         self.load_samples()
         self.metronome_path = Path(__file__).parent.resolve() / 'metronome/metronome.wav'
-        self.metronome = Metronome(120,path=self.metronome_path)
+        self.metronome = Metronome(bpm=120,path=self.metronome_path)
         self.VOL_SENS = False
 
 
@@ -90,7 +90,7 @@ class MidiControl:
     def print_message(self,midi):
         try:
             note = mp.getNoteNumber(midi)
-            #print(f"note = {note}")
+            # print(f"note = {note}")
 
 
             if mp.isNoteOn(midi):
