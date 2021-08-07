@@ -315,22 +315,25 @@ class Metronome:
                 current_pos = self.get_position()
                 if(len(self.midi_recorder.my_loop)>0):
                     #print(f"current pos {current_pos}")
-
+                    midis = []
                     for i, entry in enumerate(self.midi_recorder.my_loop):
                         midi = entry[1][0]
                         entry_pos = entry[0]
                         #print(f"entry pos {entry_pos}")
                         if (current_pos > entry_pos) and not (i in self.loop_whitelist):
-                            print("WOO")
+                            #print("WOO")
+                            midis.append(midi)
                             self.loop_whitelist.append(i)
-                            self.midi_player.play_note(midi)
-                            # ---- PLAY NOTE HERE SOMEHOW ---
+
+                    self.midi_player.play_note(midis)
+
+                          # ---- PLAY NOTE HERE SOMEHOW ---
 
 
                     if self.last_pos > 0.9 and current_pos < 0.1:  # loop has ended
-                        print(f"current_pos {current_pos}")
-                        print(f"last pos {self.last_pos}")
-                        print("ENDLOOP")
+                        #print(f"current_pos {current_pos}")
+                        #print(f"last pos {self.last_pos}")
+                        #print("ENDLOOP")
                         self.loop_whitelist = []  # clear loop whitelist
                 self.last_pos = current_pos
 

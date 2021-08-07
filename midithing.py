@@ -94,13 +94,14 @@ class MidiControl:
 
 
             if mp.isNoteOn(midi):
-                try:
-                    if self.metronome.midi_recorder.RECORD:
-                        self.metronome.midi_recorder.add_entry(midi)
-                        print("ADDED")
-                        print(self.metronome.midi_recorder.my_loop)
-                except:
-                    pass
+                if note != 26:
+                    try:
+                        if self.metronome.midi_recorder.RECORD:
+                            self.metronome.midi_recorder.add_entry(midi)
+                            print("ADDED")
+                            print(self.metronome.midi_recorder.my_loop)
+                    except:
+                        pass
 
 
                 #if note != 22 and note !=23 and note!=26 and note != 24 and note != 20 and note != 21:
@@ -149,14 +150,17 @@ class MidiControl:
 
 
             elif mp.isNoteOff(midi):
-                # try:
-                #     if self.metronome.midi_recorder.RECORD:
-                #         self.metronome.midi_recorder.add_entry(midi)
-                #     print("ADDED")
-                #     print(self.metronome.midi_recorder.my_loop)
-                # except:
-                #     pass
-                i = mp.getNoteNumber(midi)-36
+
+                if(note !=26):
+                    try:
+                        if self.metronome.midi_recorder.RECORD:
+                            self.metronome.midi_recorder.add_entry(midi)
+                        print("OFF_ADDED")
+                        print(self.metronome.midi_recorder.my_loop)
+                    except:
+                        pass
+
+                i = note -36
                 if self.current_bank > 3:
                     self.sounds[i].stop()
                 if note ==25:
