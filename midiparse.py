@@ -12,7 +12,11 @@ class MIDIParse:
 
     @staticmethod
     def getNoteNumber(msg):
-        return msg[0][1]
+        try:
+            return msg[0][1]
+        except:
+            return msg[1]
+
 
     @staticmethod
     def isNoteOff(msg):

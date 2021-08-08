@@ -1,6 +1,7 @@
 import time
 import rtmidi
 import threading
+import midiparse as mp
 
 class MIDIPlayer():
 
@@ -12,15 +13,24 @@ class MIDIPlayer():
 
 
 
+
+
     def play_note(self,midis):
-        x = threading.Thread(target=self.play_worker, args=(midis,))
-        x.start()
-        x.join()
+        keyboard = False
+        if keyboard == True:
+            x = threading.Thread(target=self.play_worker, args=(midis,))
+            x.start()
+            x.join()
+
+        else:  # QUNEO
+            pass
+
 
 
     def play_worker(self,midis):
         self.midiout = rtmidi.MidiOut()
         #self.available_ports = self.midiout.get_ports()
+
 
         try:
             self.midiout.open_port(0)
@@ -46,6 +56,9 @@ class MIDIPlayer():
             #     self.midiout.send_message(note_on)
             #     self.triggered = True
         del self.midiout
+
+
+
 
 ## Debug
 #m = MIDIPlayer()

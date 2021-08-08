@@ -9,7 +9,7 @@ from midi_recorder import MIDIRecorder
 
 
 class Metronome:
-    def __init__(self,bpm=100, path=None):
+    def __init__(self,bpm=100, path=None, controller=None):
         self.is_on = False
         self.bpm = bpm
         self.beat_length = int(60 / self.bpm * 1000)
@@ -99,6 +99,8 @@ class Metronome:
         print("START RECORDER")
         self.loop_whitelist = []
         self.last_pos = 0
+        self.controller = controller
+        print(self.controller.return_self())
 
 
 
@@ -325,7 +327,10 @@ class Metronome:
                             midis.append(midi)
                             self.loop_whitelist.append(i)
 
-                    self.midi_player.play_note(midis)
+                    if self.controller.port_name == "QUNEO":
+                        self.controller.play_sound(midis,False)
+                    else:
+                        self.midi_player.play_note(midis)
 
                           # ---- PLAY NOTE HERE SOMEHOW ---
 

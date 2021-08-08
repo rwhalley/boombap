@@ -26,8 +26,10 @@ class MidiControl:
         self.max_bank_size = 16
         self.load_samples()
         self.metronome_path = Path(__file__).parent.resolve() / 'metronome/metronome.wav'
-        self.metronome = Metronome(bpm=120,path=self.metronome_path)
+        self.metronome = Metronome(bpm=120,path=self.metronome_path, controller=self)
         self.VOL_SENS = False
+        self.port_name = None
+
 
 
         midiin = rtmidi.MidiIn()
@@ -35,6 +37,8 @@ class MidiControl:
         if ports:
             for i,port in enumerate(ports):
                 print(midiin.get_port_name(i))
+
+            self.port_name = ports[0]
             print("Opening port 0!")
             midiin.open_port(0)
             while True:
@@ -46,7 +50,9 @@ class MidiControl:
         else:
             print('NO MIDI INPUT PORTS!')
 
-
+    def return_self(self):
+        print("RETURNING SELF")
+        return self
 
     def load_samples(self):
         path = self.basepath + str(self.current_bank)+'/'
@@ -86,6 +92,27 @@ class MidiControl:
         except ImportError:
             print("Volume Adjustment Not Available for Non-Linux")
 
+    def play_sound(self,midis,note):
+
+        for midi in midis:
+            print("PLAY_SOUND")
+            print(midi)
+            if not note:
+                print("GET NOTE")
+                note = mp.getNoteNumber(midi)
+                print(note)
+            i = note-36
+            print(i)
+            if i<0:
+                raise IndexError
+            if self.current_bank < 4:
+                for sound in self.sounds:
+                    sound.stop()
+            if self.VOL_SENS:
+                self.sounds[i].set_volume(mp.getVelocity(midi))
+            else:
+                self.sounds[i].set_volume(128)
+            self.sounds[i].play(block=False)
 
     def print_message(self,midi):
         try:
@@ -107,6 +134,7 @@ class MidiControl:
                 #if note != 22 and note !=23 and note!=26 and note != 24 and note != 20 and note != 21:
 
                 try:
+
                     i = note-36
                     if i<0:
                         raise IndexError
@@ -152,13 +180,14 @@ class MidiControl:
             elif mp.isNoteOff(midi):
 
                 if(note !=26):
-                    try:
-                        if self.metronome.midi_recorder.RECORD:
-                            self.metronome.midi_recorder.add_entry(midi)
-                        print("OFF_ADDED")
-                        print(self.metronome.midi_recorder.my_loop)
-                    except:
-                        pass
+                    if self.port_name != "QUNEO":  # Don't care about the off notes for now for QUNEO
+                        try:
+                            if self.metronome.midi_recorder.RECORD:
+                                self.metronome.midi_recorder.add_entry(midi)
+                            print("OFF_ADDED")
+                            print(self.metronome.midi_recorder.my_loop)
+                        except:
+                            pass
 
                 i = note -36
                 if self.current_bank > 3:
