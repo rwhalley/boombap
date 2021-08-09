@@ -191,7 +191,9 @@ class MidiControl:
                             if c.LOAD_SAMPLES == c.ALL_SAMPLES:
                                 pass
                             else:
-                                self.load_samples()
+                                #  load samples as background process
+                                x = Thread(target=self.load_samples, daemon=True)
+                                x.start()
                         except FileNotFoundError:
                             self.current_bank -= 1
                     elif note == 23:
@@ -200,7 +202,9 @@ class MidiControl:
                             if c.LOAD_SAMPLES == c.ALL_SAMPLES:
                                 pass
                             else:
-                                self.load_samples()
+                                #  load samples as background process
+                                x = Thread(target=self.load_samples, daemon=True)
+                                x.start()
                         except FileNotFoundError:
                             self.current_bank += 1
                     elif note ==24:
