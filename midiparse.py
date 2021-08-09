@@ -8,7 +8,7 @@ class MIDIParse:
 
     @staticmethod
     def getVelocity(msg):
-        return msg([0][2])
+        return msg[2]
 
     @staticmethod
     def getNoteNumber(msg):

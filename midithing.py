@@ -9,6 +9,7 @@ import sys
 from pathlib import Path
 
 from midiparse import MIDIParse as mp
+import CONFIG as c
 
 try:
     import alsaaudio
@@ -24,12 +25,16 @@ class MidiControl:
         self.current_bank = 0
         self.max_sample_length_seconds = 3
         self.max_bank_size = 16
-        self.load_samples()
+
+        if c.LOAD_SAMPLES == c.ALL_SAMPLES:
+            self.load_all_samples()
+        else:
+            self.load_samples()
+
         self.metronome_path = Path(__file__).parent.resolve() / 'metronome/metronome.wav'
         self.metronome = Metronome(bpm=120,path=self.metronome_path, controller=self)
         self.VOL_SENS = False
         self.port_name = None
-
 
 
         midiin = rtmidi.MidiIn()
@@ -56,7 +61,7 @@ class MidiControl:
 
     def load_all_samples(self):
         self.sounds = []
-        for i in range(0,8): #  Load first 8 banks only
+        for i in range(0,16): #  Load first 8 banks only
             try:
                 path = self.basepath + str(i)+'/'
                 onlyfiles = [f for f in sorted(listdir(path)) if isfile(join(path, f))]
@@ -66,8 +71,10 @@ class MidiControl:
                             pass
                         else:
                             self.sounds.append(Soundy(path+file))
-            except IndexError("Less than 8 sample banks found"):
+            except FileNotFoundError:
+                print("less than 8 sample banks found")
                 pass
+
         self.pre_process_sounds()
 
 
@@ -125,7 +132,10 @@ class MidiControl:
                 #print("GET NOTE")
                 note = mp.getNoteNumber(midi)
                 #print(note)
-            i = note-36
+            if c.LOAD_SAMPLES == c.ALL_SAMPLES:
+                i = note-36 + self.current_bank*8
+            else:
+                i = note-36
             print(i)
             if i<0:
                 raise IndexError
@@ -179,13 +189,19 @@ class MidiControl:
                     elif note == 22:
                         self.current_bank += 1
                         try:
-                            self.load_samples()
+                            if c.LOAD_SAMPLES == c.ALL_SAMPLES:
+                                pass
+                            else:
+                                self.load_samples()
                         except FileNotFoundError:
                             self.current_bank -= 1
                     elif note == 23:
                         self.current_bank -= 1
                         try:
-                            self.load_samples()
+                            if c.LOAD_SAMPLES == c.ALL_SAMPLES:
+                                pass
+                            else:
+                                self.load_samples()
                         except FileNotFoundError:
                             self.current_bank += 1
                     elif note ==24:
