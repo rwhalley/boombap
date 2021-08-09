@@ -175,6 +175,8 @@ class MidiControl:
                     if self.current_bank < 4:
                         for sound in self.sounds:
                             sound.stop()
+                        for sound in self.all_sounds[self.current_bank]:
+                            sound.stop()
                     if self.VOL_SENS:
                         self.sounds[i].set_volume(mp.getVelocity(midi))
                     else:
@@ -219,6 +221,8 @@ class MidiControl:
                         self.adjust_volume(False)  #Turn Volume Down
                     elif note == 19:
                         self.metronome.midi_recorder.clear_current_loop()
+                    elif note == 18:
+                        self.metronome.midi_recorder.switch_record_button()
 
 
 
@@ -246,10 +250,26 @@ class MidiControl:
                     for sound in self.sounds:
                         factor = 1.5 - mp.getControllerValue(midi)/128.
                         print(factor)
-                        x = Thread(sound.change_pitch(factor))
+
+                        # Run DSP as background process
+                        x = Thread(sound.change_pitch(factor), daemon=True)
                         x.start()
-                        sound.normalize()
-                        sound.make_loud()
+                        x = Thread(sound.normalize(), daemon=True)
+                        x.start()
+                        x = Thread(sound.make_loud(), daemon=True)
+                        x.start()
+                    for sound in self.all_sounds[self.current_bank]:
+                        factor = 1.5 - mp.getControllerValue(midi)/128.
+                        print(factor)
+
+                        # Run DSP as background process
+                        x = Thread(sound.change_pitch(factor), daemon=True)
+                        x.start()
+                        x = Thread(sound.normalize(), daemon=True)
+                        x.start()
+                        x = Thread(sound.make_loud(), daemon=True)
+                        x.start()
+
 
                 elif note == 6:
                     print(mp.getControllerValue(midi))

@@ -10,6 +10,13 @@ class MIDIRecorder:
     def start_record (self):
         self.RECORD = True
 
+    def switch_record_button(self):
+        if self.RECORD:
+            self.stop_record()
+        else:
+            self.start_record()
+
+
     def play_loop(self,thresh,pos):
         notes = []
         for note in self.my_loop:
