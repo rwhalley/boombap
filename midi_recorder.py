@@ -20,6 +20,15 @@ class MIDIRecorder:
     def stop_record(self):
         self.RECORD = False
 
+    def save_loop(self):
+        self.my_loops.append(self.my_loop)
+
+    def clear_current_loop(self):
+        self.my_loop = []
+
+    def clear_all_loops(self):
+        self.my_loops = []
+
     def add_entry(self, midi):
         pos = self.metronome.get_position()
         note = mp.getNoteNumber(midi)
