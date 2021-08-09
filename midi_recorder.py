@@ -29,6 +29,12 @@ class MIDIRecorder:
     def clear_all_loops(self):
         self.my_loops = []
 
+    def set_current_loop(self,i):
+        try:
+            self.my_loop = self.my_loops[i]
+        except IndexError("loop index not found"):
+            pass
+
     def add_entry(self, midi):
         pos = self.metronome.get_position()
         note = mp.getNoteNumber(midi)

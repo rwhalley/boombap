@@ -100,7 +100,7 @@ class Metronome:
         self.loop_whitelist = []
         self.last_pos = 0
         self.controller = controller
-        print(self.controller.return_self())
+        #print(self.controller.return_self())
 
 
 

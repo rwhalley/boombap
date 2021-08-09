@@ -54,6 +54,23 @@ class MidiControl:
         print("RETURNING SELF")
         return self
 
+    def load_all_samples(self):
+        self.sounds = []
+        for i in range(0,8): #  Load first 8 banks only
+            try:
+                path = self.basepath + str(i)+'/'
+                onlyfiles = [f for f in sorted(listdir(path)) if isfile(join(path, f))]
+                for file in onlyfiles:
+                    if file.endswith('.wav'):
+                        if file.startswith('.'):
+                            pass
+                        else:
+                            self.sounds.append(Soundy(path+file))
+            except IndexError("Less than 8 sample banks found"):
+                pass
+        self.pre_process_sounds()
+
+
     def load_samples(self):
         path = self.basepath + str(self.current_bank)+'/'
         onlyfiles = [f for f in sorted(listdir(path)) if isfile(join(path, f))]
@@ -65,7 +82,13 @@ class MidiControl:
                 else:
                     self.sounds.append(Soundy(path+file))
         self.sounds = self.sounds[0:self.max_bank_size]
-        for sound in self.sounds:
+        self.pre_process_sounds()
+
+
+    def pre_process_sounds(self, sounds = None):
+        if not sounds:
+            sounds = self.sounds
+        for sound in sounds:
             sound.restrict_length(self.max_sample_length_seconds)  # Truncate Samples longer than n seconds
             sound.remove_artifacts()
             sound.normalize()
@@ -92,15 +115,16 @@ class MidiControl:
         except ImportError:
             print("Volume Adjustment Not Available for Non-Linux")
 
-    def play_sound(self,midis,note):
 
+
+    def play_sound(self,midis,note):
         for midi in midis:
-            print("PLAY_SOUND")
-            print(midi)
+            #print("PLAY_SOUND")
+            #print(midi)
             if not note:
-                print("GET NOTE")
+                #print("GET NOTE")
                 note = mp.getNoteNumber(midi)
-                print(note)
+                #print(note)
             i = note-36
             print(i)
             if i<0:
@@ -114,19 +138,20 @@ class MidiControl:
                 self.sounds[i].set_volume(128)
             self.sounds[i].play(block=False)
 
+
     def print_message(self,midi):
         try:
             note = mp.getNoteNumber(midi)
-            # print(f"note = {note}")
+            print(f"note = {note}")
 
 
             if mp.isNoteOn(midi):
-                if note != 26:
+                if note != 26 and note != 19:
                     try:
                         if self.metronome.midi_recorder.RECORD:
                             self.metronome.midi_recorder.add_entry(midi)
-                            print("ADDED")
-                            print(self.metronome.midi_recorder.my_loop)
+                            #print("ADDED")
+                            #print(self.metronome.midi_recorder.my_loop)
                     except:
                         pass
 
@@ -173,6 +198,8 @@ class MidiControl:
                         self.adjust_volume(True)  # Turn Volume Up
                     elif note == 21:
                         self.adjust_volume(False)  #Turn Volume Down
+                    elif note == 19:
+                        self.metronome.midi_recorder.clear_current_loop()
 
 
 
@@ -184,8 +211,8 @@ class MidiControl:
                         try:
                             if self.metronome.midi_recorder.RECORD:
                                 self.metronome.midi_recorder.add_entry(midi)
-                            print("OFF_ADDED")
-                            print(self.metronome.midi_recorder.my_loop)
+                            #print("OFF_ADDED")
+                            #print(self.metronome.midi_recorder.my_loop)
                         except:
                             pass
 
