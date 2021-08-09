@@ -318,17 +318,20 @@ class Metronome:
                 if(len(self.midi_recorder.my_loop)>0):
                     #print(f"current pos {current_pos}")
                     midis = []
+                    banks = []
                     for i, entry in enumerate(self.midi_recorder.my_loop):
                         midi = entry[1][0]
                         entry_pos = entry[0]
+                        bank = entry[2]
                         #print(f"entry pos {entry_pos}")
                         if (current_pos > entry_pos) and not (i in self.loop_whitelist):
                             #print("WOO")
                             midis.append(midi)
+                            banks.append(bank)
                             self.loop_whitelist.append(i)
 
                     if self.controller.port_name == "QUNEO":
-                        self.controller.play_sound(midis,False)
+                        self.controller.play_sound(midis,False,banks)
                     else:
                         self.midi_player.play_note(midis)
 

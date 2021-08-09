@@ -26,10 +26,10 @@ class MidiControl:
         self.max_sample_length_seconds = 3
         self.max_bank_size = 16
 
-        if c.LOAD_SAMPLES == c.ALL_SAMPLES:
-            self.load_all_samples()
-        else:
-            self.load_samples()
+        #if c.LOAD_SAMPLES == c.ALL_SAMPLES:
+        self.load_all_samples()
+        #else:
+        self.load_samples()
 
         self.metronome_path = Path(__file__).parent.resolve() / 'metronome/metronome.wav'
         self.metronome = Metronome(bpm=120,path=self.metronome_path, controller=self)
@@ -60,9 +60,10 @@ class MidiControl:
         return self
 
     def load_all_samples(self):
-        self.sounds = []
+        self.all_sounds = []
         for i in range(0,16): #  Load first 8 banks only
             try:
+                bank = []
                 path = self.basepath + str(i)+'/'
                 onlyfiles = [f for f in sorted(listdir(path)) if isfile(join(path, f))]
                 for file in onlyfiles:
@@ -70,12 +71,13 @@ class MidiControl:
                         if file.startswith('.'):
                             pass
                         else:
-                            self.sounds.append(Soundy(path+file))
+                            bank.append(Soundy(path+file))
+                self.all_sounds.append(bank)
             except FileNotFoundError:
                 print("less than 8 sample banks found")
                 pass
-
-        self.pre_process_sounds()
+        for bank in self.all_sounds:
+            self.pre_process_sounds(sounds = bank)
 
 
     def load_samples(self):
@@ -124,29 +126,26 @@ class MidiControl:
 
 
 
-    def play_sound(self,midis,note):
-        for midi in midis:
+    def play_sound(self,midis,note,banks):
+        for j,midi in enumerate(midis):
             #print("PLAY_SOUND")
             #print(midi)
             if not note:
                 #print("GET NOTE")
                 note = mp.getNoteNumber(midi)
                 #print(note)
-            if c.LOAD_SAMPLES == c.ALL_SAMPLES:
-                i = note-36 + self.current_bank*8
-            else:
-                i = note-36
+            i = note-36
             print(i)
             if i<0:
                 raise IndexError
             if self.current_bank < 4:
-                for sound in self.sounds:
+                for sound in self.all_sounds[banks[j]]:
                     sound.stop()
             if self.VOL_SENS:
-                self.sounds[i].set_volume(mp.getVelocity(midi))
+                self.all_sounds[banks[j]][i].set_volume(mp.getVelocity(midi))
             else:
-                self.sounds[i].set_volume(128)
-            self.sounds[i].play(block=False)
+                self.all_sounds[banks[j]][i].set_volume(128)
+            self.all_sounds[banks[j]][i].play(block=False)
 
 
     def print_message(self,midi):

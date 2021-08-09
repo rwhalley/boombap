@@ -38,7 +38,8 @@ class MIDIRecorder:
     def add_entry(self, midi):
         pos = self.metronome.get_position()
         note = mp.getNoteNumber(midi)
-        entry = [pos, midi]
+        bank = self.metronome.controller.current_bank
+        entry = [pos, midi, bank]
         self.my_loop.append(entry)
         # if len(self.my_loop)>0 and self.my_loop[-1][1]>pos:
         #     self.my_loops.append(self.my_loop)
