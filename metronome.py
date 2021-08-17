@@ -86,12 +86,18 @@ class Metronome:
 
 
     def switch(self,i):
-        self.metronome_seq = sr.meters[sr.button_order[i]]
-        self.accompaniment = sr.rhythms[sr.button_order[i]]
-        if (len(self.metronome_seq) % 3) == 0:
-            self._update_meter(3)
+        id = sr.button_order[i]
+        if id != "empty":
+            self.is_on = True
+            self.metronome_seq = sr.meters[sr.button_order[i]]
+            self.accompaniment = sr.rhythms[sr.button_order[i]]
+            print(self.accompaniment)
+            if (len(self.metronome_seq) % 3) == 0:
+                self._update_meter(3)
+            else:
+                self._update_meter(4)
         else:
-            self._update_meter(4)
+            self.is_on = False
 
 
     def update_volume(self,drum,volume):
@@ -255,6 +261,7 @@ class Metronome:
 
                 if normal:
                     if self.metronome_seq[self.current_note]:
+                            print("PLAYINMG SOUND")
                             self.sound.play(block=False)
                 if True:
                     if self.bpm<self.grace_BPM_thresh:

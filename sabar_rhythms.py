@@ -61,5 +61,5 @@ empty                      =  [[[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],  # pax
 
 
 rhythms = {"empty" : empty, "kaolack" : kaolack_accompaniment,"lumbuel":lumbuel_accompaniment,"thieboudjuen":thieboudjeun_accompaniment,"njouk":njouk_accompaniment}
-meters = {"kaolack":kaolack,"lumbuel":lumbuel,"thieboudjeun":thieboudjeun,"njouk":njouk}
-button_order = ["kaolack","kaolack","lumbuel","thieboudjeun","njouk"]
+meters = {"empty":kaolack,"kaolack":kaolack,"lumbuel":lumbuel,"thieboudjeun":thieboudjeun,"njouk":njouk}
+button_order = ["empty","kaolack","lumbuel","thieboudjeun","njouk"]

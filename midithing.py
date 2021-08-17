@@ -155,7 +155,7 @@ class MidiControl:
     def print_message(self,midi):
         try:
             note = mp.getNoteNumber(midi)
-            print(f"note = {note}")
+            #print(f"note = {note}")
 
             if mp.isNoteOn(midi):
 
@@ -185,12 +185,21 @@ class MidiControl:
                         self.sounds[i].set_volume(128)
                     self.sounds[i].play(block=False)
 
-                except:
+                    if self.is_metronome_pressed and note in self.button.PADS:
+                        print("METRENOME PRESSED")
+                        print(note-self.button.PAD_START)
+                        self.metronome.switch(note-self.button.PAD_START)
 
+                except:
+                    print(note)
+                    print(note== self.button.METRONOME)
                     if note == self.button.METRONOME:
                         self.is_metronome_pressed = True
                         #self.metronome.midi_player.play_note(midi)
                         #self.metronome.switch()
+
+                    elif self.is_metronome_pressed:
+                        print("METRENOME PRESSED")
 
                     elif self.is_metronome_pressed and note in self.button.PADS:
                         self.metronome.switch(note-self.button.PAD_START)
