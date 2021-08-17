@@ -23,7 +23,7 @@ lumbuel_accompaniment = [[[0,0,0,0,1,0,0,0,0,0,1,0],
                                [0,0,0,0,0,1,0,0,0,0,0,1],
                                [0,1,0,1,0,0,0,1,0,1,0,0]]]
 
-njouk = kaolack  # Same Metronome
+njouk = [1,0,0,0,0,0,1,0,1,0,0,0,1,0,0,0]
 njouk_accompaniment = [[[0,0,2,0,0,0,0,0,0,0,2,0,0,0,1,0],  # pax
                              [1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],  # gin
                              [0,0,0,1,1,0,1,0,0,0,0,1,1,0,1,0],  # tan
@@ -35,7 +35,7 @@ njouk_accompaniment = [[[0,0,2,0,0,0,0,0,0,0,2,0,0,0,1,0],  # pax
                              [0,0,1,0,1,0,0,1,0,0,1,0,1,0,0,1],  # tan 2
                              [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]]] # tet 3
 
-thieboudjeun = kaolack # Same Metronome
+thieboudjeun = [1,0,0,0,0,0,1,0,1,0,0,0,1,0,0,0]
 thieboudjeun_accompaniment =  [[[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],  # pax
                                      [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],  # gin
                                      [0,0,1,1,0,0,1,1,0,0,1,1,0,0,1,1],  # tan
@@ -60,6 +60,6 @@ empty                      =  [[[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],  # pax
                                      [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]]] # tet 3
 
 
-rhythms = {"empty" : empty, "kaolack" : kaolack_accompaniment,"lumbuel":lumbuel_accompaniment,"thieboudjuen":thieboudjeun_accompaniment,"njouk":njouk_accompaniment}
-meters = {"empty":kaolack,"kaolack":kaolack,"lumbuel":lumbuel,"thieboudjeun":thieboudjeun,"njouk":njouk}
+rhythms = {"empty" : empty, "kaolack" : kaolack_accompaniment,"lumbuel":lumbuel_accompaniment,'thieboudjeun':thieboudjeun_accompaniment,"njouk":njouk_accompaniment}
+meters = {"empty":kaolack,"kaolack":kaolack,"lumbuel":lumbuel,'thieboudjeun':thieboudjeun,"njouk":njouk}
 button_order = ["empty","kaolack","lumbuel","thieboudjeun","njouk"]

@@ -198,8 +198,6 @@ class MidiControl:
                         #self.metronome.midi_player.play_note(midi)
                         #self.metronome.switch()
 
-                    elif self.is_metronome_pressed:
-                        print("METRENOME PRESSED")
 
                     elif self.is_metronome_pressed and note in self.button.PADS:
                         self.metronome.switch(note-self.button.PAD_START)

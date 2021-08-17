@@ -86,7 +86,14 @@ class Metronome:
 
 
     def switch(self,i):
+        print(f"i: {i}")
         id = sr.button_order[i]
+        print(f"id: {id}")
+        # print(sr.meters[sr.button_order[i]])
+        # print(sr.rhythms[sr.button_order[i]])
+        # print(sr.rhythms['thieboudjeun'])
+        # print("WHAT")
+
         if id != "empty":
             self.is_on = True
             self.metronome_seq = sr.meters[sr.button_order[i]]
@@ -247,7 +254,6 @@ class Metronome:
 
                 if normal:
                     if self.metronome_seq[self.current_note]:
-                            print("PLAYINMG SOUND")
                             self.sound.play(block=False)
                 if True:
                     if self.bpm<self.grace_BPM_thresh:
