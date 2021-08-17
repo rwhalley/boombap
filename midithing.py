@@ -38,6 +38,8 @@ class MidiControl:
         self.VOL_SENS = False
         self.port_name = None
 
+        self.is_metronome_pressed = False
+
 
         midiin = rtmidi.MidiIn()
         ports = midiin.get_ports()
@@ -186,8 +188,12 @@ class MidiControl:
                 except:
 
                     if note == self.button.METRONOME:
+                        self.is_metronome_pressed = True
                         #self.metronome.midi_player.play_note(midi)
-                        self.metronome.switch()
+                        #self.metronome.switch()
+
+                    elif self.is_metronome_pressed and note in self.button.PADS:
+                        self.metronome.switch(note-self.button.PAD_START)
 
                     elif note == self.button.BANK_UP:
                         self.current_bank += 1
@@ -253,6 +259,9 @@ class MidiControl:
 
                 if note == self.button.VELOCITY_SENSITIVITY:
                     self.switch_vol_sens()
+
+                if note == self.button.METRONOME:
+                    self.is_metronome_pressed = False
 
             elif mp.isController(midi):
                 #print(f"controller = {midi.getControllerValue()}")

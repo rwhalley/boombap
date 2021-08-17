@@ -84,13 +84,21 @@ class Metronome:
                                              [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]]] # tet 3
 
 
-        self.nothing=              [[[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],  # pax 4
-                                     [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],  # gin 0
-                                     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],  # ran 1
-                                     [0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1],  # tan 2
-                                     [0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0]]] # tet 3
+        self.empty                      =  [[[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],  # pax
+                                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],  # gin
+                                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],  # tan
+                                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]], # tet
+
+                                            [[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],  # pax 4
+                                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],  # gin 0
+                                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],  # ran 1
+                                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],  # tan 2
+                                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]]] # tet 3
         self.metronome_seq = self.kaolack
         self.accompaniment = self.kaolack_accompaniment
+        self.rhythms = [self.empty, self.kaolack_accompaniment,self.lumbuel_accompaniment,self.thieboudjeun_accompaniment,self.njouk_accompaniment]
+        self.meters = [self.kaolack,self.kaolack,self.lumbuel,self.thieboudjeun,self.njouk]
+
         self.midi_player = None
         self.midi_recorder = None
         self.midi_player = MIDIPlayer()
@@ -137,30 +145,11 @@ class Metronome:
         self.note_length = int(self.beat_length / 4)
 
 
-    def switch(self):
-        self.is_on = (self.is_on + 1) % 5
-        if self.is_on == 1:
-            print("KAOLACK")
-            self.metronome_seq = self.kaolack
-            self.accompaniment=self.kaolack_accompaniment
-            self._update_meter(4)
-            self.midi_recorder.start_record()
-
-        elif self.is_on == 2:
-            print("LUMBUEL")
-            self.metronome_seq = self.lumbuel
-            self.accompaniment = self.lumbuel_accompaniment
+    def switch(self,i):
+        self.metronome_seq = self.meters[i]
+        self.accompaniment = self.rhythms[i]
+        if (len(self.metronome_seq) % 3) == 0:
             self._update_meter(3)
-        elif self.is_on == 3:
-            print("NJOUK")
-            self.metronome_seq = self.njouk
-            self.accompaniment = self.njouk_accompaniment
-            self._update_meter(4)
-        elif self.is_on == 4:
-            print("THIEBOUDJEUN")
-            self.metronome_seq = self.thieboudjeun
-            self.accompaniment = self.thieboudjeun_accompaniment
-            self._update_meter(4)
         else:
             self._update_meter(4)
 
