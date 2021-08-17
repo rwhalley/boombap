@@ -7,6 +7,7 @@ from threading import Thread
 from metronome import Metronome
 import sys
 from pathlib import Path
+import QUNEO
 
 from midiparse import MIDIParse as mp
 import CONFIG as c
@@ -25,6 +26,7 @@ class MidiControl:
         self.current_bank = 0
         self.max_sample_length_seconds = 3
         self.max_bank_size = 16
+        self.button = QUNEO
 
         #if c.LOAD_SAMPLES == c.ALL_SAMPLES:
         self.load_all_samples()
@@ -134,7 +136,7 @@ class MidiControl:
                 #print("GET NOTE")
                 note = mp.getNoteNumber(midi)
                 #print(note)
-            i = note-36
+            i = note - self.button.PAD_START
             print(i)
             if i<0:
                 raise IndexError
@@ -153,9 +155,10 @@ class MidiControl:
             note = mp.getNoteNumber(midi)
             print(f"note = {note}")
 
-
             if mp.isNoteOn(midi):
-                if note != 26 and note != 19:
+
+                if note != self.button.METRONOME and note != self.button.CLEAR_LOOP:
+
                     try:
                         if self.metronome.midi_recorder.RECORD:
                             self.metronome.midi_recorder.add_entry(midi)
@@ -164,12 +167,9 @@ class MidiControl:
                     except:
                         pass
 
+                try:  # PLAY SOUND
 
-                #if note != 22 and note !=23 and note!=26 and note != 24 and note != 20 and note != 21:
-
-                try:
-
-                    i = note-36
+                    i = note - self.button.PAD_START
                     if i<0:
                         raise IndexError
                     if self.current_bank < 4:
@@ -184,10 +184,12 @@ class MidiControl:
                     self.sounds[i].play(block=False)
 
                 except:
-                    if note == 26:
+
+                    if note == self.button.METRONOME:
                         #self.metronome.midi_player.play_note(midi)
                         self.metronome.switch()
-                    elif note == 22:
+
+                    elif note == self.button.BANK_UP:
                         self.current_bank += 1
                         try:
                             if c.LOAD_SAMPLES == c.ALL_SAMPLES:
@@ -198,7 +200,8 @@ class MidiControl:
                                 x.start()
                         except FileNotFoundError:
                             self.current_bank -= 1
-                    elif note == 23:
+
+                    elif note == self.button.BANK_DOWN:
                         self.current_bank -= 1
                         try:
                             if c.LOAD_SAMPLES == c.ALL_SAMPLES:
@@ -209,19 +212,24 @@ class MidiControl:
                                 x.start()
                         except FileNotFoundError:
                             self.current_bank += 1
-                    elif note ==24:
+
+                    elif note == self.button.EXIT:
                         try:
                             self.metronome.midi_player.cleanup()
                         except:
                             pass
                         sys.exit()
-                    elif note == 20:
+
+                    elif note == self.button.VOL_UP:
                         self.adjust_volume(True)  # Turn Volume Up
-                    elif note == 21:
+
+                    elif note == self.button.VOL_DOWN:
                         self.adjust_volume(False)  #Turn Volume Down
-                    elif note == 19:
+
+                    elif note == self.button.CLEAR_LOOP:
                         self.metronome.midi_recorder.clear_current_loop()
-                    elif note == 18:
+
+                    elif note == self.button.RECORD:
                         self.metronome.midi_recorder.switch_record_button()
 
 
@@ -229,7 +237,7 @@ class MidiControl:
 
             elif mp.isNoteOff(midi):
 
-                if(note !=26):
+                if(note != self.button.METRONOME):
                     if self.port_name != "QUNEO":  # Don't care about the off notes for now for QUNEO
                         try:
                             if self.metronome.midi_recorder.RECORD:
@@ -239,14 +247,17 @@ class MidiControl:
                         except:
                             pass
 
-                i = note -36
+                i = note - self.button.PAD_START
                 if self.current_bank > 3:
                     self.sounds[i].stop()
-                if note ==25:
+
+                if note == self.button.VELOCITY_SENSITIVITY:
                     self.switch_vol_sens()
+
             elif mp.isController(midi):
                 #print(f"controller = {midi.getControllerValue()}")
-                if(mp.getNoteNumber(midi) == 10):
+
+                if(mp.getNoteNumber(midi) == self.button.PITCH_CONTROL):
                     for sound in self.sounds:
                         factor = 1.5 - mp.getControllerValue(midi)/128.
                         print(factor)
@@ -270,14 +281,15 @@ class MidiControl:
                         x = Thread(sound.make_loud(), daemon=True)
                         x.start()
 
-
-                elif note == 6:
+                elif note == self.button.BPM_CONTROL:
                     print(mp.getControllerValue(midi))
                     self.metronome.set_bpm(mp.getControllerValue(midi)/128.)
-                elif note == 0:  # mbungmbung volume
+
+                elif note == self.button.MBUNG_VOL_CONTROL:  # mbungmbung volume
                     drum = 0
                     self.metronome.update_volume(drum,mp.getControllerValue(midi))
-                elif note == 1:  # col volume
+
+                elif note == self.button.COL_VOL_CONTROL:  # col volume
                     drum = 1
                     self.metronome.update_volume(drum,mp.getControllerValue(midi))
 
