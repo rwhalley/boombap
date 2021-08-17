@@ -98,7 +98,6 @@ class Metronome:
             self.is_on = True
             self.metronome_seq = sr.meters[sr.button_order[i]]
             self.accompaniment = sr.rhythms[sr.button_order[i]]
-            print(self.accompaniment)
             if (len(self.metronome_seq) % 3) == 0:
                 self._update_meter(3)
             else:
