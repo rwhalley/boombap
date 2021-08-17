@@ -188,44 +188,6 @@ class Metronome:
                         #print("PLAY COL GRACE")
 
 
-
-
-
-                # if (i==0 and ((place == 1 and state=="normal") or (state=="grace" and j==self.grace_note_active)) ): # con 1 = not a grace note and j != active grace note, con 2 = "grace" and j == active gracenote
-                #     if state=="grace":
-                #         print(state)
-                #         #print(j)
-                #         self.grace_note_active = -1
-                #
-                #     for sound in self.accompaniment_sounds[i]:
-                #         sound.stop()
-                #     if (j==0):
-                #         self.accompaniment_sounds[i][0].play(block=False)
-                #     if (j==1):
-                #         self.accompaniment_sounds[i][4].play(block=False)
-                #     if (j==2):
-                #         self.accompaniment_sounds[i][2].play(block=False)
-                #     if (j==3):
-                #         self.accompaniment_sounds[i][3].play(block=False)
-
-
-                # if (place and i==1 and place!=2) or (i==1 and self.grace_note_active):  # col
-                #
-                #     for sound in self.accompaniment_sounds[i]:
-                #         sound.stop()
-                #     if (j==0):
-                #         self.accompaniment_sounds[i][4].play(block=False)
-                #     if (j==1):
-                #         self.accompaniment_sounds[i][0].play(block=False)
-                #     if (j==2):
-                #         self.accompaniment_sounds[i][1].play(block=False)
-                #     if (j==3):
-                #         self.accompaniment_sounds[i][2].play(block=False)
-                #     if (j==4):
-                #         self.accompaniment_sounds[i][3].play(block=False)
-                #     self.grace_note_active = False
-
-
     def get_position(self):
         "Get float 0 to 1 that represents current position in bar."
         pos = 0
