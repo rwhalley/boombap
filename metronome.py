@@ -6,6 +6,7 @@ from os.path import isfile, join
 import threading
 from midiout import MIDIPlayer
 from midi_recorder import MIDIRecorder
+import sabar_rhythms as sr
 
 
 class Metronome:
@@ -35,69 +36,9 @@ class Metronome:
         self.accompaniment_sounds = self._load_sounds()
         self.mbungmbung_volume = 128
         self.col_volume = 128
-        self.kaolack = [1,0,0,0,0,0,1,0,1,0,0,0,1,0,0,0]
 
-        self.kaolack_accompaniment =   [[[1,0,0,0,0,1,0,0,1,0,0,0,0,2,0,0],  # pax
-                                         [0,0,0,1,0,0,0,0,0,0,0,1,1,0,0,0],  # gin
-                                         [0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,1],  # tan
-                                         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]], # tet
-
-                                        [[0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0],  # pax 4
-                                         [1,0,0,0,0,2,0,0,1,0,0,0,0,0,0,0],  # gin 0
-                                         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],  # ran 1
-                                         [0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1],  # tan 2
-                                         [0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0]]] # tet 3
-
-        self.lumbuel = [1,0,0,0,1,0,1,0,0,1,0,0]
-        self.lumbuel_accompaniment = [[[0,0,0,0,1,0,0,0,0,0,1,0],
-                                       [0,0,1,0,0,0,0,0,1,0,0,0],
-                                       [1,1,0,0,0,1,1,1,0,0,0,1],
-                                       [0,0,0,0,0,0,0,0,0,0,0,0]],
-
-                                      [[0,0,0,0,0,0,0,0,0,0,0,0],
-                                       [1,0,0,0,0,0,1,0,0,0,0,0],
-                                       [0,0,0,0,0,0,0,0,0,0,0,0],
-                                       [0,0,0,0,0,1,0,0,0,0,0,1],
-                                       [0,1,0,1,0,0,0,1,0,1,0,0]]]
-        self.njouk = self.kaolack  # Same Metronome
-        self.njouk_accompaniment = [[[0,0,2,0,0,0,0,0,0,0,2,0,0,0,1,0],  # pax
-                                     [1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],  # gin
-                                     [0,0,0,1,1,0,1,0,0,0,0,1,1,0,1,0],  # tan
-                                     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]], # tet
-
-                                    [[0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0],  # pax 4
-                                     [1,0,0,1,0,0,0,0,1,0,0,1,0,0,0,0],  # gin 0
-                                     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],  # ran 1
-                                     [0,0,1,0,1,0,0,1,0,0,1,0,1,0,0,1],  # tan 2
-                                     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]]] # tet 3
-
-        self.thieboudjeun = self.kaolack # Same Metronome
-        self.thieboudjeun_accompaniment =  [[[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],  # pax
-                                             [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],  # gin
-                                             [0,0,1,1,0,0,1,1,0,0,1,1,0,0,1,1],  # tan
-                                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]], # tet
-
-                                            [[1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],  # pax 4
-                                             [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],  # gin 0
-                                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],  # ran 1
-                                             [0,0,1,0,0,1,0,0,0,0,1,0,0,1,0,0],  # tan 2
-                                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]]] # tet 3
-
-
-        self.empty                      =  [[[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],  # pax
-                                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],  # gin
-                                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],  # tan
-                                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]], # tet
-
-                                            [[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],  # pax 4
-                                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],  # gin 0
-                                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],  # ran 1
-                                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],  # tan 2
-                                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]]] # tet 3
-        self.metronome_seq = self.kaolack
-        self.accompaniment = self.kaolack_accompaniment
-        self.rhythms = [self.empty, self.kaolack_accompaniment,self.lumbuel_accompaniment,self.thieboudjeun_accompaniment,self.njouk_accompaniment]
-        self.meters = [self.kaolack,self.kaolack,self.lumbuel,self.thieboudjeun,self.njouk]
+        self.metronome_seq = sr.meters["kaolack"]  # initialization
+        self.accompaniment = sr.rhythms["kaolack"] # initialization
 
         self.midi_player = None
         self.midi_recorder = None
@@ -108,7 +49,6 @@ class Metronome:
         self.loop_whitelist = []
         self.last_pos = 0
         self.controller = controller
-        #print(self.controller.return_self())
 
 
 
@@ -146,8 +86,8 @@ class Metronome:
 
 
     def switch(self,i):
-        self.metronome_seq = self.meters[i]
-        self.accompaniment = self.rhythms[i]
+        self.metronome_seq = sr.meters[sr.button_order[i]]
+        self.accompaniment = sr.rhythms[sr.button_order[i]]
         if (len(self.metronome_seq) % 3) == 0:
             self._update_meter(3)
         else:
