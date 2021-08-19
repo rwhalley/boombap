@@ -37,8 +37,8 @@ class Metronome:
         self.nder_path = str(Path(__file__).parent / 'samples/')+'/0/'
         self.accompaniment_paths = [self.mbungmbung_path,self.col_path]
         self.accompaniment_sounds = self._load_sounds()
-        self.mbungmbung_volume = 128
-        self.col_volume = 128
+        self.mbungmbung_volume = 0 #128
+        self.col_volume = 0 #128
 
         self.metronome_seq = sr.meters["kaolack"]  # initialization
         self.accompaniment = sr.rhythms["kaolack"] # initialization
@@ -228,25 +228,44 @@ class Metronome:
 
                 ### --- MIDI LOoPER ---
                 current_pos = self.get_position()
+
+                ### -- QUNEO LOOP ---
                 if(len(self.midi_recorder.my_loop)>0):
                     #print(f"current pos {current_pos}")
                     midis = []
                     banks = []
+                    ports = []
                     for i, entry in enumerate(self.midi_recorder.my_loop):
                         midi = entry[1][0]
                         entry_pos = entry[0]
                         bank = entry[2]
+                        port = entry[3]
                         #print(f"entry pos {entry_pos}")
                         if (current_pos > entry_pos) and not (i in self.loop_whitelist):
                             #print("WOO")
                             midis.append(midi)
                             banks.append(bank)
+                            ports.append(port)
                             self.loop_whitelist.append(i)
 
-                    if self.controller.port_name == "QUNEO":
+
+                    if "QUNEO" in ports:
                         self.controller.play_sound(midis,False,banks)
                     else:
                         self.midi_player.play_note(midis)
+
+
+
+
+                    # if len(midis) > 0:
+                    #     print("MIDIS")
+                    #     print(midis)
+                    #     print(ports)
+                    # #if ("QUNEO" in ports):
+                    # #    self.controller.play_sound(midis,False,banks)
+                    # #    print("PLAY QNUENO")
+                    # if ("reface CP" in ports):
+                    #     print("PLAY CP")
 
                           # ---- PLAY NOTE HERE SOMEHOW ---
 
@@ -291,8 +310,8 @@ class Metronome:
 
                     self.current_note = ((self.current_note+1)%self.max_notes)
                     self.current_loop_beat = ((self.current_loop_beat+1) %self.notes_per_bar)
-                    print(f"CURRENT NOTE: {self.current_note}")
-                    print(f"CURRENT_LOOP_NOTE: {self.current_loop_beat}")
+                    #print(f"CURRENT NOTE: {self.current_note}")
+                    #print(f"CURRENT_LOOP_NOTE: {self.current_loop_beat}")
 
                 self.last_time = now
         except:

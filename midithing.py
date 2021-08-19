@@ -37,6 +37,7 @@ class MidiControl:
         self.metronome = Metronome(bpm=120,path=self.metronome_path, controller=self)
         self.VOL_SENS = False
         self.port_name = None
+        self.ports = []
 
         # --- Shift Buttons ---
         self.is_metronome_pressed = False
@@ -44,20 +45,28 @@ class MidiControl:
 
 
         midiin = rtmidi.MidiIn()
+        midiin_piano = rtmidi.MidiIn()
         ports = midiin.get_ports()
         if ports:
             for i,port in enumerate(ports):
                 print(midiin.get_port_name(i))
-
-            self.port_name = ports[0]
+                self.ports.append(port)
+            print(self.ports)
             print("Opening port 0!")
             midiin.open_port(0)
+            midiin_piano.open_port(1)
+
             while True:
                 self.metronome.get_time()
 
                 m = midiin.get_message() # some timeout in ms
+                n = midiin_piano.get_message()
+
                 if m:
-                    self.print_message(m)
+                    self.print_message(m,"QUNEO")
+
+                if n:
+                    self.print_message(n,"reface CP")
         else:
             print('NO MIDI INPUT PORTS!')
 
@@ -135,6 +144,7 @@ class MidiControl:
 
     def play_sound(self,midis,note,banks):
         for j,midi in enumerate(midis):
+
             #print("PLAY_SOUND")
             #print(midi)
             if not note:
@@ -155,7 +165,7 @@ class MidiControl:
             self.all_sounds[banks[j]][i].play(block=False)
 
 
-    def print_message(self,midi):
+    def print_message(self,midi,port):
         try:
             note = mp.getNoteNumber(midi)
             #print(f"note = {note}")
@@ -166,9 +176,9 @@ class MidiControl:
 
                     try:
                         if self.metronome.midi_recorder.RECORD:
-                            self.metronome.midi_recorder.add_entry(midi)
-                            #print("ADDED")
-                            #print(self.metronome.midi_recorder.my_loop)
+                            self.metronome.midi_recorder.add_entry(midi,port)
+                            print("ADDED")
+                            print(self.metronome.midi_recorder.my_loop)
                     except:
                         pass
 
@@ -204,13 +214,15 @@ class MidiControl:
 
                     if note == self.button.METRONOME:
                         self.is_metronome_pressed = True
-                        #self.metronome.midi_player.play_note(midi)
                         #self.metronome.switch()
 
                     elif note == self.button.LOOP_SELECTOR:
                         self.is_loop_selector_pressed = True
 
                     elif self.is_metronome_pressed and note in self.button.PADS:
+
+                        #self.metronome.midi_player.play_note(midi)
+
                         self.metronome.switch(note-self.button.PAD_START)
 
                     elif note == self.button.BANK_UP:
@@ -263,10 +275,10 @@ class MidiControl:
             elif mp.isNoteOff(midi):
 
                 if(note != self.button.METRONOME):
-                    if self.port_name != "QUNEO":  # Don't care about the off notes for now for QUNEO
+                    if port == "reface CP":  # Don't care about the off notes for now for QUNEO
                         try:
                             if self.metronome.midi_recorder.RECORD:
-                                self.metronome.midi_recorder.add_entry(midi)
+                                self.metronome.midi_recorder.add_entry(midi,port)
                             #print("OFF_ADDED")
                             #print(self.metronome.midi_recorder.my_loop)
                         except:

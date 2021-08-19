@@ -13,17 +13,11 @@ class MIDIPlayer():
 
 
 
-
-
     def play_note(self,midis):
-        keyboard = False
-        if keyboard == True:
-            x = threading.Thread(target=self.play_worker, args=(midis,))
-            x.start()
-            x.join()
 
-        else:  # QUNEO
-            pass
+        x = threading.Thread(target=self.play_worker, args=(midis,),daemon=True)
+        x.start()
+        x.join()
 
 
 
@@ -33,7 +27,7 @@ class MIDIPlayer():
 
 
         try:
-            self.midiout.open_port(0)
+            self.midiout.open_port(1)
         except (IndexError("MIDI port not open")):
             print("virtual port")
             self.midiout.open_virtual_port("My virtual output")
@@ -45,8 +39,8 @@ class MIDIPlayer():
             # note_on = [0x90, 60, 90] # channel 1, middle C, velocity 112
             # note_off=[0x90, 60,0]
             # print(midi)
-            for midi in midis:
-                self.midiout.send_message(midi)
+            for i, midi in enumerate(midis):
+                    self.midiout.send_message(midi)
             #time.sleep(0.2)
             #self.midiout.send_message(note_on)
 

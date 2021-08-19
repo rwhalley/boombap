@@ -12,9 +12,12 @@ class MIDIRecorder:
 
     def switch_record_button(self):
         if self.RECORD:
+            print("LOOP RECORD OFF")
             self.stop_record()
         else:
+            print("LOOP RECORD ON")
             self.start_record()
+
 
 
     def play_loop(self,thresh,pos):
@@ -42,12 +45,14 @@ class MIDIRecorder:
         except IndexError("loop index not found"):
             pass
 
-    def add_entry(self, midi):
+    def add_entry(self, midi, port):
         pos = self.metronome.get_position()
         note = mp.getNoteNumber(midi)
         bank = self.metronome.controller.current_bank
-        entry = [pos, midi, bank]
+        port = port
+        entry = [pos, midi, bank, port]
         self.my_loop.append(entry)
+
         # if len(self.my_loop)>0 and self.my_loop[-1][1]>pos:
         #     self.my_loops.append(self.my_loop)
         #     self.my_loop = []
