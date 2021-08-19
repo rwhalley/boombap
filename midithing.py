@@ -256,6 +256,9 @@ class MidiControl:
                     elif note == self.button.RECORD:
                         self.metronome.midi_recorder.switch_record_button()
 
+                    elif note == self.button.SAVE_LOOP:
+                        self.metronome.midi_recorder.save_loop()
+
 
             elif mp.isNoteOff(midi):
 
