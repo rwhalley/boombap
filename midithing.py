@@ -38,7 +38,9 @@ class MidiControl:
         self.VOL_SENS = False
         self.port_name = None
 
+        # --- Shift Buttons ---
         self.is_metronome_pressed = False
+        self.is_loop_selector_pressed = False
 
 
         midiin = rtmidi.MidiIn()
@@ -127,6 +129,7 @@ class MidiControl:
             m.setvolume(new_volume)
         except ImportError:
             print("Volume Adjustment Not Available for Non-Linux")
+            pass
 
 
 
@@ -185,19 +188,27 @@ class MidiControl:
                         self.sounds[i].set_volume(128)
                     self.sounds[i].play(block=False)
 
+                    # --- ACTIVATE METRONOME RHYTHM SELECTOR ---
                     if self.is_metronome_pressed and note in self.button.PADS:
-                        print("METRENOME PRESSED")
-                        print(note-self.button.PAD_START)
                         self.metronome.switch(note-self.button.PAD_START)
 
+                    # --- ACTIVATE LOOPER PATTERN SELECTOR ---
+                    if self.is_loop_selector_pressed and note in self.button.PADS:
+                        try:
+                            self.metronome.midi_recorder.my_loop = self.metronome.midi_recorder.my_loops[note-self.button.PAD_START]
+                        except IndexError:
+                            print("Loop index not found: Add more loops.")
+                            pass
+
                 except:
-                    print(note)
-                    print(note== self.button.METRONOME)
+
                     if note == self.button.METRONOME:
                         self.is_metronome_pressed = True
                         #self.metronome.midi_player.play_note(midi)
                         #self.metronome.switch()
 
+                    elif note == self.button.LOOP_SELECTOR:
+                        self.is_loop_selector_pressed = True
 
                     elif self.is_metronome_pressed and note in self.button.PADS:
                         self.metronome.switch(note-self.button.PAD_START)
@@ -246,8 +257,6 @@ class MidiControl:
                         self.metronome.midi_recorder.switch_record_button()
 
 
-
-
             elif mp.isNoteOff(midi):
 
                 if(note != self.button.METRONOME):
@@ -269,6 +278,9 @@ class MidiControl:
 
                 if note == self.button.METRONOME:
                     self.is_metronome_pressed = False
+
+                elif note == self.button.LOOP_SELECTOR:
+                    self.is_loop_selector_pressed = False
 
             elif mp.isController(midi):
                 #print(f"controller = {midi.getControllerValue()}")

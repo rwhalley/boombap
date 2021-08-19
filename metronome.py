@@ -15,7 +15,10 @@ class Metronome:
         self.bpm = bpm
         self.beat_length = int(60 / self.bpm * 1000)
         self.max_beats = 4
+        self.beats_per_bar = 8
+        self.current_loop_beat = 0
         self.notes_per_beat = 4
+        self.notes_per_bar = self.notes_per_beat*self.beats_per_bar
         self.max_notes = self.max_beats * self.notes_per_beat
         self.measure_length = int(self.beat_length * 4)
         self.note_length = int(self.beat_length / 4)
@@ -203,10 +206,17 @@ class Metronome:
     def get_position(self):
         "Get float 0 to 1 that represents current position in bar."
         pos = 0
-        normalizer = float(self.max_beats*self.notes_per_beat)
+        normalizer = float(self.beats_per_bar*self.notes_per_beat)
         now = int(round(time.time() * 1000))%(self.note_length)
         micro_pos = now/float(self.note_length)
-        pos = (self.current_note + micro_pos) / normalizer
+        pos = (self.current_loop_beat + micro_pos) / normalizer
+        # print(f"micro_pos: {micro_pos}")
+        # print(f"normalizer: {normalizer}")
+        # print(f"current_beat: {self.current_loop_beat}")
+        # print(f"pre_pos: {self.current_loop_beat + micro_pos}")
+        # print(f"pos: {pos}")
+        #if self.current_loop_beat > 30:
+        #    print("WHATTSSGSTRDSDFGSD")
         return pos
 
     def get_time(self):
@@ -280,6 +290,9 @@ class Metronome:
                 if normal:
 
                     self.current_note = ((self.current_note+1)%self.max_notes)
+                    self.current_loop_beat = ((self.current_loop_beat+1) %self.notes_per_bar)
+                    print(f"CURRENT NOTE: {self.current_note}")
+                    print(f"CURRENT_LOOP_NOTE: {self.current_loop_beat}")
 
                 self.last_time = now
         except:
