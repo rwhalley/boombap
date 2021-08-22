@@ -15,10 +15,14 @@ class Metronome:
         self.bpm = bpm
         self.beat_length = int(60 / self.bpm * 1000)
         self.max_beats = 4
+
+        # --- for looper ---
         self.beats_per_bar = 8
         self.current_loop_beat = 0
         self.notes_per_beat = 4
         self.notes_per_bar = self.notes_per_beat*self.beats_per_bar
+        # --- end for looper ---
+
         self.max_notes = self.max_beats * self.notes_per_beat
         self.measure_length = int(self.beat_length * 4)
         self.note_length = int(self.beat_length / 4)
