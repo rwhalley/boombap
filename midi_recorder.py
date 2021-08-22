@@ -1,4 +1,5 @@
 from midiparse import MIDIParse as mp
+import QUNEO
 
 class MIDIRecorder:
     def __init__(self,metronome):
@@ -51,7 +52,12 @@ class MIDIRecorder:
         bank = self.metronome.controller.current_bank
         port = port
         entry = [pos, midi, bank, port]
-        self.my_loop.append(entry)
+        i = note - QUNEO.PAD_START
+        print(i)
+        if i<0 or i>15:
+            raise IndexError
+        else:
+            self.my_loop.append(entry)
 
         # if len(self.my_loop)>0 and self.my_loop[-1][1]>pos:
         #     self.my_loops.append(self.my_loop)

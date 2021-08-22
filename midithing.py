@@ -146,25 +146,36 @@ class MidiControl:
 
     def play_sound(self,midis,note,banks):
         for j,midi in enumerate(midis):
-
-            #print("PLAY_SOUND")
-            #print(midi)
+            print("PLAY_SOUND")
+            print(midi)
             if not note:
                 #print("GET NOTE")
                 note = mp.getNoteNumber(midi)
                 #print(note)
             i = note - self.button.PAD_START
             print(i)
-            if i<0:
+            if i<0 or i>15:
                 raise IndexError
-            if self.current_bank < 4:
-                for sound in self.all_sounds[banks[j]]:
-                    sound.stop()
-            if self.VOL_SENS:
-                self.all_sounds[banks[j]][i].set_volume(mp.getVelocity(midi))
             else:
-                self.all_sounds[banks[j]][i].set_volume(128)
-            self.all_sounds[banks[j]][i].play(block=False)
+                if self.VOL_SENS:
+                    self.all_sounds[banks[j]][i].set_volume(mp.getVelocity(midi))
+                else:
+                    self.all_sounds[banks[j]][i].set_volume(128)
+
+                if self.current_bank < 4:
+                    for sound in self.all_sounds[banks[j]]:
+                        sound.stop()
+                else:
+                    print(f"MIDI {midi}")
+                    if midi[2]==0:
+                        for sound in self.all_sounds[banks[j]]:
+                            sound.stop()
+
+                if midi[2]>0:
+                    self.all_sounds[banks[j]][i].play(block=False)
+
+
+
 
 
     def print_message(self,midi,port):
@@ -339,14 +350,18 @@ class MidiControl:
                 # CUT OFF SOUND
 
                 if(note != self.button.METRONOME):
-                    if port == "reface CP":  # Don't care about the off notes for now for QUNEO
-                        try:
+                    try:
+                        if port == "reface CP":
                             if self.metronome.midi_recorder.RECORD:
                                 self.metronome.midi_recorder.add_entry(midi,port)
-                            #print("OFF_ADDED")
-                            #print(self.metronome.midi_recorder.my_loop)
-                        except:
-                            pass
+                        elif port == "QUNEO":
+                            if self.current_bank > 3:
+                                if self.metronome.midi_recorder.RECORD:
+                                    self.metronome.midi_recorder.add_entry(midi,port)
+                        #print("OFF_ADDED")
+                        #print(self.metronome.midi_recorder.my_loop)
+                    except:
+                        pass
 
                 i = note - self.button.PAD_START
 
@@ -365,9 +380,25 @@ class MidiControl:
                 #    self.is_bank_shift_pressed = False
 
                 # --- Deactivate Shift Button For Loop Functions ---
-                elif note == self.button.LOOP_SELECTOR:
+                if note == self.button.LOOP_SELECTOR:
                     print("loop off")
                     self.is_loop_selector_pressed = False
+
+                # try:  # PLAY SOUND
+                #     print("TURN DOUNS OFF")
+                #     i = note - self.button.PAD_START
+                #     if i<0:
+                #         raise IndexError
+                #     if self.current_bank > 3:
+                #         for sound in self.sounds:
+                #             sound.stop()
+                #         for sound in self.all_sounds[self.current_bank]:
+                #             sound.stop()
+                #
+                #
+                #     ### OLD CONTROLS
+                # except:
+                #     pass
 
             elif mp.isController(midi):
                 #print(f"controller = {midi.getControllerValue()}")
