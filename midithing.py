@@ -251,6 +251,7 @@ class MidiControl:
 
                     elif note == self.button.EXIT:
                         try:
+                            self.metronome.midi_player.all_notes_off()
                             self.metronome.midi_player.cleanup()
                         except:
                             pass
@@ -263,6 +264,7 @@ class MidiControl:
                         self.adjust_volume(False)  #Turn Volume Down
 
                     elif note == self.button.CLEAR_LOOP:
+                        self.metronome.midi_player.all_notes_off()
                         self.metronome.midi_recorder.clear_current_loop()
 
                     elif note == self.button.RECORD:

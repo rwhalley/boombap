@@ -20,6 +20,13 @@ class MIDIPlayer():
         x.join()
 
 
+    def all_notes_off(self):
+        midis = []
+        for i in range(0,128):
+            midis.append([144,i,0])
+        self.play_note(midis)
+
+
 
     def play_worker(self,midis):
         self.midiout = rtmidi.MidiOut()
