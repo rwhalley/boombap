@@ -43,30 +43,33 @@ class MidiControl:
         self.is_metronome_pressed = False
         self.is_loop_selector_pressed = False
 
-
-        midiin = rtmidi.MidiIn()
-        midiin_piano = rtmidi.MidiIn()
-        ports = midiin.get_ports()
+        devices = [rtmidi.MidiIn(),rtmidi.MidiIn()] # QUNEO, Reface CP
+        ports = devices[0].get_ports()
         if ports:
             for i,port in enumerate(ports):
-                print(midiin.get_port_name(i))
+                print(devices[0].get_port_name(i))
                 self.ports.append(port)
             print(self.ports)
-            print("Opening port 0!")
-            midiin.open_port(0)
-            midiin_piano.open_port(1)
+            for i, midi_handler in enumerate(devices):
+                midi_handler.open_port(i)
+
 
             while True:
                 self.metronome.get_time()
 
-                m = midiin.get_message() # some timeout in ms
-                n = midiin_piano.get_message()
+                messages = []
 
-                if m:
-                    self.print_message(m,"QUNEO")
+                for device in devices:
+                    try:
+                        messages.append(device.get_message()) # some timeout in ms
+                    except:
+                        messages.append(None)
 
-                if n:
-                    self.print_message(n,"reface CP")
+                for i, message in enumerate(messages):
+                    if message:
+                        self.print_message(message,ports[i])
+
+
         else:
             print('NO MIDI INPUT PORTS!')
 
@@ -216,14 +219,28 @@ class MidiControl:
                         self.is_metronome_pressed = True
                         #self.metronome.switch()
 
-                    elif note == self.button.LOOP_SELECTOR:
-                        self.is_loop_selector_pressed = True
-
                     elif self.is_metronome_pressed and note in self.button.PADS:
 
                         #self.metronome.midi_player.play_note(midi)
 
                         self.metronome.switch(note-self.button.PAD_START)
+
+
+                    # --- Activate Shift Button For Loop Functions ---
+                    elif note == self.button.LOOP_SELECTOR:
+                        self.is_loop_selector_pressed = True
+
+
+                    # --- Save Current Loop to Memory ---
+                    elif self.is_loop_selector_pressed and note == self.button.SAVE_LOOP:
+                        self.metronome.midi_recorder.save_loop()
+
+
+                    # --- Select Loop from Saved Loops ---
+                    elif self.is_loop_selector_pressed and note in self.button.PADS:
+                        selection_index = note-self.button.PAD_START
+                        self.metronome.midi_recorder.my_loop = self.metronome.midi_recorder.my_loops[selection_index]
+
 
                     elif note == self.button.BANK_UP:
                         self.current_bank += 1
@@ -270,8 +287,6 @@ class MidiControl:
                     elif note == self.button.RECORD:
                         self.metronome.midi_recorder.switch_record_button()
 
-                    elif note == self.button.SAVE_LOOP:
-                        self.metronome.midi_recorder.save_loop()
 
 
             elif mp.isNoteOff(midi):
