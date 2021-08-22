@@ -24,6 +24,7 @@ class MIDIPlayer():
         midis = []
         for i in range(0,128):
             midis.append([144,i,0])
+
         self.play_note(midis)
 
 
@@ -38,6 +39,7 @@ class MIDIPlayer():
         except (IndexError("MIDI port not open")):
             print("virtual port")
             self.midiout.open_virtual_port("My virtual output")
+
         with self.midiout:
             #print(midi)
             #print("PLAY NOTE")

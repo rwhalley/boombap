@@ -255,6 +255,8 @@ class Metronome:
 
                     if "QUNEO" in ports:
                         self.controller.play_sound(midis,False,banks)
+                    elif len(ports) == 0:
+                        pass
                     else:
                         self.midi_player.play_note(midis)
 

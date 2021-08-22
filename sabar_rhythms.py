@@ -86,6 +86,6 @@ empty.talmbat =                     [[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],  # pax 4
 empty.parts = [empty.mbalax1,empty.talmbat]
 
 
-rhythms = {"empty" : empty, "kaolack" : kaolack.parts,"lumbuel":lumbuel.parts,'thieboudjeun':thieboudjeun.parts,"njouk":njouk.parts}
-meters = {"empty":empty.metronome,"kaolack":kaolack.metronome,"lumbuel":lumbuel,'thieboudjeun':thieboudjeun,"njouk":njouk}
-button_order = ["empty","kaolack","lumbuel","thieboudjeun","njouk"]
+rhythms = {"empty" : empty.parts, "kaolack" : kaolack.parts,"lumbuel":lumbuel.parts,'thieboudjeun':thieboudjeun.parts,"njouk":njouk.parts,"yaaba":yaaba.parts}
+meters = {"empty":empty.metronome,"kaolack":kaolack.metronome,"lumbuel":lumbuel.metronome,'thieboudjeun':thieboudjeun.metronome,"njouk":njouk.metronome,"yaaba":yaaba.metronome}
+button_order = ["empty","kaolack","lumbuel","thieboudjeun","njouk","yaaba"]
