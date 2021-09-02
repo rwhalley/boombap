@@ -53,7 +53,6 @@ class MIDIRecorder:
         port = port
         entry = [pos, midi, bank, port]
         i = note - QUNEO.PAD_START
-        print(i)
         if i<0 or i>15:
             raise IndexError
         else:

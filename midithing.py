@@ -146,8 +146,8 @@ class MidiControl:
 
     def play_sound(self,midis,note,banks):
         for j,midi in enumerate(midis):
-            print("PLAY_SOUND")
-            print(midi)
+            #print("PLAY_SOUND")
+            #print(midi)
             if not note:
                 #print("GET NOTE")
                 note = mp.getNoteNumber(midi)
@@ -166,7 +166,6 @@ class MidiControl:
                     for sound in self.all_sounds[banks[j]]:
                         sound.stop()
                 else:
-                    print(f"MIDI {midi}")
                     if midi[2]==0:
                         for sound in self.all_sounds[banks[j]]:
                             sound.stop()
@@ -185,10 +184,6 @@ class MidiControl:
 
             if mp.isNoteOn(midi):
 
-                if note == 17:
-                    print("WHATSS")
-                if note == self.button.SAVE_LOOP:
-                    print("UPPP")
                 if note != self.button.METRONOME and note != self.button.CLEAR_LOOP:
 
                     try:
@@ -224,9 +219,6 @@ class MidiControl:
                                 x.start()
                         except FileNotFoundError:
                             self.current_bank = old_bank
-
-                    if note == self.button.SAVE_LOOP:
-                        print("SAVE LOOP BUTTON PRESSED")
 
                     # --- Save Current Loop to Memory ---
                     if self.is_loop_selector_pressed and note == self.button.SAVE_LOOP:
