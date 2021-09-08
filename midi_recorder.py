@@ -46,17 +46,18 @@ class MIDIRecorder:
         except IndexError("loop index not found"):
             pass
 
-    def add_entry(self, midi, port):
+    def add_entry(self, midi, port, when_added):
         pos = self.metronome.get_position()
         note = mp.getNoteNumber(midi)
         bank = self.metronome.controller.current_bank
         port = port
-        entry = [pos, midi, bank, port]
+        when_added = when_added
+        entry = [pos, midi, bank, port, when_added]
         i = note - QUNEO.PAD_START
-        if i<0 or i>15:
-            raise IndexError
-        else:
-            self.my_loop.append(entry)
+        #if port == "QUNEO" and (i<0 or i>15):
+        #    raise IndexError
+        #else:
+        self.my_loop.append(entry)
 
         # if len(self.my_loop)>0 and self.my_loop[-1][1]>pos:
         #     self.my_loops.append(self.my_loop)

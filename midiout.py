@@ -3,6 +3,7 @@ import rtmidi
 import threading
 import midiparse as mp
 
+
 class MIDIPlayer():
 
     def __init__(self):
@@ -13,23 +14,26 @@ class MIDIPlayer():
 
 
 
-    def play_note(self,midis):
+    def play_note(self,midis,ports):
 
-        x = threading.Thread(target=self.play_worker, args=(midis,),daemon=True)
+        x = threading.Thread(target=self.play_worker, args=(midis,ports),daemon=True)
         x.start()
         x.join()
 
 
     def all_notes_off(self):
         midis = []
+        ports = []
         for i in range(0,128):
             midis.append([144,i,0])
+            ports.append('reface CP')
 
-        self.play_note(midis)
+        self.play_note(midis,ports)
 
 
 
-    def play_worker(self,midis):
+    def play_worker(self,midis,ports):
+
         self.midiout = rtmidi.MidiOut()
         #self.available_ports = self.midiout.get_ports()
 
@@ -49,7 +53,8 @@ class MIDIPlayer():
             # note_off=[0x90, 60,0]
             # print(midi)
             for i, midi in enumerate(midis):
-                    self.midiout.send_message(midi)
+                    if ports[i] == "reface CP":
+                        self.midiout.send_message(midi)
             #time.sleep(0.2)
             #self.midiout.send_message(note_on)
 

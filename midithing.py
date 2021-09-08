@@ -1,5 +1,6 @@
 #!/usr/bin/python
 import rtmidi as rtmidi
+import time
 from soundy_pygame import Soundy
 from os import listdir
 from os.path import isfile, join
@@ -188,7 +189,7 @@ class MidiControl:
 
                     try:
                         if self.metronome.midi_recorder.RECORD:
-                            self.metronome.midi_recorder.add_entry(midi,port)
+                            self.metronome.midi_recorder.add_entry(midi,port,when_added=time.time())
                             print("ADDED")
                             print(self.metronome.midi_recorder.my_loop)
                     except:
@@ -340,16 +341,18 @@ class MidiControl:
 
 
                 # CUT OFF SOUND
-
                 if(note != self.button.METRONOME):
                     try:
+
                         if port == "reface CP":
                             if self.metronome.midi_recorder.RECORD:
-                                self.metronome.midi_recorder.add_entry(midi,port)
+                                print(note)
+
+                                self.metronome.midi_recorder.add_entry(midi,port,time.time())
                         elif port == "QUNEO":
                             if self.current_bank > 3:
                                 if self.metronome.midi_recorder.RECORD:
-                                    self.metronome.midi_recorder.add_entry(midi,port)
+                                    self.metronome.midi_recorder.add_entry(midi,port,time.time())
                         #print("OFF_ADDED")
                         #print(self.metronome.midi_recorder.my_loop)
                     except:

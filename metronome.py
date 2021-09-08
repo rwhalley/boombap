@@ -239,26 +239,41 @@ class Metronome:
                     midis = []
                     banks = []
                     ports = []
+                    when_addeds = []
                     for i, entry in enumerate(self.midi_recorder.my_loop):
                         midi = entry[1][0]
                         entry_pos = entry[0]
                         bank = entry[2]
                         port = entry[3]
+                        when_added = entry[4]
+                        #print(when_added)
                         #print(f"entry pos {entry_pos}")
                         if (current_pos > entry_pos) and not (i in self.loop_whitelist):
                             #print("WOO")
                             midis.append(midi)
                             banks.append(bank)
                             ports.append(port)
+                            when_addeds.append(when_added)
                             self.loop_whitelist.append(i)
 
 
+                    self.midi_player.play_note(midis,ports)
                     if "QUNEO" in ports:
                         self.controller.play_sound(midis,False,banks)
-                    elif len(ports) == 0:
-                        pass
-                    else:
-                        self.midi_player.play_note(midis)
+
+
+#                     try:
+#                         if(time.time() - when_addeds[0]) > 0.1:
+#                             #if "reface CP" in ports:
+# #                            self.midi_player.play_note(midis)
+#                             # elif len(ports) == 0:
+#                             #     pass
+#                             # else:
+#                             #     pass #self.controller.play_sound(midis,False,banks)
+#                     except:
+#                         pass
+
+
 
 
 
