@@ -1,3 +1,10 @@
+DEBUG_MODE = 0
+
+
+
+
+
+# OLD
 # Program Config and Modes
 ALL_SAMPLES = 0
 ONE_BANK = 1

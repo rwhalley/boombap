@@ -118,11 +118,19 @@ class Metronome:
             sound.set_volume(volume)
 
     def set_bpm(self,input):
-        self.wait = True
         new_bpm = 40+input*200
         print(f"BPM: {new_bpm}")
         self.bpm = new_bpm
         self._update_interval(new_bpm)
+
+    def bpm_up(self):
+        self.bpm = self.bpm + 10
+        self._update_interval(self.bpm)
+
+    def bpm_down(self):
+        if self.bpm > 10:
+            self.bpm = self.bpm - 10
+            self._update_interval(self.bpm)
 
 
     def play_accompaniment(self, state):
@@ -258,8 +266,7 @@ class Metronome:
 
 
                     self.midi_player.play_note(midis,ports)
-                    if "QUNEO" in ports:
-                        self.controller.play_sound(midis,False,banks)
+                    self.controller.play_sound(midis,False,banks,ports)
 
 
 #                     try:
