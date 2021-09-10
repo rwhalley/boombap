@@ -40,7 +40,7 @@ class MidiControl:
         self.port_name = None
         self.ports = []
         self.pitch_factor = 1.0
-        self.semitone = .05946
+        self.semitone = .059463094359
 
         self.last_note = 1101001
 
