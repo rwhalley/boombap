@@ -272,8 +272,10 @@ class MidiControl:
                         play = False
                         selection_index = note-self.button.PAD_START
                         print(f"SELECTING LOOP {str(selection_index)}")
-                        self.metronome.midi_recorder.my_loop = self.metronome.midi_recorder.my_loops[selection_index]
-
+                        if selection_index in self.metronome.midi_recorder.active_loops:
+                            self.metronome.midi_recorder.remove_play_loop(selection_index)
+                        else:
+                            self.metronome.midi_recorder.add_play_loop(selection_index)
 
 
 

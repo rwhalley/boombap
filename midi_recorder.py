@@ -4,9 +4,11 @@ import QUNEO
 class MIDIRecorder:
     def __init__(self,metronome):
         self.RECORD = False
-        self.my_loops = {}
-        self.my_loop = []
+        self.my_loops = {} # all stored loops
+        self.my_loop = []  # current recording loop
+        self.play_loops = {} # all stored loops being played
         self.metronome = metronome
+        self.active_loops = []
 
     def start_record (self):
         self.RECORD = True
@@ -21,12 +23,23 @@ class MIDIRecorder:
 
 
 
-    def play_loop(self,thresh,pos):
+    def play_loop(self,thresh,pos): #
+
         notes = []
+
+        # --- Add notes in the current recording loop ---
         for note in self.my_loop:
             if abs(note[0] - pos) < thresh:
                 notes.append(note[1])
+
+        # ---  Add notes from active stored loops ---
+        for key in self.play_loops:
+            for note in self.play_loops[key]:
+                if abs(note[0] - pos) < thresh:
+                    notes.append(note[1])
+
         return notes
+
 
     def stop_record(self):
         self.RECORD = False
@@ -40,9 +53,17 @@ class MIDIRecorder:
     def clear_all_loops(self):
         self.my_loops = {}
 
-    def set_current_loop(self,i):
+    def add_play_loop(self,i):
         try:
-            self.my_loop = self.my_loops[i]
+            self.play_loops[i] = self.my_loops[i]
+            self.active_loops.append(i)
+        except IndexError("loop index not found"):
+            pass
+
+    def remove_play_loop(self,i):
+        try:
+            self.play_loops.pop(i,None)
+            self.active_loops.remove(i)
         except IndexError("loop index not found"):
             pass
 
