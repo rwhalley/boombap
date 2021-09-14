@@ -2,7 +2,7 @@ import time
 import rtmidi
 import threading
 import midiparse as mp
-
+import CONFIG as c
 
 class MIDIPlayer():
 
@@ -28,7 +28,8 @@ class MIDIPlayer():
             midis.append([144,i,0])
             ports.append('reface CP')
 
-        self.play_note(midis,ports)
+        if len(midis)>0:
+            self.play_note(midis,ports)
 
 
 
@@ -39,10 +40,11 @@ class MIDIPlayer():
 
 
         try:
-            self.midiout.open_port(1)
-        except (IndexError("MIDI port not open")):
-            print("virtual port")
-            self.midiout.open_virtual_port("My virtual output")
+            self.midiout.open_port(c.MIDI_OUT_PORT)
+        except:
+            #print("midiport not open")
+            #self.midiout.open_virtual_port("My virtual output")
+            pass
 
         with self.midiout:
             #print(midi)
@@ -53,7 +55,7 @@ class MIDIPlayer():
             # note_off=[0x90, 60,0]
             # print(midi)
             for i, midi in enumerate(midis):
-                    if ports[i] == "reface CP":
+                    if ports[i] == c.SYNTH:
                         self.midiout.send_message(midi)
             #time.sleep(0.2)
             #self.midiout.send_message(note_on)

@@ -229,17 +229,17 @@ class MidiControl:
                         self.metronome.switch(note-self.button.PAD_START)
                         play = False
 
-                    # --- ACTIVATE LOOPER PATTERN SELECTOR ---
-                    elif self.is_loop_loader_pressed and note in self.button.PADS:
-                        play = False
-                        loop_id = note-self.button.PAD_START
-                        print(f"SELECTING {loop_id}")
-                        try:
-                            self.metronome.midi_recorder.my_loop = self.metronome.midi_recorder.my_loops[loop_id]
-
-                        except IndexError:
-                            print("Loop index not found: Add more loops.")
-                            pass
+                    # # --- ACTIVATE LOOPER PATTERN SELECTOR ---
+                    # elif self.is_loop_loader_pressed and note in self.button.PADS:
+                    #     play = False
+                    #     loop_id = note-self.button.PAD_START
+                    #     print(f"SELECTING {loop_id}")
+                    #     try:
+                    #         self.metronome.midi_recorder.my_loop = self.metronome.midi_recorder.my_loops[loop_id]
+                    #
+                    #     except IndexError:
+                    #         print("Loop index not found: Add more loops.")
+                    #         pass
 
                     # --- ACTIVATE BANK SELECTION ---
                     elif self.is_bank_shift_pressed and note in self.button.PADS:
@@ -265,16 +265,19 @@ class MidiControl:
                         play = False
                         location = note-self.button.PAD_START
                         self.metronome.midi_recorder.save_loop(location)
-
+                        #self.metronome.midi_recorder.add_play_loop(location)
 
                     # --- Select Loop from Saved Loops ---
                     elif self.is_loop_loader_pressed and note in self.button.PADS:
                         play = False
                         selection_index = note-self.button.PAD_START
                         print(f"SELECTING LOOP {str(selection_index)}")
+                        print(f"ACTIVE LOOPS {self.metronome.midi_recorder.active_loops}")
                         if selection_index in self.metronome.midi_recorder.active_loops:
                             self.metronome.midi_recorder.remove_play_loop(selection_index)
+                            print("REMOVE")
                         else:
+                            print("ADD")
                             self.metronome.midi_recorder.add_play_loop(selection_index)
 
 
@@ -370,7 +373,7 @@ class MidiControl:
 
                     elif note == self.button.EXIT:
                         try:
-                            if "reface CP" in self.ports:
+                            if c.SYNTH in self.ports:
                                 self.metronome.midi_player.all_notes_off()
                             self.metronome.midi_player.cleanup()
                         except:
@@ -384,7 +387,7 @@ class MidiControl:
                         self.adjust_volume(False)  #Turn Volume Down
 
                     elif note == self.button.CLEAR_LOOP:
-                        if "reface CP" in self.ports:
+                        if c.SYNTH in self.ports:
                             self.metronome.midi_player.all_notes_off()
                         self.metronome.midi_recorder.clear_current_loop()
 
@@ -420,7 +423,7 @@ class MidiControl:
                 if(note != self.button.METRONOME):
                     try:
 
-                        if port == "reface CP":
+                        if port == c.SYNTH:
                             if self.metronome.midi_recorder.RECORD:
                                 print(note)
 

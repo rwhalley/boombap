@@ -1,4 +1,5 @@
 import time
+from operator import itemgetter
 from soundy_pygame import Soundy
 from pathlib import Path
 from os import listdir
@@ -7,6 +8,7 @@ import threading
 from midiout import MIDIPlayer
 from midi_recorder import MIDIRecorder
 import sabar_rhythms as sr
+import CONFIG as c
 
 
 class Metronome:
@@ -242,13 +244,18 @@ class Metronome:
                 current_pos = self.get_position()
 
                 ### -- QUNEO LOOP ---
-                if(len(self.midi_recorder.my_loop)>0):
+                if(len(self.midi_recorder.my_loop)>0):# or len(self.midi_recorder.play_loops)>0):
                     #print(f"current pos {current_pos}")
                     midis = []
                     banks = []
                     ports = []
                     when_addeds = []
-                    for i, entry in enumerate(self.midi_recorder.my_loop):
+                    all_loop = self.midi_recorder.my_loop
+                    # for key  in range(0,len(self.midi_recorder.play_loops)):
+                    #     for note in (self.midi_recorder.play_loops[key]):
+                    #         all_loop.append(note)
+                    # all_loop = (sorted(all_loop, key=itemgetter(0)))
+                    for i, entry in enumerate(all_loop):
                         midi = entry[1][0]
                         entry_pos = entry[0]
                         bank = entry[2]
@@ -265,13 +272,14 @@ class Metronome:
                             self.loop_whitelist.append(i)
 
 
+
                     self.midi_player.play_note(midis,ports)
                     self.controller.play_sound(midis,False,banks,ports)
 
 
 #                     try:
 #                         if(time.time() - when_addeds[0]) > 0.1:
-#                             #if "reface CP" in ports:
+#                             #if c.SYNTH in ports:
 # #                            self.midi_player.play_note(midis)
 #                             # elif len(ports) == 0:
 #                             #     pass
@@ -292,7 +300,7 @@ class Metronome:
                     # #if ("QUNEO" in ports):
                     # #    self.controller.play_sound(midis,False,banks)
                     # #    print("PLAY QNUENO")
-                    # if ("reface CP" in ports):
+                    # if (c.SYNTH in ports):
                     #     print("PLAY CP")
 
                           # ---- PLAY NOTE HERE SOMEHOW ---

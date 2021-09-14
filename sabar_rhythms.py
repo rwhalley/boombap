@@ -132,7 +132,11 @@ empty.talmbat =                     [[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],  # pax 4
                                      [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]] # tet 3
 empty.parts = [empty.mbalax1,empty.talmbat]
 
+just_metronome = Rhythm()
+just_metronome.metronome = [1,0,0,0,0,0,1,0,1,0,0,0,1,0,0,0]
+just_metronome.parts = []
 
-rhythms = {"empty" : empty.parts, "kaolack" : kaolack.parts,"lumbuel":lumbuel.parts,'thieboudjeun':thieboudjeun.parts,"njouk":njouk.parts,"yaaba":yaaba.parts,"niari_gorong":niari_gorong.parts}
-meters = {"empty":empty.metronome,"kaolack":kaolack.metronome,"lumbuel":lumbuel.metronome,'thieboudjeun':thieboudjeun.metronome,"njouk":njouk.metronome,"yaaba":yaaba.metronome,"niari_gorong":niari_gorong.metronome}
-button_order = ["empty","kaolack","lumbuel","thieboudjeun","njouk","yaaba","niari_gorong"]
+
+rhythms = {"empty" : empty.parts, "just_metronome" : just_metronome.parts, "kaolack" : kaolack.parts,"lumbuel":lumbuel.parts,'thieboudjeun':thieboudjeun.parts,"njouk":njouk.parts,"yaaba":yaaba.parts,"niari_gorong":niari_gorong.parts}
+meters = {"empty":empty.metronome,"just_metronome":just_metronome.metronome, "kaolack":kaolack.metronome,"lumbuel":lumbuel.metronome,'thieboudjeun':thieboudjeun.metronome,"njouk":njouk.metronome,"yaaba":yaaba.metronome,"niari_gorong":niari_gorong.metronome}
+button_order = ["empty","just_metronome","kaolack","lumbuel","thieboudjeun","njouk","yaaba","niari_gorong"]
