@@ -29,10 +29,7 @@ class MidiControl:
         self.max_bank_size = 16
         self.button = QUNEO
 
-        #if c.LOAD_SAMPLES == c.ALL_SAMPLES:
-        self.load_all_samples()
-        #else:
-        self.load_samples()
+
 
         self.metronome_path = Path(__file__).parent.resolve() / 'metronome/metronome.wav'
         self.metronome = Metronome(bpm=120,path=self.metronome_path, controller=self)
@@ -63,6 +60,10 @@ class MidiControl:
                     self.devices[i].open_port(name=port)
 
 
+            #if c.LOAD_SAMPLES == c.ALL_SAMPLES:
+            self.load_all_samples()
+            #else:
+            self.load_samples()
 
             while True:
                 self.metronome.get_time()
