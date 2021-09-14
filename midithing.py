@@ -49,15 +49,15 @@ class MidiControl:
 
         self.devices = [rtmidi.MidiIn(),rtmidi.MidiIn()] # QUNEO, Reface CP
         ports = self.devices[0].get_ports()
+        num_ports = 0
         if ports:
             for i,port in enumerate(ports):
                 print(self.devices[0].get_port_name(i))
                 if (c.SYNTH in port) or (c.MIDI_CONTROLLER in port):
                     print("WOO")
-                    print(i)
-
+                    num_ports +=1
                     self.ports.append(port)
-                    self.devices[i].open_port(name=port)
+                    self.devices[num_ports].open_port(name=port)
 
 
             #if c.LOAD_SAMPLES == c.ALL_SAMPLES:
