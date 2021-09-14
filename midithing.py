@@ -51,16 +51,31 @@ class MidiControl:
         self.sounds = []
 
         #if c.LOAD_SAMPLES == c.ALL_SAMPLES:
+        self.load_samples()
+
+        self.all_dumpables = []
         try:
-            self.all_sounds = pickle.load(open( "all_sounds.p", "rb" ))
-            self.sounds = pickle.load(open( "sounds.p", "rb" ))
+
+            self.all_dumpables = pickle.load(open( "dumpables.p", "rb" ))
+            for dump_list in self.all_dumpables:
+                my_list = []
+                for dumpable in dump_list:
+                    my_list.append(dumpable)
+
+                self.all_sounds.append(Soundy(None,sounddata=my_list))
+
         except:
             self.load_all_samples()
             #else:
-            self.load_samples()
 
-            pickle.dump(self.all_sounds,open( "all_sounds.p", "wb" ))
-            pickle.dump(self.sounds,open( "sounds.p", "wb" ))
+            print(self.all_sounds)
+            for i,list in enumerate(self.all_sounds):
+                dumps_list = []
+                for sound in list:
+                    dumps_list.append(sound.pgsound.get_raw())
+            self.all_dumpables.append(dumps_list)
+
+            pickle.dump(self.all_dumpables,open( "dumpables.p", "wb" ))
 
         self.devices = [rtmidi.MidiIn(),rtmidi.MidiIn()] # QUNEO, Reface CP
         ports = self.devices[0].get_ports()
