@@ -10,7 +10,7 @@ class MIDIPlayer():
         self.triggered = False
         self.midiout = None
         self.available_ports = None
-        self.midiout = rtmidi.MidiOut()
+        self.midiout = rtmidi.MidiOut()  # may need to clean this up
 
 
 
@@ -40,8 +40,9 @@ class MIDIPlayer():
         self.available_ports = self.midiout.get_ports()
         if c.SYNTH in self.available_ports:
 
-
-            self.midiout.open_port(c.MIDI_OUT_PORT)
+            for port in self.available_ports:
+                if c.SYNTH in port:
+                    self.midiout.open_port(name=port)
 
 
             with self.midiout:
