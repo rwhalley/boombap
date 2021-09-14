@@ -56,6 +56,7 @@ class MidiControl:
                     print("WOO")
                     num_ports +=1
                     self.ports.append(port)
+                    c.port_names.append(port)
                     print(i)
                     print(port)
                     print(num_ports)

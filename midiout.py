@@ -14,12 +14,7 @@ class MIDIPlayer():
 
 
 
-    def play_note(self,midis,ports):
 
-        # x = threading.Thread(target=self.play_worker, args=(midis,ports),daemon=True)
-        # x.start()
-        # x.join()
-        self.play_worker(midis,ports)
 
 
     def all_notes_off(self):
@@ -34,15 +29,17 @@ class MIDIPlayer():
 
 
 
-    def play_worker(self,midis,ports):
+    def play_note(self,midis,ports):
 
 
         self.available_ports = self.midiout.get_ports()
         if c.SYNTH in self.available_ports:
-
-            for port in self.available_ports:
+            for i,port in enumerate(c.port_names):
                 if c.SYNTH in port:
-                    self.midiout.open_port(name=port)
+
+            # for port in self.available_ports:
+            #     if c.SYNTH in port:
+                    self.midiout.open_port(i)
 
 
             with self.midiout:
@@ -54,7 +51,7 @@ class MIDIPlayer():
                 # note_off=[0x90, 60,0]
                 # print(midi)
                 for i, midi in enumerate(midis):
-                        if ports[i] == c.SYNTH:
+                        if c.SYNTH in ports[i]:
                             self.midiout.send_message(midi)
                 #time.sleep(0.2)
                 #self.midiout.send_message(note_on)

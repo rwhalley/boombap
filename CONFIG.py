@@ -2,6 +2,7 @@ DEBUG_MODE = 0
 SYNTH = 'reface CP' #'minilogue KBD/KNOB'#"minilogue MIDI IN" #c.SYNTH
 MIDI_CONTROLLER = 'QUNEO'
 MIDI_OUT_PORT = 1
+port_names = []
 
 
 
