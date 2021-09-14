@@ -1,5 +1,6 @@
 #!/usr/bin/python
 import rtmidi as rtmidi
+import pickle
 import time
 from soundy_pygame import Soundy
 from os import listdir
@@ -46,6 +47,21 @@ class MidiControl:
         self.is_loop_saver_pressed = False
         self.is_bank_shift_pressed = False
 
+        self.all_sounds = []
+        self.sounds = []
+
+        #if c.LOAD_SAMPLES == c.ALL_SAMPLES:
+        try:
+            self.all_sounds = pickle.load(open( "all_sounds.p", "rb" ))
+            self.sounds = pickle.load(open( "sounds.p", "rb" ))
+        except:
+            self.load_all_samples()
+            #else:
+            self.load_samples()
+
+            pickle.dump(self.all_sounds,open( "all_sounds.p", "wb" ))
+            pickle.dump(self.sounds,open( "sounds.p", "wb" ))
+
         self.devices = [rtmidi.MidiIn(),rtmidi.MidiIn()] # QUNEO, Reface CP
         ports = self.devices[0].get_ports()
         num_ports = -1
@@ -64,10 +80,7 @@ class MidiControl:
 
 
 
-            #if c.LOAD_SAMPLES == c.ALL_SAMPLES:
-            self.load_all_samples()
-            #else:
-            self.load_samples()
+
 
             while True:
                 self.metronome.get_time()
@@ -93,7 +106,6 @@ class MidiControl:
         return self
 
     def load_all_samples(self):
-        self.all_sounds = []
         for i in range(0,16): #  Load first 8 banks only
             try:
                 bank = []
@@ -116,7 +128,6 @@ class MidiControl:
     def load_samples(self):
         path = self.basepath + str(self.current_bank)+'/'
         onlyfiles = [f for f in sorted(listdir(path)) if isfile(join(path, f))]
-        self.sounds = []
         for file in onlyfiles:
             if file.endswith('.wav'):
                 if file.startswith('.'):
