@@ -57,6 +57,9 @@ class MidiControl:
                     print("WOO")
                     num_ports +=1
                     self.ports.append(port)
+                    print(i)
+                    print(port)
+                    print(num_ports)
                     self.devices[num_ports].open_port(name=port)
 
 
