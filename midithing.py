@@ -232,13 +232,12 @@ class MidiControl:
                 play = True
                 if note != self.button.METRONOME and note != self.button.CLEAR_LOOP:
 
-                    try:
+                    if c.SYNTH in port or c.MIDI_CONTROLLER in port:
                         if self.metronome.midi_recorder.RECORD:
                             self.metronome.midi_recorder.add_entry(midi,port,when_added=time.time())
                             print("ADDED")
                             print(self.metronome.midi_recorder.my_loop)
-                    except:
-                        pass
+
 
                     # --- ACTIVATE METRONOME RHYTHM SELECTOR ---
                     if self.is_metronome_pressed and note in self.button.PADS:
