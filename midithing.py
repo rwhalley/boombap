@@ -58,8 +58,12 @@ class MidiControl:
                 if (c.SYNTH in port) or (c.MIDI_CONTROLLER in port):
                     print("WOO")
                     print(i)
-                    self.ports.append(port)
-                    self.devices[i].open_port(i)
+                    try:
+                        self.ports.append(port)
+                        self.devices[i].open_port(i)
+                    except:
+                        self.ports.append(port)
+                        self.devices[i].open_port(i+1)
 
 
             while True:
