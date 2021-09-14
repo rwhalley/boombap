@@ -271,7 +271,7 @@ class Metronome:
                             self.loop_whitelist.append(i)
 
 
-
+                    print(time.time())
                     self.midi_player.play_note(midis,ports)
                     self.controller.play_sound(midis,False,banks,ports)
 
