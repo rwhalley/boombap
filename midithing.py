@@ -60,7 +60,7 @@ class MidiControl:
                     print(i)
 
                     self.ports.append(port)
-                    self.devices[i].open_port(1) # (i)
+                    self.devices[i].open_port(port)
 
 
 
