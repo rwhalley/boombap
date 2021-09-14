@@ -9,6 +9,7 @@ from metronome import Metronome
 import sys
 from pathlib import Path
 import QUNEO
+import threading
 
 from midiparse import MIDIParse as mp
 import CONFIG as c
@@ -28,6 +29,9 @@ class MidiControl:
         self.max_sample_length_seconds = 3
         self.max_bank_size = 16
         self.button = QUNEO
+
+        self.messages = []
+
 
 
 
@@ -51,61 +55,66 @@ class MidiControl:
         self.sounds = []
 
         #if c.LOAD_SAMPLES == c.ALL_SAMPLES:
-        #self.load_samples()
+        self.load_samples()
+        self.load_all_samples()
 
-        self.all_dumpables = []
-        try:
-            print("TRYING LOADING PICKLE")
-
-            self.all_dumpables = pickle.load(open( "dumpables.p", "rb" ))
-            print("PICKLE LOADED")
-            for dump_list in self.all_dumpables:
-                my_list = []
-                for dumpable in dump_list:
-                    my_list.append(dumpable)
-
-                self.all_sounds.append(Soundy(None,sounddata=my_list))
-            print("SOUNDS LOADED")
-        except:
-            print("RELOADING SOUNDS")
-
-            self.load_all_samples()
-            #else:
-
-            print(self.all_sounds)
-            for i,list in enumerate(self.all_sounds):
-                dumps_list = []
-                for sound in list:
-                    dumps_list.append(sound.pgsound.get_raw())
-            self.all_dumpables.append(dumps_list)
-
-            pickle.dump(self.all_dumpables,open( "dumpables.p", "wb" ))
+        # self.all_dumpables = []
+        #
+        # print("TRYING LOADING PICKLE")
+        #
+        # self.all_dumpables = pickle.load(open( "dumpables.p", "rb" ))
+        # print("PICKLE LOADED")
+        # for dump_list in self.all_dumpables:
+        #     my_list = []
+        #     for dumpable in dump_list:
+        #         my_list.append(dumpable)
+        #
+        #     self.all_sounds.append(Soundy(None,sounddata=my_list))
+        # print("SOUNDS LOADED")
+        #
+        # print("RELOADING SOUNDS")
+        #
+        # self.load_all_samples()
+        # #else:
+        #
+        # print(self.all_sounds)
+        # for i,list in enumerate(self.all_sounds):
+        #     dumps_list = []
+        #     for sound in list:
+        #         dumps_list.append(sound.pgsound.get_raw())
+        # self.all_dumpables.append(dumps_list)
+        #
+        # pickle.dump(self.all_dumpables,open( "dumpables.p", "wb" ))
 
         self.devices = [rtmidi.MidiIn(),rtmidi.MidiIn()] # QUNEO, Reface CP
         ports = self.devices[0].get_ports()
-        num_ports = -1
+        print(ports)
+        num_ports = 0
         if ports:
             for i,port in enumerate(ports):
-                print(self.devices[0].get_port_name(i))
                 if (c.SYNTH in port or (c.MIDI_CONTROLLER in port)):# and not already_added_keyboard:
-                    print("WOO")
-                    num_ports +=1
+                    print(num_ports)
+
                     self.ports.append(port)
                     c.port_names.append(port)
-                    print(i)
-                    print(port)
-                    print(num_ports)
                     self.devices[num_ports].open_port(num_ports)
+                    num_ports+=1
 
 
 
 
+            #self.loop()
 
             while True:
-                self.metronome.get_time()
+                if time.time()*1000%10 ==0: #only run every 10 ms
+                    self.metronome.get_time()
+                    # if self.metronome.play_queue:
+                    #     self.metronome.midi_player.play_note(self.metronome.play_queue,'reface CP',True)
+                    #     self.metronome.play_queue = None
+
+
 
                 messages = []
-
                 for device in self.devices:
                     try:
                         messages.append(device.get_message()) # some timeout in ms
@@ -117,8 +126,12 @@ class MidiControl:
                         self.print_message(message,ports[i])
 
 
+
+
+
         else:
             print('NO MIDI INPUT PORTS!')
+
 
     def return_self(self):
         print("RETURNING SELF")
@@ -216,36 +229,36 @@ class MidiControl:
 
 
 
-    def play_sound(self,midis,note,banks,ports):
-        for j,midi in enumerate(midis):
+    def play_sound(self,midi,note,bank,port):
+        #for j,midi in enumerate(midis):
             #print("PLAY_SOUND")
             #print(midi)
-            if c.MIDI_CONTROLLER in ports[j]:
-                #print(time.time())
-                if not note:
-                    #print("GET NOTE")
-                    note = mp.getNoteNumber(midi)
-                    #print(note)
-                i = note - self.button.PAD_START
-                #print(i)
-                if i<0 or i>15:
-                    raise IndexError
+        if c.MIDI_CONTROLLER in port:#s[j]:
+            #print(time.time())
+            if not note:
+                #print("GET NOTE")
+                note = mp.getNoteNumber(midi)
+                #print(note)
+            i = note - self.button.PAD_START
+            #print(i)
+            if i<0 or i>15:
+                raise IndexError
+            else:
+                if self.VOL_SENS:
+                    self.all_sounds[bank][i].set_volume(mp.getVelocity(midi))
                 else:
-                    if self.VOL_SENS:
-                        self.all_sounds[banks[j]][i].set_volume(mp.getVelocity(midi))
-                    else:
-                        self.all_sounds[banks[j]][i].set_volume(128)
+                    self.all_sounds[bank][i].set_volume(128)
 
-                    if self.current_bank < 4:
-                        for sound in self.all_sounds[banks[j]]:
+                if self.current_bank < 4:
+                    for sound in self.all_sounds[bank]:
+                        sound.stop()
+                else:
+                    if midi[2]==0:
+                        for sound in self.all_sounds[bank]:
                             sound.stop()
-                    else:
-                        if midi[2]==0:
-                            for sound in self.all_sounds[banks[j]]:
-                                sound.stop()
 
-                    if midi[2]>0:
-                        self.all_sounds[banks[j]][i].play(block=False)
+                if midi[2]>0:
+                    self.all_sounds[bank][i].play(block=False)
 
 
 

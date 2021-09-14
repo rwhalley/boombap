@@ -10,7 +10,13 @@ class MIDIPlayer():
         self.triggered = False
         self.midiout = None
         self.available_ports = None
-        self.midiout = rtmidi.MidiOut()  # may need to clean this up
+        self.midiout = rtmidi.MidiOut()
+
+
+
+
+
+          # may need to clean this up
 
 
 
@@ -29,20 +35,24 @@ class MIDIPlayer():
 
 
 
-    def play_note(self,midis,ports):
+    def play_note(self,midi,port,play):
 
-
-        self.available_ports = self.midiout.get_ports()
-        if c.SYNTH in self.available_ports:
-            for i,port in enumerate(c.port_names):
-                if c.SYNTH in port:
+        # self.available_ports = self.midiout.get_ports()
+        # if c.SYNTH in self.available_ports:
+        #     for i,device in enumerate(c.port_names):
+        #         if c.SYNTH in device:
 
             # for port in self.available_ports:
             #     if c.SYNTH in port:
-                    self.midiout.open_port(i)
+        self.available_ports = self.midiout.get_ports()
+        if c.SYNTH in self.available_ports:
+            for i,device in enumerate(c.port_names):
+                if c.SYNTH in device:
 
 
                     with self.midiout:
+                        self.midiout.open_port(1)
+
                         #print(midi)
                         #print("PLAY NOTE")
                         #print(threading.active_count())
@@ -50,10 +60,12 @@ class MIDIPlayer():
                         # note_on = [0x90, 60, 90] # channel 1, middle C, velocity 112
                         # note_off=[0x90, 60,0]
                         # print(midi)
-                        for i, midi in enumerate(midis):
-                                if c.SYNTH in ports[i]:
-                                    self.midiout.send_message(midi)
-                        #time.sleep(0.2)
+
+                        #if c.SYNTH in port:
+                        #print(port)
+
+                        self.midiout.send_message(midi)
+                        self.midiout.close_port()
                         #self.midiout.send_message(note_on)
 
 
@@ -61,7 +73,7 @@ class MIDIPlayer():
                         #     print("YEAH BUDDY")
                         #     self.midiout.send_message(note_on)
                         #     self.triggered = True
-                    #del self.midiout
+                        del self.midiout
 
 
 

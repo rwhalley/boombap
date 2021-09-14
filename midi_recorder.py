@@ -7,6 +7,7 @@ class MIDIRecorder:
         self.RECORD = False
         self.my_loops = {} # all stored loops
         self.my_loop = []  # current recording loop
+        self.loop_d_loop = []
         self.play_loops = {} # all stored loops being played
         self.metronome = metronome
         self.active_loops = []
@@ -88,6 +89,8 @@ class MIDIRecorder:
         #    raise IndexError
         #else:
         self.my_loop.append(entry)
+        self.my_loop.sort()
+
 
         # if len(self.my_loop)>0 and self.my_loop[-1][1]>pos:
         #     self.my_loops.append(self.my_loop)
