@@ -55,8 +55,9 @@ class MidiControl:
         if ports:
             for i,port in enumerate(ports):
                 print(self.devices[0].get_port_name(i))
-                self.ports.append(port)
-                self.devices[i].open_port(i)
+                if (c.SYNTH in port) or (c.MIDI_CONTROLLER in port):
+                    self.ports.append(port)
+                    self.devices[i].open_port(i)
 
 
             while True:
