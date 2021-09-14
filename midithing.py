@@ -49,7 +49,7 @@ class MidiControl:
 
         self.devices = [rtmidi.MidiIn(),rtmidi.MidiIn()] # QUNEO, Reface CP
         ports = self.devices[0].get_ports()
-        num_ports = 0
+        num_ports = -1
         if ports:
             for i,port in enumerate(ports):
                 print(self.devices[0].get_port_name(i))
