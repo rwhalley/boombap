@@ -1,6 +1,5 @@
 import time
 import rtmidi
-import threading
 import midiparse as mp
 import CONFIG as c
 
@@ -16,9 +15,10 @@ class MIDIPlayer():
 
     def play_note(self,midis,ports):
 
-        x = threading.Thread(target=self.play_worker, args=(midis,ports),daemon=True)
-        x.start()
-        x.join()
+        # x = threading.Thread(target=self.play_worker, args=(midis,ports),daemon=True)
+        # x.start()
+        # x.join()
+        self.play_worker(midis,ports)
 
 
     def all_notes_off(self):

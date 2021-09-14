@@ -4,7 +4,6 @@ from soundy_pygame import Soundy
 from pathlib import Path
 from os import listdir
 from os.path import isfile, join
-import threading
 from midiout import MIDIPlayer
 from midi_recorder import MIDIRecorder
 import sabar_rhythms as sr
