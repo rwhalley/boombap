@@ -10,6 +10,7 @@ class MIDIPlayer():
         self.triggered = False
         self.midiout = None
         self.available_ports = None
+        self.midiout = rtmidi.MidiOut()
 
 
 
@@ -35,37 +36,34 @@ class MIDIPlayer():
 
     def play_worker(self,midis,ports):
 
-        self.midiout = rtmidi.MidiOut()
-        #self.available_ports = self.midiout.get_ports()
+
+        self.available_ports = self.midiout.get_ports()
+        if c.SYNTH in self.available_ports:
 
 
-        try:
             self.midiout.open_port(c.MIDI_OUT_PORT)
-        except:
-            #print("midiport not open")
-            #self.midiout.open_virtual_port("My virtual output")
-            pass
-
-        with self.midiout:
-            #print(midi)
-            #print("PLAY NOTE")
-            #print(threading.active_count())
-            #print(f"MIDI + {[hex(midi[0]),midi[1],midi[2]]}")
-            # note_on = [0x90, 60, 90] # channel 1, middle C, velocity 112
-            # note_off=[0x90, 60,0]
-            # print(midi)
-            for i, midi in enumerate(midis):
-                    if ports[i] == c.SYNTH:
-                        self.midiout.send_message(midi)
-            #time.sleep(0.2)
-            #self.midiout.send_message(note_on)
 
 
-            # if(midi[2]>0) and not self.triggered:
-            #     print("YEAH BUDDY")
-            #     self.midiout.send_message(note_on)
-            #     self.triggered = True
-        del self.midiout
+            with self.midiout:
+                #print(midi)
+                #print("PLAY NOTE")
+                #print(threading.active_count())
+                #print(f"MIDI + {[hex(midi[0]),midi[1],midi[2]]}")
+                # note_on = [0x90, 60, 90] # channel 1, middle C, velocity 112
+                # note_off=[0x90, 60,0]
+                # print(midi)
+                for i, midi in enumerate(midis):
+                        if ports[i] == c.SYNTH:
+                            self.midiout.send_message(midi)
+                #time.sleep(0.2)
+                #self.midiout.send_message(note_on)
+
+
+                # if(midi[2]>0) and not self.triggered:
+                #     print("YEAH BUDDY")
+                #     self.midiout.send_message(note_on)
+                #     self.triggered = True
+            #del self.midiout
 
 
 

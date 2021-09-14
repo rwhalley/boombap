@@ -52,14 +52,15 @@ class MidiControl:
         if ports:
             for i,port in enumerate(ports):
                 print(self.devices[0].get_port_name(i))
-                if (c.SYNTH in port) or (c.MIDI_CONTROLLER in port):
+                if (c.SYNTH in port or (c.MIDI_CONTROLLER in port)):# and not already_added_keyboard:
                     print("WOO")
                     num_ports +=1
                     self.ports.append(port)
                     print(i)
                     print(port)
                     print(num_ports)
-                    self.devices[num_ports].open_port(name=port)
+                    self.devices[num_ports].open_port(num_ports)
+
 
 
             #if c.LOAD_SAMPLES == c.ALL_SAMPLES:
@@ -295,6 +296,8 @@ class MidiControl:
                             print("ADD")
                             self.metronome.midi_recorder.add_play_loop(selection_index)
 
+                    elif note == self.button.RECORD:
+                        self.metronome.midi_recorder.switch_record_button()
 
 
                 try:  # PLAY SOUND
@@ -408,8 +411,7 @@ class MidiControl:
                             self.metronome.midi_player.all_notes_off()
                         self.metronome.midi_recorder.clear_current_loop()
 
-                    elif note == self.button.RECORD:
-                        self.metronome.midi_recorder.switch_record_button()
+
 
 
 
