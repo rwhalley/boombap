@@ -51,20 +51,24 @@ class MidiControl:
         self.sounds = []
 
         #if c.LOAD_SAMPLES == c.ALL_SAMPLES:
-        self.load_samples()
+        #self.load_samples()
 
         self.all_dumpables = []
         try:
+            print("TRYING LOADING PICKLE")
 
             self.all_dumpables = pickle.load(open( "dumpables.p", "rb" ))
+            print("PICKLE LOADED")
             for dump_list in self.all_dumpables:
                 my_list = []
                 for dumpable in dump_list:
                     my_list.append(dumpable)
 
                 self.all_sounds.append(Soundy(None,sounddata=my_list))
-
+            print("SOUNDS LOADED")
         except:
+            print("RELOADING SOUNDS")
+
             self.load_all_samples()
             #else:
 
