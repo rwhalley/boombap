@@ -1,6 +1,7 @@
 from midiparse import MIDIParse as mp
 import QUNEO
 import CONFIG as c
+from operator import itemgetter
 
 class MIDIRecorder:
     def __init__(self,metronome):
@@ -89,7 +90,7 @@ class MIDIRecorder:
         #    raise IndexError
         #else:
         self.my_loop.append(entry)
-        self.my_loop.sort()
+        #self.my_loop = sorted(self.my_loop,key=itemgetter(0))
 
 
         # if len(self.my_loop)>0 and self.my_loop[-1][1]>pos:

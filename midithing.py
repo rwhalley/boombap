@@ -2,6 +2,7 @@
 import rtmidi as rtmidi
 import pickle
 import time
+from threading import Thread, Lock
 from soundy_pygame import Soundy
 from os import listdir
 from os.path import isfile, join
@@ -40,6 +41,7 @@ class MidiControl:
         self.VOL_SENS = False
         self.port_name = None
         self.ports = []
+        self.portss = None
         self.pitch_factor = 1.0
         self.semitone = .059463094359
 
@@ -88,7 +90,8 @@ class MidiControl:
 
         self.devices = [rtmidi.MidiIn(),rtmidi.MidiIn()] # QUNEO, Reface CP
         ports = self.devices[0].get_ports()
-        print(ports)
+        print(f"ports: {ports}")
+        self.portss = ports
         num_ports = 0
         if ports:
             for i,port in enumerate(ports):
@@ -105,25 +108,32 @@ class MidiControl:
 
             #self.loop()
 
+            #self.run_metronome_looper()
+            #self.get_midi_messages()
             while True:
-                if time.time()*1000%10 ==0: #only run every 10 ms
-                    self.metronome.get_time()
-                    # if self.metronome.play_queue:
-                    #     self.metronome.midi_player.play_note(self.metronome.play_queue,'reface CP',True)
-                    #     self.metronome.play_queue = None
+                t1 = threading.Thread(target=self.run_metronome)
+                t2 = threading.Thread(target=self.get_midi_messages)
+                t3 = threading.Thread(target=self.run_looper)
+
+                t1.start()
+                t1.join()
+                t2.start()
+                t2.join()
+                t3.start()
+                t3.join()
 
 
 
-                messages = []
-                for device in self.devices:
-                    try:
-                        messages.append(device.get_message()) # some timeout in ms
-                    except:
-                        messages.append(None)
 
-                for i, message in enumerate(messages):
-                    if message:
-                        self.print_message(message,ports[i])
+            #t1 = Thread(target=self.run_metronome_looper(),args=())
+            #if time.time()*1000%10 ==0: #only run every 10 ms
+                # if self.metronome.play_queue:
+                #     self.metronome.midi_player.play_note(self.metronome.play_queue,'reface CP',True)
+                #     self.metronome.play_queue = None
+
+
+
+
 
 
 
@@ -131,6 +141,27 @@ class MidiControl:
 
         else:
             print('NO MIDI INPUT PORTS!')
+
+
+    def run_metronome(self):
+        self.metronome.get_time()
+
+    def run_looper(self):
+        self.metronome.looper()
+
+
+
+    def get_midi_messages(self):
+        messages = []
+        for device in self.devices:
+            try:
+                messages.append(device.get_message()) # some timeout in ms
+            except:
+                messages.append(None)
+
+        for i, message in enumerate(messages):
+            if message:
+                self.print_message(message,self.portss[i])
 
 
     def return_self(self):
@@ -485,21 +516,22 @@ class MidiControl:
 
                     # CUT OFF SOUND
                     if(note != self.button.METRONOME):
-                        try:
 
-                            if port == c.SYNTH:
+                        if c.SYNTH in port:
+                            if self.metronome.midi_recorder.RECORD:
+
+                                self.metronome.midi_recorder.add_entry(midi,port,time.time())
+                                print("ADDED")
+                                print(self.metronome.midi_recorder.my_loop)
+                        elif c.MIDI_CONTROLLER in port:
+                            if self.current_bank > 3:
                                 if self.metronome.midi_recorder.RECORD:
-                                    print(note)
-
                                     self.metronome.midi_recorder.add_entry(midi,port,time.time())
-                            elif port == "QUNEO":
-                                if self.current_bank > 3:
-                                    if self.metronome.midi_recorder.RECORD:
-                                        self.metronome.midi_recorder.add_entry(midi,port,time.time())
-                            #print("OFF_ADDED")
-                            #print(self.metronome.midi_recorder.my_loop)
-                        except:
-                            pass
+                                    print("ADDED")
+                                    print(self.metronome.midi_recorder.my_loop)
+                        #print("OFF_ADDED")
+                        #print(self.metronome.midi_recorder.my_loop)
+
 
                     i = note - self.button.PAD_START
 

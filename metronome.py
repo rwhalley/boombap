@@ -1,4 +1,5 @@
 import time
+from threading import Lock, Thread
 import copy
 from operator import itemgetter
 from soundy_pygame import Soundy
@@ -60,6 +61,10 @@ class Metronome:
         self.loop_pos = 0
         self.played= False
         self.last_loop_pos = -12432
+        self.filled = False
+        self.loop_blacklist = []
+
+        self.play_queue = []
 
 
         self.last_pos_diff = -1 #initial value
@@ -254,28 +259,30 @@ class Metronome:
         #    print("WHATTSSGSTRDSDFGSD")
         return pos
 
-    def get_time(self):
 
-        if self.is_on:
-            now = int(round(time.time() * 1000))%(self.note_length)
-            normal = now < self.last_time
-            grace = now > (int(0.50*self.note_length))
+    def looper(self):
+        ### --- MIDI LOoPER ---
+        current_pos = self.get_position()
+        ### -- QUNEO LOOP ---
 
-            ### --- MIDI LOoPER ---
-            current_pos = self.get_position()
-            ### -- QUNEO LOOP ---
+        my_loop = self.midi_recorder.my_loop
+        length = len(my_loop)
 
-            my_loop = self.midi_recorder.my_loop
+        if(len(self.midi_recorder.my_loop)>0):# or len(self.midi_recorder.play_loops)>0):
 
-            if(len(self.midi_recorder.my_loop)>0):# or len(self.midi_recorder.play_loops)>0):
+            #print(f"CURRENT INDEX {self.current_index}")
+            ### Faster ??
+            #print(f"lenloopdloop {len(self.midi_recorder.loop_d_loop)}")
+            #print(f"my_loop {len(self.midi_recorder.my_loop)}")
+            # Get the entry
+            self.play_queue = []
 
-                #print(f"CURRENT INDEX {self.current_index}")
-                ### Faster ??
-                #print(f"lenloopdloop {len(self.midi_recorder.loop_d_loop)}")
-                #print(f"my_loop {len(self.midi_recorder.my_loop)}")
-                # Get the entry
+            #if self.current_index+2<length:
+            #    length = self.current_index+2
 
-                self.entry = my_loop[self.current_index]
+            for i in range(0,length):
+
+                self.entry = my_loop[i]
                 self.entry_pos = self.entry[0]
 
                 self.midi = self.entry[1][0]
@@ -284,35 +291,87 @@ class Metronome:
                 self.port = self.entry[3]
                 self.when_added = self.entry[4]
 
-
-                #initial value up there
-
-                pos_diff = self.entry_pos-0.011 - current_pos
-
-                # --- if entry passed the position for the first time, try to play the note
-                if self.last_pos_diff > 0 and pos_diff < 0:
-                    play_note = True
-                    # --- Try to go to next entry in loop if there is one
-                    if len(my_loop) > 1:
-                        self.current_index +=1
-                        self.current_index = self.current_index % len(my_loop)
-
-                # --- if entry is before the position, don't play it
-                elif pos_diff > 0:
-                    play_note = False
-                # --- if entry is passed position, don't play it
-                elif self.last_pos_diff < 0 and pos_diff <0:
-                    play_note = False
-                else:
-                    play_note = False
-
-                if not self.play_queue:
-                    self.play_queue = []
-                if play_note:
-                    self.midi_player.play_note(self.midi,self.port,True)
+                if self.entry_pos < current_pos and not (i in self.loop_blacklist):
                     self.play_queue.append(self.midi)
-
+                    self.midi_player.play_note(self.play_queue,self.port,True)
+                    self.controller.play_sound(self.play_queue,False,self.bank,self.port)
                     self.play_queue = []
+                    self.loop_blacklist.append(i)
+                    self.current_index+=1
+
+            #self.midi_player.play_note(self.play_queue,self.port,True)
+
+
+            if self.last_pos > 0.9 and current_pos < 0.1:  # loop has ended
+                    #print(f"current_pos {current_pos}")
+                    #print(f"last pos {self.last_pos}")
+                    #print("ENDLOOP")
+                self.loop_blacklist = []  # clear loop blacklist
+                self.current_index = 0
+
+            self.last_pos = current_pos
+
+
+
+    def get_time(self):
+
+        if self.is_on:
+            now = int(round(time.time() * 1000))%(self.note_length)
+            normal = now < self.last_time
+            grace = now > (int(0.50*self.note_length))
+
+
+
+
+                # #initial value up there
+                #
+                # pos_diff = self.entry_pos - current_pos
+                # print("POS")
+                # print(pos_diff)
+                # print(self.last_pos_diff)
+                # # --- if entry passed the position for the first time, try to play the note
+                # if self.last_pos_diff > 0 and pos_diff <= 0:
+                #     play_note = True
+                #     # --- Try to go to next entry in loop if there is one
+                #     if len(my_loop) > 1:
+                #         self.current_index +=1
+                #         self.current_index = self.current_index % len(my_loop)
+                #         self.filled = True
+                #     else:
+                #         self.filled =True
+                # # --- if entry is before the position, don't play it
+                # elif pos_diff >= 0 and self.last_pos_diff>0:
+                #     play_note = False
+                #     self.filled = True
+                #
+                # elif pos_diff <=0 and self.last_pos_diff<0:
+                #     play_note = False
+                #     self.filled = True
+                # elif pos_diff >=0 and self.last_pos_diff<0:
+                #     play_note = False
+                #     self.filled = True
+                #
+                #
+                #
+                # # --- if entry is passed position, don't play it
+                # elif self.last_pos_diff < 0 and pos_diff <0:
+                #     play_note = False
+                #
+                # else:
+                #     play_note = False
+                #
+                #
+                #
+                # if not self.play_queue:
+                #     self.play_queue = []
+                # if play_note:
+                #     self.play_queue.append(self.midi)
+
+
+
+
+
+
 
 
 
@@ -321,7 +380,7 @@ class Metronome:
 
 
 
-                self.last_pos_diff = pos_diff
+                #self.last_pos_diff = pos_diff
 
 
 
