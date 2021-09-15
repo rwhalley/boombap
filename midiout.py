@@ -1,6 +1,6 @@
 import time
 import rtmidi
-import mido
+#import mido
 import midiparse as mp
 import CONFIG as c
 
@@ -11,8 +11,8 @@ class MIDIPlayer():
         self.triggered = False
         self.midiout = None
         self.available_ports = None
-        #self.midiout = rtmidi.MidiOut()
-        self.rtmidi = mido.Backend('mido.backends.rtmidi')
+        self.midiout = rtmidi.MidiOut()
+        #self.rtmidi = mido.Backend('mido.backends.rtmidi')
 
 
 
@@ -37,17 +37,22 @@ class MIDIPlayer():
             self.play_note(midis,ports)
 
     def play_note(self,midis,port,play):
-        with self.rtmidi.open_output('reface CP') as outport:
+        with self.midiout:
+            self.midiout.open_port(1)
             for midi in midis:
-                if midi[2]==0:
-                    note = 'note_off'
+                self.midiout.send_message(midi)
 
-                else:
-                    note = 'note_on'
-
-                message = mido.Message(note, note=midi[1], velocity=midi[2])
-
-                outport.send(message)
+        # with self.rtmidi.open_output('reface CP') as outport:
+        #     for midi in midis:
+        #         if midi[2]==0:
+        #             note = 'note_off'
+        #
+        #         else:
+        #             note = 'note_on'
+        #
+        #         message = mido.Message(note, note=midi[1], velocity=midi[2])
+        #
+        #         outport.send(message)
 
     # def play_note(self,midi,port,play):
     #
