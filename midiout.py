@@ -38,8 +38,9 @@ class MIDIPlayer():
 
     def play_note(self,midis,port,play):
         with self.midiout:
-            self.midiout.open_port(1)
             for midi in midis:
+                self.midiout.open_port(1)
+
                 self.midiout.send_message(midi)
 
         # with self.rtmidi.open_output('reface CP') as outport:

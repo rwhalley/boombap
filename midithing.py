@@ -103,6 +103,27 @@ class MidiControl:
                     self.devices[num_ports].open_port(num_ports)
                     num_ports+=1
 
+            WITH_THREADING = False
+            if WITH_THREADING:
+                t1 = threading.Thread(target=self.run_metronomes)
+                t2 = threading.Thread(target=self.get_midi_messages)
+                #t3 = threading.Thread(target=self.run_looper)
+
+                t1.start()
+                t2.start()
+
+                t1.join()
+                t2.join()
+
+                #t3.start()
+                #t3.join()
+            else:
+                while True:
+                    self.get_midi_message()
+
+                    self.metronome.get_time()
+                    self.metronome.looper()
+
 
 
 
@@ -111,16 +132,7 @@ class MidiControl:
             #self.run_metronome_looper()
             #self.get_midi_messages()
 
-            t1 = threading.Thread(target=self.run_metronome)
-            t2 = threading.Thread(target=self.get_midi_messages)
-            #t3 = threading.Thread(target=self.run_looper)
 
-            t1.start()
-            t1.join()
-            t2.start()
-            t2.join()
-            #t3.start()
-            #t3.join()
 
 
 
@@ -143,28 +155,38 @@ class MidiControl:
             print('NO MIDI INPUT PORTS!')
 
 
-    def run_metronome(self):
+    def run_metronomes(self):
         while True:
-            self.metronome.looper()
-            self.metronome.get_time()
+            self.run_metronome()
+    def run_metronome(self):
+        self.metronome.get_time()
+
+        self.metronome.looper()
+        #self.metronome.midi_player.play_note(self.metronome.play_queue,0,True)
+        # for midi in self.metronome.play_queue:
+        #     self.play_sound(midi[0],False,midi[1],midi[2])
+
+        #self.metronome.play_queue = []
+
 
     def run_looper(self):
         pass
 
-
-
     def get_midi_messages(self):
         while True:
-            messages = []
-            for device in self.devices:
-                try:
-                    messages.append(device.get_message()) # some timeout in ms
-                except:
-                    messages.append(None)
+            self.get_midi_message()
 
-            for i, message in enumerate(messages):
-                if message:
-                    self.print_message(message,self.portss[i])
+    def get_midi_message(self):
+        messages = []
+        for device in self.devices:
+            try:
+                messages.append(device.get_message()) # some timeout in ms
+            except:
+                messages.append(None)
+
+        for i, message in enumerate(messages):
+            if message:
+                self.print_message(message,self.portss[i])
 
 
     def return_self(self):

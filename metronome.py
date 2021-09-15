@@ -293,13 +293,16 @@ class Metronome:
 
                 if self.entry_pos < current_pos and not (i in self.loop_blacklist):
                     self.play_queue.append(self.midi)
-                    #self.midi_player.play_note(self.play_queue,self.port,True)
-                    #self.controller.play_sound(self.play_queue,False,self.bank,self.port)
+                    # self.midi_player.play_note(self.play_queue,self.port,True)
+                    #
+                    # #self.controller.play_sound(self.play_queue,False,self.bank,self.port)
+                    #
+                    #
+                    # self.play_queue = []
 
                     self.loop_blacklist.append(i)
                     self.current_index+=1
 
-            self.midi_player.play_note(self.play_queue,self.port,True)
 
 
             if self.last_pos > 0.9 and current_pos < 0.1:  # loop has ended
@@ -309,8 +312,12 @@ class Metronome:
                 self.loop_blacklist = []  # clear loop blacklist
                 self.current_index = 0
 
+
             self.last_pos = current_pos
 
+            self.midi_player.play_note(self.play_queue,self.port,True)
+            for midi in self.play_queue:
+                self.controller.play_sound(midi,False,self.bank,self.port)
 
 
     def get_time(self):
