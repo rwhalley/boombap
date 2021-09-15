@@ -110,17 +110,17 @@ class MidiControl:
 
             #self.run_metronome_looper()
             #self.get_midi_messages()
-            while True:
-                t1 = threading.Thread(target=self.run_metronome)
-                t2 = threading.Thread(target=self.get_midi_messages)
-                t3 = threading.Thread(target=self.run_looper)
 
-                t1.start()
-                t1.join()
-                t2.start()
-                t2.join()
-                t3.start()
-                t3.join()
+            t1 = threading.Thread(target=self.run_metronome)
+            t2 = threading.Thread(target=self.get_midi_messages)
+            #t3 = threading.Thread(target=self.run_looper)
+
+            t1.start()
+            t1.join()
+            t2.start()
+            t2.join()
+            #t3.start()
+            #t3.join()
 
 
 
@@ -144,24 +144,27 @@ class MidiControl:
 
 
     def run_metronome(self):
-        self.metronome.get_time()
+        while True:
+            self.metronome.looper()
+            self.metronome.get_time()
 
     def run_looper(self):
-        self.metronome.looper()
+        pass
 
 
 
     def get_midi_messages(self):
-        messages = []
-        for device in self.devices:
-            try:
-                messages.append(device.get_message()) # some timeout in ms
-            except:
-                messages.append(None)
+        while True:
+            messages = []
+            for device in self.devices:
+                try:
+                    messages.append(device.get_message()) # some timeout in ms
+                except:
+                    messages.append(None)
 
-        for i, message in enumerate(messages):
-            if message:
-                self.print_message(message,self.portss[i])
+            for i, message in enumerate(messages):
+                if message:
+                    self.print_message(message,self.portss[i])
 
 
     def return_self(self):
