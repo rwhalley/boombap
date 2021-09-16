@@ -95,10 +95,10 @@ class MidiControl:
         lock.acquire()
         with mido.open_input(port_name) as port:
 
-            for message in port:
+            for i,message in enumerate(port):
+                self.messages.append(message)
+                print(i)
                 print(message)
-                self.print_message(message,port)
-                #self.messages.append([message,port_name])
         lock.release()
 
     def return_self(self):
