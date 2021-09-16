@@ -59,18 +59,21 @@ class MidiControl:
 
         self.devices = list(set(mido.get_input_names()))
 
-        for device in self.devices:
-            if "Midi Through" in device:
-                pass
-            elif c.SYNTH in device:
-                #mido.open_input(device, callback=self.print_synth_message)
-                c.MY_DEVICES[1] = device
-            elif c.MIDI_CONTROLLER in device:
-                mido.open_input(callback=self.print_sampler_message)
-                c.MY_DEVICES[0] = device
-
+        # for device in self.devices:
+        #     if "Midi Through" in device:
+        #         pass
+        #     elif c.SYNTH in device:
+        #         #mido.open_input(device, callback=self.print_synth_message)
+        #         c.MY_DEVICES[1] = device
+        #     elif c.MIDI_CONTROLLER in device:
+        #         mido.open_input(callback=self.print_sampler_message)
+        #         c.MY_DEVICES[0] = device
+        mido.open_input(callback=self.print_general_message)
         while True:
             self.metronome.get_time()
+
+    def print_general_message(self,midi):
+        print(midi)
 
     def print_synth_message(self,midi):
         self.print_message(midi,c.MY_DEVICES[1])
