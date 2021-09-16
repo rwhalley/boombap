@@ -17,11 +17,14 @@ def parse_midi():
 
 def midi_in(name, lock):
     lock.acquire()
+    global messages
     with mido.open_input(name) as port:
 
         for i,message in enumerate(port):
             messages.append(message)
             print(i)
+            print(message)
+    messages = []
     lock.release()
 
 
