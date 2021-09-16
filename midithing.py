@@ -8,7 +8,7 @@ from metronome import Metronome
 import sys
 from pathlib import Path
 import QUNEO
-from threading import Thread
+from threading import Thread, Lock
 from errors import DeviceNotFound
 import mido
 
@@ -60,8 +60,10 @@ class MidiControl:
         self.devices = list(set(mido.get_input_names()))
 
         for device in self.devices:
-            if "Midi Through" not in device:
-                self.threads.append(Thread(target=self.midi_in,args=(device,)))
+            if "Midi Through" in device:
+                pass
+            else:
+                self.threads.append(Thread(target=self.midi_in,args=(device,Lock())))
 
         for thread in self.threads:
             thread.start()
@@ -89,13 +91,15 @@ class MidiControl:
 
 
 
-    def midi_in(self,port_name):
+    def midi_in(self,port_name,lock):
+        lock.acquire()
         with mido.open_input(port_name) as port:
 
             for message in port:
                 print(message)
                 self.print_message(message,port)
                 #self.messages.append([message,port_name])
+        lock.release()
 
     def return_self(self):
         print("RETURNING SELF")
