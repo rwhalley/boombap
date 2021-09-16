@@ -70,13 +70,19 @@ class MidiControl:
 
 
     def parse_midi(self):
+        last_msg = None
         while True:
             self.metronome.get_time()
             if len(self.messages)>0:
                 message = self.messages.pop(0)
                 midi = message[0]
                 port = message[1]
-                self.print_message(midi,port)
+                if last_msg == message:
+                    pass
+                else:
+                    self.print_message(midi,port)
+                last_msg = message
+
 
 
     def midi_in(self,port_name):
