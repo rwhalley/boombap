@@ -102,7 +102,11 @@ class MidiControl:
 
     def load_all_samples(self):
         self.all_sounds = []
-        for i in range(0,16): #  Load first 8 banks only
+        if c.PI_FAST_LOAD:
+            max = 1
+        else:
+            max = 16
+        for i in range(0,max): #  Load first 8 banks only
             try:
                 bank = []
                 path = self.basepath + str(i)+'/'
@@ -118,8 +122,10 @@ class MidiControl:
                 print("less than 8 sample banks found")
                 pass
         for bank in self.all_sounds:
-            self.pre_process_sounds(sounds = bank)
-
+            if c.PI_FAST_LOAD:
+                print("PI FAST LOAD ACTIVE")
+            else:
+                self.pre_process_sounds(sounds = bank)
 
     def load_samples(self):
         path = self.basepath + str(self.current_bank)+'/'
@@ -132,7 +138,11 @@ class MidiControl:
                 else:
                     self.sounds.append(Soundy(path+file))
         self.sounds = self.sounds[0:self.max_bank_size]
-        self.pre_process_sounds()
+        if c.PI_FAST_LOAD:
+            pass
+        else:
+            self.pre_process_sounds()
+
 
 
     def change_pitch(self,factor):
