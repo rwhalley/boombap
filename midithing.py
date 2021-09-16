@@ -88,11 +88,11 @@ class MidiControl:
 
 
             for i,device in enumerate(self.devices):
-
-                try:
-                    messages.append([device.get_message(),c.MY_DEVICES[i]])
-                except:
-                    messages.append(None)
+                if i==0:
+                    try:
+                        messages.append([device.get_message(),c.MY_DEVICES[i]])
+                    except:
+                        messages.append(None)
 
             for message in messages:
                 if message[0]:
