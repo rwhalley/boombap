@@ -10,6 +10,7 @@ from pathlib import Path
 import QUNEO
 from threading import Thread
 from errors import DeviceNotFound
+import mido
 
 from midiparse import MIDIParse as mp
 import CONFIG as c
@@ -52,77 +53,37 @@ class MidiControl:
         self.is_bank_shift_pressed = False
 
         self.devices = [] # QUNEO, Reface CP
-
-        # --- Query for ports
-        midi_in = rtmidi.MidiIn()
-        ports = midi_in.get_ports()
-        print(ports)
-        del midi_in # clean up
-
-        # --- Add entered devices from CONFIG.py and find corresponding ports ---
-        try:
-            if ports:
-                for i,device in enumerate(c.MY_DEVICES):  # for each device specified in CONFIG.py
-                    device_found = False
-                    for j,port in enumerate(ports):  # see if there's a port that matches
-                        if device in port and not device_found:
-                            self.ports.append(port)
-                            c.PORTS[port] = j
-                            c.MY_DEVICES[i] = port
-                            self.devices.append(rtmidi.MidiIn())
-                            print(f"port: {j}")
-                            print(self.devices[i].get_port_name(j))
-                            self.devices[i].open_port(j)
-                            device_found = True
-                    if not device_found:
-                        raise DeviceNotFound
-        except DeviceNotFound:
-            sys.exit(f"Specified MIDI Device Could Not Be Found in Ports List.")
+        self.messages = []
+        self.threads = []
 
 
+        self.devices = list(set(mido.get_input_names()))
+
+        for device in self.devices:
+            self.threads.append(Thread(target=self.midi_in,args=(device,)))
+
+        for thread in self.threads:
+            thread.start()
+
+        self.parse_midi()
+
+
+
+    def parse_midi(self):
         while True:
             self.metronome.get_time()
-
-            messages = []
-            devices = []
-
-
-            for i,device in enumerate(self.devices):
-                if i==0:
-                    try:
-                        messages.append([device.get_message(),c.MY_DEVICES[i]])
-                    except:
-                        messages.append(None)
-
-            for message in messages:
-                if message[0]:
-                    print(f"DEVICE: {message[1]}")
-                    print(f"MESSAGE: {message[0]}")
-                    self.print_message(message[0],message[1])
-
-            # try:
-            #     for i, device in enumerate(self.devices):
-            #
-            #         message = device.get_message()
-            #         messages.append(message) # some timeout in ms
-            #         # ch = message[0][0]
-            #         # port = None
-            #         # if ch in c.CONTROLLER_CH:
-            #         #     port = c.MY_DEVICES[0]
-            #         # elif ch in c.SYNTH_CH:
-            #         #     port = c.MY_DEVICES[1]
-            #         devices.append(device)
-            # except:
-            #     messages.append(None)
-            #
-            # for i, message in enumerate(messages):
-            #     if message:
-            #         print(f"message: {message}")
-            #         print(devices[i])
-            #         self.print_message(message,self.ports[i])
+            if len(self.messages)>0:
+                message = self.messages.pop(0)
+                midi = message[0]
+                port = message[1]
+                self.print_message(midi,port)
 
 
+    def midi_in(self,port_name):
+        with mido.open_input(port_name) as port:
 
+            for message in port:
+                self.messages.append([message,port_name])
 
     def return_self(self):
         print("RETURNING SELF")
@@ -273,297 +234,301 @@ class MidiControl:
 
 
     def print_message(self,midi,port):
-        if port in c.PORTS:
-            try:
-                print(f"midi = {midi}")
-                print(f"port = {port}")
-                note = mp.getNoteNumber(midi)
-                if c.DEBUG_MODE:
-                    print(f"note = {note}")
+
+        try:
+            # print(f"midi = {midi}")
+            # print(f"port = {port}")
+            # note = mp.getNoteNumber(midi)
+            # if c.DEBUG_MODE:
+            #     print(f"note = {note}")
 
 
-                if mp.isNoteOn(midi):
-                    play = True
-                    if note != self.button.METRONOME and note != self.button.CLEAR_LOOP:
+            if midi.type == 'note_on':
+                print("MIDIII")
+                note = midi.note
+                play = True
+                if note != self.button.METRONOME and note != self.button.CLEAR_LOOP:
 
+                    try:
+                        if self.metronome.midi_recorder.RECORD:
+                            self.metronome.midi_recorder.add_entry(midi,port,when_added=time.time())
+                            print("ADDED")
+                            print(self.metronome.midi_recorder.my_loop)
+                    except:
+                        pass
+
+                    # --- ACTIVATE METRONOME RHYTHM SELECTOR ---
+                    if self.is_metronome_pressed and note in self.button.PADS:
+                        self.metronome.switch(note-self.button.PAD_START)
+                        play = False
+
+                    # --- ACTIVATE LOOPER PATTERN SELECTOR ---
+                    elif self.is_loop_loader_pressed and note in self.button.PADS:
+                        play = False
+                        loop_id = note-self.button.PAD_START
+                        print(f"SELECTING {loop_id}")
                         try:
-                            if self.metronome.midi_recorder.RECORD:
-                                self.metronome.midi_recorder.add_entry(midi,port,when_added=time.time())
-                                print("ADDED")
-                                print(self.metronome.midi_recorder.my_loop)
-                        except:
+                            self.metronome.midi_recorder.my_loop = self.metronome.midi_recorder.my_loops[loop_id]
+
+                        except IndexError:
+                            print("Loop index not found: Add more loops.")
                             pass
 
-                        # --- ACTIVATE METRONOME RHYTHM SELECTOR ---
-                        if self.is_metronome_pressed and note in self.button.PADS:
-                            self.metronome.switch(note-self.button.PAD_START)
-                            play = False
-
-                        # --- ACTIVATE LOOPER PATTERN SELECTOR ---
-                        elif self.is_loop_loader_pressed and note in self.button.PADS:
-                            play = False
-                            loop_id = note-self.button.PAD_START
-                            print(f"SELECTING {loop_id}")
-                            try:
-                                self.metronome.midi_recorder.my_loop = self.metronome.midi_recorder.my_loops[loop_id]
-
-                            except IndexError:
-                                print("Loop index not found: Add more loops.")
+                    # --- ACTIVATE BANK SELECTION ---
+                    elif self.is_bank_shift_pressed and note in self.button.PADS:
+                        play = False
+                        old_bank = self.current_bank
+                        self.current_bank = note-self.button.PAD_START
+                        try:
+                            if c.LOAD_SAMPLES == c.ALL_SAMPLES:
                                 pass
-
-                        # --- ACTIVATE BANK SELECTION ---
-                        elif self.is_bank_shift_pressed and note in self.button.PADS:
-                            play = False
-                            old_bank = self.current_bank
-                            self.current_bank = note-self.button.PAD_START
-                            try:
-                                if c.LOAD_SAMPLES == c.ALL_SAMPLES:
-                                    pass
-                                else:
-                                    #  load samples as background process
-                                    if c.THREADING_ACTIVE:
-                                        x = Thread(target=self.load_samples, daemon=True)
-                                        x.start()
-                                    else:
-                                        self.load_samples()
-                            except FileNotFoundError:
-                                self.current_bank = old_bank
-
-                        # --- Save Current Loop to Memory ---
-                        # if self.is_loop_loader_pressed and note == self.button.SAVE_LOOP:
-                        #     print("SAVING LOOP")
-                        #     self.metronome.midi_recorder.save_loop()
-
-                        elif self.is_loop_saver_pressed and note in self.button.PADS:
-                            play = False
-                            location = note-self.button.PAD_START
-                            self.metronome.midi_recorder.save_loop(location)
-
-
-                        # --- Select Loop from Saved Loops ---
-                        elif self.is_loop_loader_pressed and note in self.button.PADS:
-                            play = False
-                            selection_index = note-self.button.PAD_START
-                            print(f"SELECTING LOOP {str(selection_index)}")
-                            if selection_index in self.metronome.midi_recorder.active_loops:
-                                self.metronome.midi_recorder.remove_play_loop(selection_index)
                             else:
-                                self.metronome.midi_recorder.add_play_loop(selection_index)
-
-
-
-                    try:  # PLAY SOUND
-                        if(play):
-                            i = note - self.button.PAD_START
-                            if i<0:
-                                raise IndexError
-                            if self.current_bank < 4:
-                                for sound in self.sounds:
-                                    sound.stop()
-                                for sound in self.all_sounds[self.current_bank]:
-                                    sound.stop()
-                            if self.VOL_SENS:
-                                self.sounds[i].set_volume(mp.getVelocity(midi))
-                            else:
-                                self.sounds[i].set_volume(128)
-                            self.sounds[i].play(block=False)
-
-
-                        ### OLD CONTROLS
-                    except:
-
-                        if note == self.button.METRONOME:
-                            self.is_metronome_pressed = True
-                            #self.metronome.switch()
-
-                        #elif self.is_metronome_pressed and note in self.button.PADS:
-
-                            #self.metronome.midi_player.play_note(midi)
-
-                        #    self.metronome.switch(note-self.button.PAD_START)
-
-                        # --- Activate Shift Button For Sample Bank Selection ---
-                        elif note == self.button.BANK_SELECTOR:
-                            # self.is_bank_shift_pressed = True
-                            # print("bank on")
-                            self.is_bank_shift_pressed = True
-                            if self.is_bank_shift_pressed:
-                                print("bank on")
-
-
-
-
-                        # --- Activate Shift Button For Loop Functions ---
-                        elif note == self.button.LOOP_SELECTOR:
-                            print("loop load shift on")
-                            self.is_loop_loader_pressed = True
-
-                        elif note == self.button.SAVE_LOOP:
-                            print("loop save shift on")
-                            self.is_loop_saver_pressed = True
-
-                        elif note == self.button.BPM_UP:
-                            self.metronome.bpm_up()
-
-                        elif note == self.button.BPM_DOWN:
-                            self.metronome.bpm_down()
-
-                        elif(note == self.button.PITCH_UP):
-                            self.pitch_factor = self.pitch_factor * (1 - self.semitone)
-                            self.change_pitch(self.pitch_factor)
-
-                        elif(note == self.button.PITCH_DOWN):
-                            self.pitch_factor = self.pitch_factor * (1 + self.semitone)
-                            self.change_pitch(self.pitch_factor)
-
-
-                        elif note == self.button.BANK_UP:
-                            self.current_bank += 1
-                            try:
-                                if c.LOAD_SAMPLES == c.ALL_SAMPLES:
-                                    pass
+                                #  load samples as background process
+                                if c.THREADING_ACTIVE:
+                                    x = Thread(target=self.load_samples, daemon=True)
+                                    x.start()
                                 else:
-                                    if c.THREADING_ACTIVE:
-                                        #  load samples as background process
-                                        x = Thread(target=self.load_samples, daemon=True)
-                                        x.start()
-                                    else:
-                                        self.load_samples()
-                            except FileNotFoundError:
-                                self.current_bank -= 1
+                                    self.load_samples()
+                        except FileNotFoundError:
+                            self.current_bank = old_bank
 
-                        elif note == self.button.BANK_DOWN:
-                            self.current_bank -= 1
-                            try:
-                                if c.LOAD_SAMPLES == c.ALL_SAMPLES:
-                                    pass
-                                else:
-                                    if c.THREADING_ACTIVE:
-                                        #  load samples as background process
-                                        x = Thread(target=self.load_samples, daemon=True)
-                                        x.start()
-                                    else:
-                                        self.load_samples()
-                            except FileNotFoundError:
-                                self.current_bank += 1
+                    # --- Save Current Loop to Memory ---
+                    # if self.is_loop_loader_pressed and note == self.button.SAVE_LOOP:
+                    #     print("SAVING LOOP")
+                    #     self.metronome.midi_recorder.save_loop()
 
-                        elif note == self.button.EXIT:
-                            try:
-                                if c.SYNTH in self.ports:
-                                    self.metronome.midi_player.all_notes_off()
-                                self.metronome.midi_player.cleanup()
-                            except:
-                                pass
-                            sys.exit()
+                    elif self.is_loop_saver_pressed and note in self.button.PADS:
+                        play = False
+                        location = note-self.button.PAD_START
+                        self.metronome.midi_recorder.save_loop(location)
 
-                        elif note == self.button.VOL_UP:
-                            self.adjust_volume(True)  # Turn Volume Up
 
-                        elif note == self.button.VOL_DOWN:
-                            self.adjust_volume(False)  #Turn Volume Down
-
-                        elif note == self.button.CLEAR_LOOP:
-                            if c.SYNTH in self.ports:
-                                self.metronome.midi_player.all_notes_off()
-                            self.metronome.midi_recorder.clear_current_loop()
-
-                        elif note == self.button.RECORD:
-                            self.metronome.midi_recorder.switch_record_button()
+                    # --- Select Loop from Saved Loops ---
+                    elif self.is_loop_loader_pressed and note in self.button.PADS:
+                        play = False
+                        selection_index = note-self.button.PAD_START
+                        print(f"SELECTING LOOP {str(selection_index)}")
+                        if selection_index in self.metronome.midi_recorder.active_loops:
+                            self.metronome.midi_recorder.remove_play_loop(selection_index)
+                        else:
+                            self.metronome.midi_recorder.add_play_loop(selection_index)
 
 
 
-                elif mp.isNoteOff(midi):
+                try:  # PLAY SOUND
+                    if(play):
+                        i = note - self.button.PAD_START
+                        if i<0:
+                            raise IndexError
+                        if self.current_bank < 4:
+                            for sound in self.sounds:
+                                sound.stop()
+                            for sound in self.all_sounds[self.current_bank]:
+                                sound.stop()
+                        if self.VOL_SENS:
+                            self.sounds[i].set_volume(mp.getVelocity(midi))
+                        else:
+                            self.sounds[i].set_volume(128)
+                        self.sounds[i].play(block=False)
 
-                    # # --- Deactivate Shift Button For Sample Bank Selection ---
-                    if note == self.button.BANK_SELECTOR:
-                       print("bank off")
-                       self.is_bank_shift_pressed = False
+
+                    ### OLD CONTROLS
+                except:
 
                     if note == self.button.METRONOME:
-                        self.is_metronome_pressed = False
-                        print("met shift off")
+                        self.is_metronome_pressed = True
+                        #self.metronome.switch()
+
+                    #elif self.is_metronome_pressed and note in self.button.PADS:
+
+                        #self.metronome.midi_player.play_note(midi)
+
+                    #    self.metronome.switch(note-self.button.PAD_START)
+
+                    # --- Activate Shift Button For Sample Bank Selection ---
+                    elif note == self.button.BANK_SELECTOR:
+                        # self.is_bank_shift_pressed = True
+                        # print("bank on")
+                        self.is_bank_shift_pressed = True
+                        if self.is_bank_shift_pressed:
+                            print("bank on")
 
 
 
-                    # --- Deactivate Shift Button For Loop Functions ---
-                    if note == self.button.LOOP_SELECTOR:
-                        print("loop load shift off")
-                        self.is_loop_loader_pressed = False
+
+                    # --- Activate Shift Button For Loop Functions ---
+                    elif note == self.button.LOOP_SELECTOR:
+                        print("loop load shift on")
+                        self.is_loop_loader_pressed = True
 
                     elif note == self.button.SAVE_LOOP:
-                        print("loop save shift off")
-                        self.is_loop_saver_pressed = False
+                        print("loop save shift on")
+                        self.is_loop_saver_pressed = True
+
+                    elif note == self.button.BPM_UP:
+                        self.metronome.bpm_up()
+
+                    elif note == self.button.BPM_DOWN:
+                        self.metronome.bpm_down()
+
+                    elif(note == self.button.PITCH_UP):
+                        self.pitch_factor = self.pitch_factor * (1 - self.semitone)
+                        self.change_pitch(self.pitch_factor)
+
+                    elif(note == self.button.PITCH_DOWN):
+                        self.pitch_factor = self.pitch_factor * (1 + self.semitone)
+                        self.change_pitch(self.pitch_factor)
 
 
-                    # CUT OFF SOUND
-                    if(note != self.button.METRONOME):
+                    elif note == self.button.BANK_UP:
+                        self.current_bank += 1
                         try:
+                            if c.LOAD_SAMPLES == c.ALL_SAMPLES:
+                                pass
+                            else:
+                                if c.THREADING_ACTIVE:
+                                    #  load samples as background process
+                                    x = Thread(target=self.load_samples, daemon=True)
+                                    x.start()
+                                else:
+                                    self.load_samples()
+                        except FileNotFoundError:
+                            self.current_bank -= 1
 
-                            if c.SYNTH in port:
-                                if self.metronome.midi_recorder.RECORD:
-                                    print(note)
+                    elif note == self.button.BANK_DOWN:
+                        self.current_bank -= 1
+                        try:
+                            if c.LOAD_SAMPLES == c.ALL_SAMPLES:
+                                pass
+                            else:
+                                if c.THREADING_ACTIVE:
+                                    #  load samples as background process
+                                    x = Thread(target=self.load_samples, daemon=True)
+                                    x.start()
+                                else:
+                                    self.load_samples()
+                        except FileNotFoundError:
+                            self.current_bank += 1
 
-                                    self.metronome.midi_recorder.add_entry(midi,port,time.time())
-                            elif c.MIDI_CONTROLLER in port:
-                                if self.current_bank > 3:
-                                    if self.metronome.midi_recorder.RECORD:
-                                        self.metronome.midi_recorder.add_entry(midi,port,time.time())
-                            #print("OFF_ADDED")
-                            #print(self.metronome.midi_recorder.my_loop)
+                    elif note == self.button.EXIT:
+                        try:
+                            if c.SYNTH in self.ports:
+                                self.metronome.midi_player.all_notes_off()
+                            self.metronome.midi_player.cleanup()
                         except:
                             pass
+                        sys.exit()
 
-                    i = note - self.button.PAD_START
+                    elif note == self.button.VOL_UP:
+                        self.adjust_volume(True)  # Turn Volume Up
 
-                    if self.current_bank > 3:
-                        self.sounds[i].stop()
+                    elif note == self.button.VOL_DOWN:
+                        self.adjust_volume(False)  #Turn Volume Down
 
-                    if note == self.button.VELOCITY_SENSITIVITY:
-                        self.switch_vol_sens()
+                    elif note == self.button.CLEAR_LOOP:
+                        if c.SYNTH in self.ports:
+                            self.metronome.midi_player.all_notes_off()
+                        self.metronome.midi_recorder.clear_current_loop()
 
-
-                    # try:  # PLAY SOUND
-                    #     print("TURN DOUNS OFF")
-                    #     i = note - self.button.PAD_START
-                    #     if i<0:
-                    #         raise IndexError
-                    #     if self.current_bank > 3:
-                    #         for sound in self.sounds:
-                    #             sound.stop()
-                    #         for sound in self.all_sounds[self.current_bank]:
-                    #             sound.stop()
-                    #
-                    #
-                    #     ### OLD CONTROLS
-                    # except:
-                    #     pass
-
-                elif mp.isController(midi):
-                    #print(f"controller = {midi.getControllerValue()}")
-
-                    if note == self.button.BPM_CONTROL and note != self.last_note:
-                        print(mp.getControllerValue(midi))
-                        print(f"note {note}")
-
-                        print(f"last_note {self.last_note}")
-
-                        self.metronome.set_bpm(mp.getControllerValue(midi)/128.)
+                    elif note == self.button.RECORD:
+                        self.metronome.midi_recorder.switch_record_button()
 
 
 
+            elif midi.type == "note_off":
+                note = midi.note
+                # # --- Deactivate Shift Button For Sample Bank Selection ---
+                if note == self.button.BANK_SELECTOR:
+                   print("bank off")
+                   self.is_bank_shift_pressed = False
 
-                    elif note == self.button.MBUNG_VOL_CONTROL:  # mbungmbung volume
-                        drum = 0
-                        self.metronome.update_volume(drum,mp.getControllerValue(midi))
+                if note == self.button.METRONOME:
+                    self.is_metronome_pressed = False
+                    print("met shift off")
 
-                    elif note == self.button.COL_VOL_CONTROL:  # col volume
-                        drum = 1
-                        self.metronome.update_volume(drum,mp.getControllerValue(midi))
 
-                    #print('CONTROLLER', midi.getControllerNumber(), midi.getControllerValue())
 
-            except IndexError:
-                pass
+                # --- Deactivate Shift Button For Loop Functions ---
+                if note == self.button.LOOP_SELECTOR:
+                    print("loop load shift off")
+                    self.is_loop_loader_pressed = False
+
+                elif note == self.button.SAVE_LOOP:
+                    print("loop save shift off")
+                    self.is_loop_saver_pressed = False
+
+
+                # CUT OFF SOUND
+                if(note != self.button.METRONOME):
+                    try:
+
+                        if c.SYNTH in port:
+                            if self.metronome.midi_recorder.RECORD:
+                                print(note)
+
+                                self.metronome.midi_recorder.add_entry(midi,port,time.time())
+                        elif c.MIDI_CONTROLLER in port:
+                            if self.current_bank > 3:
+                                if self.metronome.midi_recorder.RECORD:
+                                    self.metronome.midi_recorder.add_entry(midi,port,time.time())
+                        #print("OFF_ADDED")
+                        #print(self.metronome.midi_recorder.my_loop)
+                    except:
+                        pass
+
+                i = note - self.button.PAD_START
+
+                if self.current_bank > 3:
+                    self.sounds[i].stop()
+
+                if note == self.button.VELOCITY_SENSITIVITY:
+                    self.switch_vol_sens()
+
+
+                # try:  # PLAY SOUND
+                #     print("TURN DOUNS OFF")
+                #     i = note - self.button.PAD_START
+                #     if i<0:
+                #         raise IndexError
+                #     if self.current_bank > 3:
+                #         for sound in self.sounds:
+                #             sound.stop()
+                #         for sound in self.all_sounds[self.current_bank]:
+                #             sound.stop()
+                #
+                #
+                #     ### OLD CONTROLS
+                # except:
+                #     pass
+
+            elif midi.type == "control_change":
+                note = midi.control
+
+                #print(f"controller = {midi.getControllerValue()}")
+
+                if note == self.button.BPM_CONTROL and note != self.last_note:
+                    print(mp.getControllerValue(midi))
+                    print(f"note {note}")
+
+                    print(f"last_note {self.last_note}")
+
+                    self.metronome.set_bpm(mp.getControllerValue(midi)/128.)
+
+
+
+
+                elif note == self.button.MBUNG_VOL_CONTROL:  # mbungmbung volume
+                    drum = 0
+                    self.metronome.update_volume(drum,mp.getControllerValue(midi))
+
+                elif note == self.button.COL_VOL_CONTROL:  # col volume
+                    drum = 1
+                    self.metronome.update_volume(drum,mp.getControllerValue(midi))
+
+                #print('CONTROLLER', midi.getControllerNumber(), midi.getControllerValue())
+
+        except IndexError:
+            pass
 
 
 MidiControl()
