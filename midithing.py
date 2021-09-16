@@ -56,22 +56,23 @@ class MidiControl:
         self.messages = []
         self.threads = []
 
+        while True:
+            self.devices = list(set(mido.get_input_names()))
 
-        self.devices = list(set(mido.get_input_names()))
+            for device in self.devices:
+                if "Midi Through" in device:
+                    pass
+                else:
+                    self.threads.append(Thread(target=self.midi_in,args=(device,Lock())))
 
-        for device in self.devices:
-            if "Midi Through" in device:
-                pass
-            else:
-                self.threads.append(Thread(target=self.midi_in,args=(device,Lock())))
+            for thread in self.threads:
+                thread.start()
 
-        for thread in self.threads:
-            thread.start()
+            for thread in self.threads:
+                thread.join()
 
-        for thread in self.threads:
-            thread.join()
-
-        #self.parse_midi()
+            print(self.messages)
+            #self.parse_midi()
 
 
 
