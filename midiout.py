@@ -12,7 +12,7 @@ class MIDIPlayer():
         self.triggered = False
         self.midiout = None
         self.available_ports = None
-
+        self.midiout = rtmidi.MidiOut()
 
 
     def play_note(self,midis,ports):
@@ -37,7 +37,7 @@ class MIDIPlayer():
 
     def play_worker(self,midis,ports):
 
-        self.midiout = rtmidi.MidiOut()
+
         #self.available_ports = self.midiout.get_ports()
 
 
@@ -70,7 +70,7 @@ class MIDIPlayer():
             #     print("YEAH BUDDY")
             #     self.midiout.send_message(note_on)
             #     self.triggered = True
-        del self.midiout
+        #del self.midiout
 
 
 
