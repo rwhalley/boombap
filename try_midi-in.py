@@ -1,52 +1,72 @@
 import rtmidi
 import mido
+from mido.ports import MultiPort
 import time
 from threading import Thread, Lock
 
-
+def print_message(msg):
+    print(msg)
 options = list(set(mido.get_input_names()))
 print(options)
+mido.open_input("QUNEO", callback=print_message)
+mido.open_input("reface CP", callback=print_message)
+
+
+while True:
+    time.time()
+
 
 messages = []
 threads = []
 
-def parse_midi(lock):
-    global messages
-    lock.acquire()
-    while True:
-        if len(messages)>0:
-            print(messages.pop(0))
-    messages = []
-    lock.release()
+# def parse_midi(lock):
+#     global messages
+#     #lock.acquire()
+#     while len(messages)>0:
+#         print(messages.pop(0))
+#     messages = []
+#     #lock.release()
 
 
-def midi_in(name, lock):
-    global messages
-    lock.acquire()
-    with mido.open_input(name) as port:
+#
+#
+# def midi_in(name):
+#     global messages
+#     #lock.acquire()
+#     port = mido.open_input(name, callback=print_message)
+#     while True:
+#         port.callback = print_message
+#     #lock.release()
+#
+#
+#
+#
+# for device in options:
+#     if "Midi Through" in device:
+#         pass
+#     else:
+#         midi_in(device)
+#         #threads.append(Thread(target=midi_in,args=(device,Lock())))
+#
+#
+# for thread in threads:
+#     thread.start()
+#
+# for thread in threads:
+#     thread.join()
 
-        for i,message in enumerate(port):
-            messages.append(message)
-            #print(i)
-            #print(message)
-    lock.release()
+# ports = []
+# for device in options:
+#     if "Midi Through" in device:
+#         pass
+#     else:
+#         ports.append(mido.open_input(device))
+# multi = MultiPort(ports)
+#
+# for msg in multi:
+#     print(msg)
 
 
-
-for device in options:
-    if "Midi Through" in device:
-        pass
-    else:
-        threads.append(Thread(target=midi_in,args=(device,Lock())))
-#t3 = Thread(target=parse_midi,args=(Lock(),))
-
-#t3.start()
-for thread in threads:
-    thread.start()
-
-
-for thread in threads:
-    thread.join()
 
 #parse_midi()
 

@@ -59,52 +59,26 @@ class MidiControl:
 
         self.devices = list(set(mido.get_input_names()))
 
-        # Thread(target=self.main_thread,args=()).start()
-
         for device in self.devices:
             if "Midi Through" in device:
                 pass
-            else:
-                self.threads.append(Thread(target=self.midi_in,args=(device,Lock())))
+            elif c.SYNTH in device:
+                mido.open_input(device, callback=self.print_synth_message)
+                c.MY_DEVICES[1] = device
+            elif c.MIDI_CONTROLLER in device:
+                mido.open_input(device, callback=self.print_sampler_message)
+                c.MY_DEVICES[0] = device
 
-        for thread in self.threads:
-            thread.start()
-
-        for thread in self.threads:
-            thread.join()
-
-        #self.parse_midi()
-
-
-    def main_thread(self):
-        while True:
-            pass
-
-    def parse_midi(self):
-        last_msg = None
         while True:
             self.metronome.get_time()
-            if len(self.messages)>0:
-                message = self.messages.pop(0)
-                midi = message[0]
-                port = message[1]
-                if last_msg == message:
-                    pass
-                else:
-                    self.print_message(midi,port)
-                last_msg = message
+
+    def print_synth_message(self,midi):
+        self.print_message(midi,c.MY_DEVICES[1])
 
 
+    def print_sampler_message(self,midi):
+        self.print_message(midi,c.MY_DEVICES[0])
 
-    def midi_in(self,port_name,lock):
-        lock.acquire()
-        with mido.open_input(port_name) as port:
-
-            for i,message in enumerate(port):
-                self.messages.append(message)
-                print(i)
-                print(message)
-        lock.release()
 
     def return_self(self):
         print("RETURNING SELF")
