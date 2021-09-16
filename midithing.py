@@ -56,6 +56,7 @@ class MidiControl:
         # --- Query for ports
         midi_in = rtmidi.MidiIn()
         ports = midi_in.get_ports()
+        print(ports)
         del midi_in # clean up
 
         # --- Add entered devices from CONFIG.py and find corresponding ports ---
