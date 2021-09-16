@@ -9,34 +9,38 @@ options = list(set(mido.get_input_names()))
 messages = []
 threads = []
 
-def parse_midi():
+def parse_midi(lock):
     global messages
+    lock.acquire()
     while True:
-        print(messages.pop(0))
+        if len(messages)>0:
+            print(messages.pop(0))
+    messages = []
+    lock.release()
 
 
 def midi_in(name, lock):
-    lock.acquire()
     global messages
+    lock.acquire()
     with mido.open_input(name) as port:
 
         for i,message in enumerate(port):
             messages.append(message)
             #print(i)
             #print(message)
-    messages = []
     lock.release()
 
 
 
 for device in options:
     threads.append(Thread(target=midi_in,args=(device,Lock())))
-threads.append(Thread(target=parse_midi,args=(Lock(),)))
+Thread(target=parse_midi,args=(Lock(),)).start()
 
 for thread in threads:
     thread.start()
-    thread.join()
 
+for thread in threads:
+    thread.join()
 #parse_midi()
 
 
