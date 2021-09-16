@@ -96,7 +96,7 @@ class MidiControl:
                 if message:
                     #print(f"message: {message}")
                     #print(devices[i])
-                    self.print_message(message,self.ports[i])
+                    self.print_message(message,devices[i])
 
 
 
