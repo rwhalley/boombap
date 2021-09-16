@@ -120,7 +120,11 @@ class MidiControl:
                 else:
                     self.sounds.append(Soundy(path+file))
         self.sounds = self.sounds[0:self.max_bank_size]
-        self.pre_process_sounds()
+        if c.PI_FAST_LOAD:
+            pass
+        else:
+            self.pre_process_sounds()
+
 
 
     def change_pitch(self,factor):
