@@ -1,11 +1,12 @@
 import rtmidi
 import mido
 import time
-from threading import Thread
+from threading import Thread, Lock
+
 
 options = list(set(mido.get_input_names()))
 
-
+lock = Lock()
 messages = []
 threads = []
 
@@ -15,17 +16,19 @@ def parse_midi():
             print(messages.pop(0))
 
 
-def midi_in(name):
+def midi_in(name, lock):
+    lock.acquire()
     with mido.open_input(name) as port:
 
         for message in port:
             messages.append(message)
             print(message)
+    lock.release()
 
 
 
 for device in options:
-    threads.append(Thread(target=midi_in,args=(device,)))
+    threads.append(Thread(target=midi_in,args=(device,lock)))
 
 for thread in threads:
     thread.start()
