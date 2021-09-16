@@ -23,6 +23,13 @@ def midi_in(name):
 
 
 
+for device in options:
+    threads.append(Thread(target=midi_in,args=(device,)))
+
+for thread in threads:
+    thread.start()
+
+parse_midi()
 
 
 # t1.join()

@@ -73,7 +73,6 @@ class MidiControl:
         while True:
             self.metronome.get_time()
             if len(self.messages)>0:
-                self.messages = list(set(self.messages))
                 message = self.messages.pop(0)
                 midi = message[0]
                 port = message[1]
