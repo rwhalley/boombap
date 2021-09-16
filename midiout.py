@@ -45,7 +45,8 @@ class MIDIPlayer():
             for key in c.PORTS:
                 if c.SYNTH in key:
                     port_num = c.PORTS[key]
-            self.midiout.open_port(port_num)
+                    print(f"midiout port num: {port_num}")
+                    self.midiout.open_port(port_num)
 
         except (IndexError("MIDI port not open")):
             print("virtual port")
