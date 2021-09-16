@@ -6,7 +6,6 @@ from threading import Thread, Lock
 
 options = list(set(mido.get_input_names()))
 
-lock = Lock()
 messages = []
 threads = []
 
@@ -28,7 +27,7 @@ def midi_in(name, lock):
 
 
 for device in options:
-    threads.append(Thread(target=midi_in,args=(device,lock)))
+    threads.append(Thread(target=midi_in,args=(device,Lock())))
 
 for thread in threads:
     thread.start()
