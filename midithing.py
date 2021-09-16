@@ -86,26 +86,40 @@ class MidiControl:
             messages = []
             devices = []
 
-            try:
-                for i, device in enumerate(self.devices):
 
-                    message = device.get_message()
-                    messages.append(message) # some timeout in ms
-                    # ch = message[0][0]
-                    # port = None
-                    # if ch in c.CONTROLLER_CH:
-                    #     port = c.MY_DEVICES[0]
-                    # elif ch in c.SYNTH_CH:
-                    #     port = c.MY_DEVICES[1]
-                    devices.append(port)
-            except:
-                messages.append(None)
+            for i,device in enumerate(self.devices):
 
-            for i, message in enumerate(messages):
-                if message:
-                    print(f"message: {message}")
-                    print(devices[i])
-                    self.print_message(message,self.ports[i])
+                try:
+                    messages.append([device.get_message(),c.MY_DEVICES[i]])
+                except:
+                    messages.append(None)
+
+            for message in messages:
+                if message[0]:
+                    print(f"DEVICE: {message[1]}")
+                    print(f"MESSAGE: {message[0]}")
+                    self.print_message(message[0],message[1])
+
+            # try:
+            #     for i, device in enumerate(self.devices):
+            #
+            #         message = device.get_message()
+            #         messages.append(message) # some timeout in ms
+            #         # ch = message[0][0]
+            #         # port = None
+            #         # if ch in c.CONTROLLER_CH:
+            #         #     port = c.MY_DEVICES[0]
+            #         # elif ch in c.SYNTH_CH:
+            #         #     port = c.MY_DEVICES[1]
+            #         devices.append(device)
+            # except:
+            #     messages.append(None)
+            #
+            # for i, message in enumerate(messages):
+            #     if message:
+            #         print(f"message: {message}")
+            #         print(devices[i])
+            #         self.print_message(message,self.ports[i])
 
 
 
@@ -261,11 +275,12 @@ class MidiControl:
     def print_message(self,midi,port):
         if port in c.PORTS:
             try:
+                print(f"midi = {midi}")
+                print(f"port = {port}")
                 note = mp.getNoteNumber(midi)
                 if c.DEBUG_MODE:
                     print(f"note = {note}")
-                    print(f"midi = {midi}")
-                    print(f"port = {port}")
+
 
                 if mp.isNoteOn(midi):
                     play = True
