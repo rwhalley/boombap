@@ -85,12 +85,12 @@ class MidiControl:
             messages = []
             devices = []
 
-            for i, device in enumerate(self.devices):
-                try:
-                    messages.append(device.get_message()) # some timeout in ms
-                    devices.append(self.ports[i])
-                except:
-                    messages.append(None)
+            #for i, device in enumerate(self.devices):
+            try:
+                messages.append(self.devices[0].get_message()) # some timeout in ms
+                devices.append(self.ports[0])
+            except:
+                messages.append(None)
 
             for i, message in enumerate(messages):
                 if message:
