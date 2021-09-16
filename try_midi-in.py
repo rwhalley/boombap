@@ -40,9 +40,10 @@ t3.start()
 for thread in threads:
     thread.start()
 
+t3.join()
 for thread in threads:
     thread.join()
-t3.join()
+
 #parse_midi()
 
 
