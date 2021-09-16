@@ -34,7 +34,10 @@ def midi_in(name, lock):
 
 
 for device in options:
-    threads.append(Thread(target=midi_in,args=(device,Lock())))
+    if "Midi Through" in device:
+        pass
+    else:
+        threads.append(Thread(target=midi_in,args=(device,Lock())))
 #t3 = Thread(target=parse_midi,args=(Lock(),))
 
 #t3.start()
