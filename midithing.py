@@ -73,6 +73,7 @@ class MidiControl:
         while True:
             self.metronome.get_time()
             if len(self.messages)>0:
+                self.messages = list(set(self.messages))
                 message = self.messages.pop(0)
                 midi = message[0]
                 port = message[1]
@@ -239,12 +240,11 @@ class MidiControl:
             # print(f"midi = {midi}")
             # print(f"port = {port}")
             # note = mp.getNoteNumber(midi)
-            # if c.DEBUG_MODE:
-            #     print(f"note = {note}")
+            if c.DEBUG_MODE:
+                 print(midi)
 
 
             if midi.type == 'note_on':
-                print("MIDIII")
                 note = midi.note
                 play = True
                 if note != self.button.METRONOME and note != self.button.CLEAR_LOOP:

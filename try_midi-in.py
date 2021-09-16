@@ -23,13 +23,7 @@ def midi_in(name):
 
 
 
-for option in options:
-    threads.append(Thread(target=midi_in,args=(option,)))
 
-for thread in threads:
-    thread.start()
-
-parse_midi()
 
 # t1.join()
 # t2.join()
