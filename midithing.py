@@ -252,6 +252,7 @@ class MidiControl:
                 if c.DEBUG_MODE:
                     print(f"note = {note}")
                     print(f"midi = {midi}")
+                    print(f"port = {port}")
 
                 if mp.isNoteOn(midi):
                     play = True
