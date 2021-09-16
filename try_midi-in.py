@@ -34,6 +34,7 @@ for device in options:
 
 for thread in threads:
     thread.start()
+    thread.join()
 
 #parse_midi()
 
