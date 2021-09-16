@@ -1,5 +1,5 @@
 DEBUG_MODE = 0
-PORTS = []
+PORTS = {}
 
 
 MIDI_CONTROLLER = 'QUNEO'

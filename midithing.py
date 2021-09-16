@@ -66,7 +66,7 @@ class MidiControl:
                     for j,port in enumerate(ports):  # see if there's a port that matches
                         if device in port and not device_found:
                             self.ports.append(port)
-                            c.PORTS.append(port)
+                            c.PORTS[port] = j
                             self.devices.append(rtmidi.MidiIn())
                             print(self.devices[i].get_port_name(j))
                             self.devices[i].open_port(j)
