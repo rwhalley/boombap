@@ -67,6 +67,7 @@ class MidiControl:
                     for j,port in enumerate(ports):  # see if there's a port that matches
                         if device in port and not device_found:
                             self.ports.append(port)
+                            c.MY_DEVICES[i] = port
                             c.PORTS[port] = j
                             self.devices.append(rtmidi.MidiIn())
                             print(f"port: {j}")
@@ -76,23 +77,27 @@ class MidiControl:
                     if not device_found:
                         raise DeviceNotFound
         except DeviceNotFound:
-            sys.exit("Specified MIDI Device Could Not Be Found in Ports List.")
+            sys.exit(f"Specified MIDI Device Could Not Be Found in Ports List.")
 
 
         while True:
             self.metronome.get_time()
 
             messages = []
+            devices = []
 
-            for device in self.devices:
+            for i, device in enumerate(self.devices):
                 try:
                     messages.append(device.get_message()) # some timeout in ms
+                    devices.append(c.MY_DEVICES[i])
                 except:
                     messages.append(None)
 
             for i, message in enumerate(messages):
                 if message:
-                    self.print_message(message,ports[i])
+                    #print(f"message: {message}")
+                    #print(devices[i])
+                    self.print_message(message,devices[i])
 
 
 
