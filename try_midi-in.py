@@ -20,6 +20,7 @@ def midi_in(name):
 
         for message in port:
             messages.append(message)
+            print(message)
 
 
 
@@ -29,7 +30,7 @@ for device in options:
 for thread in threads:
     thread.start()
 
-parse_midi()
+#parse_midi()
 
 
 # t1.join()
