@@ -1,6 +1,6 @@
 DEBUG_MODE = 0
 
-
+PI_FAST_LOAD = True
 
 
 
