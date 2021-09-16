@@ -69,8 +69,8 @@ class MidiControl:
                             self.ports.append(port)
                             c.PORTS[port] = 1
                             self.devices.append(rtmidi.MidiIn())
-                            print(self.devices[i].get_port_name(j))
-                            self.devices[i].open_port(j)
+                            print(self.devices[i].get_port_name(1))
+                            self.devices[i].open_port(1)
                             device_found = True
                     if not device_found:
                         raise DeviceNotFound
