@@ -59,7 +59,7 @@ class MidiControl:
 
         self.devices = list(set(mido.get_input_names()))
 
-        Thread(target=self.main_thread,args=()).start()
+        # Thread(target=self.main_thread,args=()).start()
 
         for device in self.devices:
             if "Midi Through" in device:
