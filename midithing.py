@@ -4,11 +4,11 @@ import time
 from soundy_pygame import Soundy
 from os import listdir
 from os.path import isfile, join
-from threading import Thread
 from metronome import Metronome
 import sys
 from pathlib import Path
 import QUNEO
+from threading import Thread
 
 from midiparse import MIDIParse as mp
 import CONFIG as c
@@ -120,22 +120,33 @@ class MidiControl:
     def change_pitch(self,factor):
         for sound in self.sounds:
 
-            # Run DSP as background process
-            x = Thread(sound.change_pitch(factor), daemon=True)
-            x.start()
-            x = Thread(sound.normalize(), daemon=True)
-            x.start()
-            x = Thread(sound.make_loud(), daemon=True)
-            x.start()
+            if(c.THREADING_ACTIVE):
+                # Run DSP as background process
+                x = Thread(sound.change_pitch(factor), daemon=True)
+                x.start()
+                x = Thread(sound.normalize(), daemon=True)
+                x.start()
+                x = Thread(sound.make_loud(), daemon=True)
+                x.start()
+            else:
+                sound.change_pitch(factor)
+                sound.normalize()
+                sound.make_loud()
+
         for sound in self.all_sounds[self.current_bank]:
 
-            # Run DSP as background process
-            x = Thread(sound.change_pitch(factor), daemon=True)
-            x.start()
-            x = Thread(sound.normalize(), daemon=True)
-            x.start()
-            x = Thread(sound.make_loud(), daemon=True)
-            x.start()
+            if c.THREADING_ACTIVE:
+                # Run DSP as background process
+                x = Thread(sound.change_pitch(factor), daemon=True)
+                x.start()
+                x = Thread(sound.normalize(), daemon=True)
+                x.start()
+                x = Thread(sound.make_loud(), daemon=True)
+                x.start()
+            else:
+                sound.change_pitch(factor)
+                sound.normalize()
+                sound.make_loud()
 
     def pre_process_sounds(self, sounds = None):
         if not sounds:
@@ -251,8 +262,11 @@ class MidiControl:
                                 pass
                             else:
                                 #  load samples as background process
-                                x = Thread(target=self.load_samples, daemon=True)
-                                x.start()
+                                if c.THREADING_ACTIVE:
+                                    x = Thread(target=self.load_samples, daemon=True)
+                                    x.start()
+                                else:
+                                    self.load_samples()
                         except FileNotFoundError:
                             self.current_bank = old_bank
 
@@ -350,9 +364,12 @@ class MidiControl:
                             if c.LOAD_SAMPLES == c.ALL_SAMPLES:
                                 pass
                             else:
-                                #  load samples as background process
-                                x = Thread(target=self.load_samples, daemon=True)
-                                x.start()
+                                if c.THREADING_ACTIVE:
+                                    #  load samples as background process
+                                    x = Thread(target=self.load_samples, daemon=True)
+                                    x.start()
+                                else:
+                                    self.load_samples()
                         except FileNotFoundError:
                             self.current_bank -= 1
 
@@ -362,9 +379,12 @@ class MidiControl:
                             if c.LOAD_SAMPLES == c.ALL_SAMPLES:
                                 pass
                             else:
-                                #  load samples as background process
-                                x = Thread(target=self.load_samples, daemon=True)
-                                x.start()
+                                if c.THREADING_ACTIVE:
+                                    #  load samples as background process
+                                    x = Thread(target=self.load_samples, daemon=True)
+                                    x.start()
+                                else:
+                                    self.load_samples()
                         except FileNotFoundError:
                             self.current_bank += 1
 
