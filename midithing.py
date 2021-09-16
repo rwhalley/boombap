@@ -67,7 +67,6 @@ class MidiControl:
                     for j,port in enumerate(ports):  # see if there's a port that matches
                         if device in port and not device_found:
                             self.ports.append(port)
-                            c.MY_DEVICES[i] = port
                             c.PORTS[port] = j
                             self.devices.append(rtmidi.MidiIn())
                             print(f"port: {j}")
@@ -89,7 +88,7 @@ class MidiControl:
             for i, device in enumerate(self.devices):
                 try:
                     messages.append(device.get_message()) # some timeout in ms
-                    devices.append(c.MY_DEVICES[i])
+                    devices.append(self.ports[i])
                 except:
                     messages.append(None)
 
@@ -97,7 +96,7 @@ class MidiControl:
                 if message:
                     #print(f"message: {message}")
                     #print(devices[i])
-                    self.print_message(message,devices[i])
+                    self.print_message(message,self.ports[i])
 
 
 
