@@ -28,7 +28,7 @@ def midi_in(name, lock):
         for i,message in enumerate(port):
             messages.append(message)
             #print(i)
-            print(message)
+            #print(message)
     lock.release()
 
 
@@ -38,9 +38,9 @@ for device in options:
         pass
     else:
         threads.append(Thread(target=midi_in,args=(device,Lock())))
-#t3 = Thread(target=parse_midi,args=(Lock(),))
+t3 = Thread(target=parse_midi,args=(Lock(),))
 
-#t3.start()
+t3.start()
 for thread in threads:
     thread.start()
 
