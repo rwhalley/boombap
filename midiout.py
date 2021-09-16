@@ -16,10 +16,12 @@ class MIDIPlayer():
 
 
     def play_note(self,midis,ports):
-
-        x = threading.Thread(target=self.play_worker, args=(midis,ports),daemon=True)
-        x.start()
-        x.join()
+        if c.THREADING_ACTIVE:
+            x = threading.Thread(target=self.play_worker, args=(midis,ports),daemon=True)
+            x.start()
+            x.join()
+        else:
+            self.play_worker(midis,ports)
 
 
     def all_notes_off(self):
