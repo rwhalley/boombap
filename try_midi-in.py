@@ -8,14 +8,16 @@ def print_message(msg):
     print(msg)
 options = list(set(mido.get_input_names()))
 print(options)
-for device in options:
-    if "Midi Through" in device:
-        pass
+mido.open_input(callback=print_message)
+
+# for device in options:
+#     if "Midi Through" in device:
+#         pass
     #elif "reface CP" in device:
     #    mido.open_input(device, callback=print_message)
 
-    elif "QUNEO" in device:
-        mido.open_input(device, callback=print_message)
+    # elif "QUNEO" in device:
+    #     mido.open_input(device, callback=print_message)
 
 
 

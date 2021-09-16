@@ -66,7 +66,7 @@ class MidiControl:
                 #mido.open_input(device, callback=self.print_synth_message)
                 c.MY_DEVICES[1] = device
             elif c.MIDI_CONTROLLER in device:
-                mido.open_input(device, callback=self.print_sampler_message)
+                mido.open_input(callback=self.print_sampler_message)
                 c.MY_DEVICES[0] = device
 
         while True:
