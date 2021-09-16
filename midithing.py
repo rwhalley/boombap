@@ -9,6 +9,7 @@ from metronome import Metronome
 import sys
 from pathlib import Path
 import QUNEO
+from errors import DeviceNotFound
 
 from midiparse import MIDIParse as mp
 import CONFIG as c
@@ -57,34 +58,42 @@ class MidiControl:
         ports = midi_in.get_ports()
         del midi_in # clean up
 
-        # --- Add devices
-        if ports:
-            for i,port in enumerate(ports):
-                self.ports.append(port)
-                c.PORTS.append(port)
-                self.devices.append(rtmidi.MidiIn())
-                print(self.devices[i].get_port_name(i))
-                self.devices[i].open_port(i)
+        # --- Add entered devices from CONFIG.py and find corresponding ports ---
+        try:
+            if ports:
+                for i,device in enumerate(c.MY_DEVICES):  # for each device specified in CONFIG.py
+                    device_found = False
+                    for j,port in enumerate(ports):  # see if there's a port that matches
+                        if device in port and not device_found:
+                            self.ports.append(port)
+                            c.PORTS.append(port)
+                            self.devices.append(rtmidi.MidiIn())
+                            print(self.devices[i].get_port_name(j))
+                            self.devices[i].open_port(j)
+                            device_found = True
+                    if not device_found:
+                        raise DeviceNotFound
+        except DeviceNotFound:
+            sys.exit("Specified MIDI Device Could Not Be Found in Ports List.")
 
 
-            while True:
-                self.metronome.get_time()
+        while True:
+            self.metronome.get_time()
 
-                messages = []
+            messages = []
 
-                for device in self.devices:
-                    try:
-                        messages.append(device.get_message()) # some timeout in ms
-                    except:
-                        messages.append(None)
+            for device in self.devices:
+                try:
+                    messages.append(device.get_message()) # some timeout in ms
+                except:
+                    messages.append(None)
 
-                for i, message in enumerate(messages):
-                    if message:
-                        self.print_message(message,ports[i])
+            for i, message in enumerate(messages):
+                if message:
+                    self.print_message(message,ports[i])
 
 
-        else:
-            print('NO MIDI INPUT PORTS!')
+
 
     def return_self(self):
         print("RETURNING SELF")
