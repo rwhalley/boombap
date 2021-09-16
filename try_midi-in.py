@@ -38,9 +38,9 @@ for device in options:
         pass
     else:
         threads.append(Thread(target=midi_in,args=(device,Lock())))
-t3 = Thread(target=parse_midi,args=(Lock(),))
+#t3 = Thread(target=parse_midi,args=(Lock(),))
 
-t3.start()
+#t3.start()
 for thread in threads:
     thread.start()
 

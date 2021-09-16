@@ -60,12 +60,16 @@ class MidiControl:
         self.devices = list(set(mido.get_input_names()))
 
         for device in self.devices:
-            self.threads.append(Thread(target=self.midi_in,args=(device,)))
+            if "Midi Through" not in device:
+                self.threads.append(Thread(target=self.midi_in,args=(device,)))
 
         for thread in self.threads:
             thread.start()
 
-        self.parse_midi()
+        for thread in self.threads:
+            thread.join()
+
+        #self.parse_midi()
 
 
 
@@ -89,7 +93,9 @@ class MidiControl:
         with mido.open_input(port_name) as port:
 
             for message in port:
-                self.messages.append([message,port_name])
+                print(message)
+                self.print_message(message,port)
+                #self.messages.append([message,port_name])
 
     def return_self(self):
         print("RETURNING SELF")
