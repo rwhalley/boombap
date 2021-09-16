@@ -69,7 +69,7 @@ class MIDIRecorder:
 
     def add_entry(self, midi, port, when_added):
         pos = self.metronome.get_position()
-        note = mp.getNoteNumber(midi)
+        note = midi.note
         bank = self.metronome.controller.current_bank
         port = port
         when_added = when_added

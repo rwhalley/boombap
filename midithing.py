@@ -73,7 +73,10 @@ class MidiControl:
             self.metronome.get_time()
 
     def print_general_message(self,midi):
-        print(midi)
+        if midi.channel ==1:
+            self.print_message(midi,c.MIDI_CONTROLLER)
+        elif midi.channel == 0:
+            self.print_message(midi,c.SYNTH)
 
     def print_synth_message(self,midi):
         self.print_message(midi,c.MY_DEVICES[1])
