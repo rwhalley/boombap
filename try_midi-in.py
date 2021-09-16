@@ -34,13 +34,13 @@ def midi_in(name, lock):
 
 for device in options:
     threads.append(Thread(target=midi_in,args=(device,Lock())))
-t3 = Thread(target=parse_midi,args=(Lock(),))
+#t3 = Thread(target=parse_midi,args=(Lock(),))
 
-t3.start()
+#t3.start()
 for thread in threads:
     thread.start()
 
-t3.join()
+
 for thread in threads:
     thread.join()
 
