@@ -86,25 +86,26 @@ class MidiControl:
             messages = []
             devices = []
 
-            #for i, device in enumerate(self.devices):
             try:
-                message = self.devices[0].get_message()
-                messages.append(message) # some timeout in ms
-                ch = message[0][0]
-                port = None
-                if ch in c.CONTROLLER_CH:
-                    port = c.MY_DEVICES[0]
-                elif ch in c.SYNTH_CH:
-                    port = c.MY_DEVICES[1]
-                devices.append(port)
+                for i, device in enumerate(self.devices):
+
+                    message = device.get_message()
+                    messages.append(message) # some timeout in ms
+                    # ch = message[0][0]
+                    # port = None
+                    # if ch in c.CONTROLLER_CH:
+                    #     port = c.MY_DEVICES[0]
+                    # elif ch in c.SYNTH_CH:
+                    #     port = c.MY_DEVICES[1]
+                    devices.append(port)
             except:
                 messages.append(None)
 
             for i, message in enumerate(messages):
                 if message:
-                    #print(f"message: {message}")
-                    #print(devices[i])
-                    self.print_message(message,devices[i])
+                    print(f"message: {message}")
+                    print(devices[i])
+                    self.print_message(message,self.ports[i])
 
 
 
