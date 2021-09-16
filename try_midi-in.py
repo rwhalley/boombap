@@ -11,8 +11,8 @@ print(options)
 for device in options:
     if "Midi Through" in device:
         pass
-    elif "reface CP" in device:
-        mido.open_input(device, callback=print_message)
+    #elif "reface CP" in device:
+    #    mido.open_input(device, callback=print_message)
 
     elif "QUNEO" in device:
         mido.open_input(device, callback=print_message)
