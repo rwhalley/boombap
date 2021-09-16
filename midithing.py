@@ -50,12 +50,20 @@ class MidiControl:
         self.is_loop_saver_pressed = False
         self.is_bank_shift_pressed = False
 
-        self.devices = [rtmidi.MidiIn(),rtmidi.MidiIn()] # QUNEO, Reface CP
-        ports = self.devices[0].get_ports()
+        self.devices = [] # QUNEO, Reface CP
+
+        # --- Query for ports
+        midi_in = rtmidi.MidiIn()
+        ports = midi_in.get_ports()
+        del midi_in # clean up
+
+        # --- Add devices
         if ports:
             for i,port in enumerate(ports):
-                print(self.devices[0].get_port_name(i))
                 self.ports.append(port)
+                c.PORTS.append(port)
+                self.devices.append(rtmidi.MidiIn())
+                print(self.devices[i].get_port_name(i))
                 self.devices[i].open_port(i)
 
 
@@ -174,7 +182,7 @@ class MidiControl:
         for j,midi in enumerate(midis):
             #print("PLAY_SOUND")
             #print(midi)
-            if ports[j] == "QUNEO":
+            if c.MIDI_CONTROLLER in ports[j]:
                 #print(time.time())
                 if not note:
                     #print("GET NOTE")
@@ -370,7 +378,7 @@ class MidiControl:
 
                     elif note == self.button.EXIT:
                         try:
-                            if "reface CP" in self.ports:
+                            if c.SYNTH in self.ports:
                                 self.metronome.midi_player.all_notes_off()
                             self.metronome.midi_player.cleanup()
                         except:
@@ -384,7 +392,7 @@ class MidiControl:
                         self.adjust_volume(False)  #Turn Volume Down
 
                     elif note == self.button.CLEAR_LOOP:
-                        if "reface CP" in self.ports:
+                        if c.SYNTH in self.ports:
                             self.metronome.midi_player.all_notes_off()
                         self.metronome.midi_recorder.clear_current_loop()
 
@@ -420,12 +428,12 @@ class MidiControl:
                 if(note != self.button.METRONOME):
                     try:
 
-                        if port == "reface CP":
+                        if c.SYNTH in port:
                             if self.metronome.midi_recorder.RECORD:
                                 print(note)
 
                                 self.metronome.midi_recorder.add_entry(midi,port,time.time())
-                        elif port == "QUNEO":
+                        elif c.MIDI_CONTROLLER in port:
                             if self.current_bank > 3:
                                 if self.metronome.midi_recorder.RECORD:
                                     self.metronome.midi_recorder.add_entry(midi,port,time.time())

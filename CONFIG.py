@@ -1,5 +1,7 @@
 DEBUG_MODE = 0
-
+PORTS = []
+MIDI_CONTROLLER = 'QUNEO'
+SYNTH = 'reface CP'
 
 
 
