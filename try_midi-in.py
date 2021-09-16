@@ -5,6 +5,7 @@ from threading import Thread, Lock
 
 
 options = list(set(mido.get_input_names()))
+print(options)
 
 messages = []
 threads = []
