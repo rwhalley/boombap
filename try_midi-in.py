@@ -19,9 +19,9 @@ def midi_in(name, lock):
     lock.acquire()
     with mido.open_input(name) as port:
 
-        for message in port:
+        for i,message in enumerate(port):
             messages.append(message)
-            print(message)
+            print(i)
     lock.release()
 
 
