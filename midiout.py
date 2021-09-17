@@ -37,7 +37,7 @@ class MIDIPlayer():
 
     def play_worker(self,midis,ports):
         if c.SYNTH in ports:
-            with mido.open_output('reface CP') as outport:
+            with mido.open_output(c.SYNTH) as outport:
                 for midi in midis:
                     outport.send(midi)
 
