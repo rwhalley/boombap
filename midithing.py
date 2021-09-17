@@ -49,10 +49,12 @@ class MidiControl:
                 if "Midi Through" in device:
                     pass
                 elif c.SYNTH in device:
+                    print("SYNTH IN DEVICE")
                     mido.open_input(device, callback=self.print_synth_message)
                     c.MY_DEVICES[1] = device
                     c.SYNTH = device
                 elif c.MIDI_CONTROLLER in device:
+                    print("MIDI CONTROLLER IN DEVICE")
                     mido.open_input(callback=self.print_sampler_message)
                     c.MY_DEVICES[0] = device
                     c.MIDI_CONTROLLER = device
