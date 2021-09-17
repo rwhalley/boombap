@@ -13,11 +13,12 @@ class MIDIPlayer():
         self.triggered = False
         self.midiout = None
         self.available_ports = None
+        self.outport = mido.open_output('reface CP')
 
 
 
     def play_note(self,midis,ports):
-        if c.THREADING_ACTIVE:
+        if True:#c.THREADING_ACTIVE:
             x = threading.Thread(target=self.play_worker, args=(midis,ports),daemon=True)
             x.start()
             x.join()
@@ -34,9 +35,13 @@ class MIDIPlayer():
 
         self.play_note(midis,ports)
 
-
-
     def play_worker(self,midis,ports):
+        if c.SYNTH in ports:
+            with mido.open_output('reface CP') as outport:
+                for midi in midis:
+                    outport.send(midi)
+
+    def play_worker_rtmidi(self,midis,ports):
 
 
         #self.available_ports = self.midiout.get_ports()
