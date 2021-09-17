@@ -268,7 +268,10 @@ class Metronome:
 
 
                     self.midi_player.play_note(midis,ports)
-                    self.controller.play_sound(midis,False,banks,ports)
+
+                    if len(when_addeds)>0:
+                        if (time.time()-when_addeds[0]) >0.4:
+                            self.controller.play_sound(midis,False,banks,ports)
 
 
 #                     try:
