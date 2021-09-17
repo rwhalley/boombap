@@ -266,11 +266,15 @@ class Metronome:
                             when_addeds.append(when_added)
                             self.loop_whitelist.append(i)
 
+                    try:
+                        if (time.time() - when_addeds[0]) > 0.1:
 
-                    #self.midi_player.play_note(midis,ports)
+                            self.midi_player.play_note(midis,ports)
 
 
-                    self.controller.play_sound(midis,False,banks,ports)
+                            self.controller.play_sound(midis,False,banks,ports)
+                    except:
+                        pass
 
 
 #                     try:
