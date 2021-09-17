@@ -215,7 +215,7 @@ class MidiControl:
                 #print(time.time())
                 if not note:
                     #print("GET NOTE")
-                    note = mp.getNoteNumber(midi)
+                    note = midi.note
                     #print(note)
                 i = note - self.button.PAD_START
                 #print(i)
@@ -223,7 +223,7 @@ class MidiControl:
                     raise IndexError
                 else:
                     if self.VOL_SENS:
-                        self.all_sounds[banks[j]][i].set_volume(mp.getVelocity(midi))
+                        self.all_sounds[banks[j]][i].set_volume(midi.velocity)
                     else:
                         self.all_sounds[banks[j]][i].set_volume(128)
 
@@ -231,11 +231,11 @@ class MidiControl:
                         for sound in self.all_sounds[banks[j]]:
                             sound.stop()
                     else:
-                        if midi[2]==0:
+                        if midi.velocity==0:
                             for sound in self.all_sounds[banks[j]]:
                                 sound.stop()
 
-                    if midi[2]>0:
+                    if midi.velocity>0:
                         self.all_sounds[banks[j]][i].play(block=False)
 
 
@@ -247,7 +247,7 @@ class MidiControl:
         try:
             # print(f"midi = {midi}")
             # print(f"port = {port}")
-            # note = mp.getNoteNumber(midi)
+            # note = midi.note
             if c.DEBUG_MODE:
                  print(midi)
 
@@ -334,7 +334,7 @@ class MidiControl:
                             for sound in self.all_sounds[self.current_bank]:
                                 sound.stop()
                         if self.VOL_SENS:
-                            self.sounds[i].set_volume(mp.getVelocity(midi))
+                            self.sounds[i].set_volume(midi.velocity)
                         else:
                             self.sounds[i].set_volume(128)
                         self.sounds[i].play(block=False)
@@ -515,23 +515,23 @@ class MidiControl:
                 #print(f"controller = {midi.getControllerValue()}")
 
                 if note == self.button.BPM_CONTROL and note != self.last_note:
-                    print(mp.getControllerValue(midi))
+                    print(midi.control)
                     print(f"note {note}")
 
                     print(f"last_note {self.last_note}")
 
-                    self.metronome.set_bpm(mp.getControllerValue(midi)/128.)
+                    self.metronome.set_bpm(midi.control/128.)
 
 
 
 
                 elif note == self.button.MBUNG_VOL_CONTROL:  # mbungmbung volume
                     drum = 0
-                    self.metronome.update_volume(drum,mp.getControllerValue(midi))
+                    self.metronome.update_volume(drum,midi.control)
 
                 elif note == self.button.COL_VOL_CONTROL:  # col volume
                     drum = 1
-                    self.metronome.update_volume(drum,mp.getControllerValue(midi))
+                    self.metronome.update_volume(drum,midi.control)
 
                 #print('CONTROLLER', midi.getControllerNumber(), midi.getControllerValue())
 

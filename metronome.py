@@ -249,13 +249,17 @@ class Metronome:
                     ports = []
                     when_addeds = []
                     for i, entry in enumerate(self.midi_recorder.my_loop):
-                        midi = entry[1][0]
+                        midi = entry[1]
                         entry_pos = entry[0]
                         bank = entry[2]
                         port = entry[3]
                         when_added = entry[4]
-                        #print(when_added)
-                        #print(f"entry pos {entry_pos}")
+                        # print(when_added)
+                        # print(f"midi {midi}")
+                        # print(f"entry pos {entry_pos}")
+                        # print(f"bank {bank}")
+                        # print(f"port {port}")
+
                         if (current_pos > entry_pos) and not (i in self.loop_whitelist):
                             #print("WOO")
                             midis.append(midi)
@@ -265,7 +269,7 @@ class Metronome:
                             self.loop_whitelist.append(i)
 
 
-                    self.midi_player.play_note(midis,ports)
+                    #self.midi_player.play_note(midis,ports)
                     self.controller.play_sound(midis,False,banks,ports)
 
 
