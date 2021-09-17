@@ -106,17 +106,20 @@ class MidiControl:
             self.metronome.get_time()
 
     def print_general_message(self,midi):
+        now = time.time()
         if midi.channel ==1:
-            self.print_message(midi,c.MIDI_CONTROLLER)
+            self.print_message(midi,c.MIDI_CONTROLLER,now)
         elif midi.channel == 0:
-            self.print_message(midi,c.SYNTH)
+            self.print_message(midi,c.SYNTH,now)
 
     def print_synth_message(self,midi):
-        self.print_message(midi,c.MY_DEVICES[1])
+        now = time.time()
+        self.print_message(midi,c.MY_DEVICES[1],now)
 
 
     def print_sampler_message(self,midi):
-        self.print_message(midi,c.MY_DEVICES[0])
+        now = time.time()
+        self.print_message(midi,c.MY_DEVICES[0],now)
 
 
     def return_self(self):
@@ -267,7 +270,7 @@ class MidiControl:
 
 
 
-    def print_message(self,midi,port):
+    def print_message(self,midi,port,midi_time):
 
         try:
             # print(f"midi = {midi}")
@@ -284,7 +287,7 @@ class MidiControl:
 
                     try:
                         if self.metronome.midi_recorder.RECORD:
-                            self.metronome.midi_recorder.add_entry(midi,port,when_added=time.time())
+                            self.metronome.midi_recorder.add_entry(midi,port,when_added=midi_time)
                             print("ADDED")
                             print(self.metronome.midi_recorder.my_loop)
                     except:
@@ -499,11 +502,11 @@ class MidiControl:
                             if self.metronome.midi_recorder.RECORD:
                                 print(note)
 
-                                self.metronome.midi_recorder.add_entry(midi,port,time.time())
+                                self.metronome.midi_recorder.add_entry(midi,port,midi_time)
                         elif c.MIDI_CONTROLLER in port:
                             if self.current_bank > 3:
                                 if self.metronome.midi_recorder.RECORD:
-                                    self.metronome.midi_recorder.add_entry(midi,port,time.time())
+                                    self.metronome.midi_recorder.add_entry(midi,port,midi_time)
                         #print("OFF_ADDED")
                         #print(self.metronome.midi_recorder.my_loop)
                     except:
