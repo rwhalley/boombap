@@ -67,6 +67,7 @@ class MidiControl:
         self.devices = list(set(mido.get_input_names()))
 
         if PI:
+            t1 = None
             for device in self.devices:
                 if c.SYNTH in device:
                     c.SYNTH = device
@@ -75,21 +76,27 @@ class MidiControl:
                     c.MIDI_CONTROLLER = device
                     c.MY_DEVICES[0] = device
 
-            mido.open_input(callback=self.print_general_message)
+            t1 = Thread(target=self.open_input, args=(device,self.print_general_message))
+            t1.start()
+            #mido.open_input(callback=self.print_general_message)
         else:
+            t1 = None
+            t2 = None
             for device in self.devices:
                 if "Midi Through" in device:
                     pass
                 elif c.SYNTH in device:
                     print("SYNTH IN DEVICE")
-                    mido.open_input(device, callback=self.print_synth_message)
+                    t1 = Thread(target=self.open_input, args=(device,self.print_synth_message))
                     c.MY_DEVICES[1] = device
                     c.SYNTH = device
                 elif c.MIDI_CONTROLLER in device:
                     print("MIDI CONTROLLER IN DEVICE")
-                    mido.open_input(callback=self.print_sampler_message)
+                    t2 = Thread(target=self.open_input, args=(device,self.print_sampler_message))
                     c.MY_DEVICES[0] = device
                     c.MIDI_CONTROLLER = device
+            t1.start()
+            t2.start()
 
         self.metronome.midi_player = MIDIPlayer()
         print("START MIDIPLAYER")
@@ -104,6 +111,10 @@ class MidiControl:
 
         while True:
             self.metronome.get_time()
+
+    def open_input(self,device,func):
+        mido.open_input(device, callback=func)
+
 
     def print_general_message(self,midi):
         now = time.time()
