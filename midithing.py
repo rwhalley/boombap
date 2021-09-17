@@ -43,6 +43,14 @@ class MidiControl:
         self.devices = list(set(mido.get_input_names()))
 
         if PI:
+            for device in self.device:
+                if c.SYNTH in device:
+                    c.SYNTH = device
+                    c.MY_DEVICES[1] = device
+                elif c.MIDI_CONTROLLER in device:
+                    c.MIDI_CONTROLLER = device
+                    c.MY_DEVICES[0] = device
+
             mido.open_input(callback=self.print_general_message)
         else:
             for device in self.devices:
