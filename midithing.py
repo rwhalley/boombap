@@ -75,11 +75,7 @@ class MidiControl:
                     c.MIDI_CONTROLLER = device
                     c.MY_DEVICES[0] = device
 
-            #mido.open_input(callback=self.print_general_message)
-            with mido.open_input() as port:
-                for message in port:
-                    self.print_general_message(message)
-
+            mido.open_input(callback=self.print_general_message)
         else:
             for device in self.devices:
                 if "Midi Through" in device:
@@ -111,12 +107,14 @@ class MidiControl:
 
     def print_general_message(self,midi):
         now = time.time()
-        #print(midi)
-
-        if midi.channel ==1:
-            self.print_message(midi,c.MIDI_CONTROLLER,now)
-        elif midi.channel == 0:
-            self.print_message(midi,c.SYNTH,now)
+        print(midi)
+        if midi.type == 'control_change':
+            pass
+        else:
+            if midi.channel ==1:
+                self.print_message(midi,c.MIDI_CONTROLLER,now)
+            elif midi.channel == 0:
+                self.print_message(midi,c.SYNTH,now)
 
     def print_synth_message(self,midi):
         now = time.time()
