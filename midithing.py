@@ -40,6 +40,25 @@ class MidiControl:
         #else:
         self.load_samples()
 
+        self.devices = list(set(mido.get_input_names()))
+
+        if PI:
+            mido.open_input(callback=self.print_general_message)
+        else:
+            for device in self.devices:
+                if "Midi Through" in device:
+                    pass
+                elif c.SYNTH in device:
+                    mido.open_input(device, callback=self.print_synth_message)
+                    c.MY_DEVICES[1] = device
+                    c.SYNTH = device
+                elif c.MIDI_CONTROLLER in device:
+                    mido.open_input(callback=self.print_sampler_message)
+                    c.MY_DEVICES[0] = device
+                    c.MIDI_CONTROLLER = device
+
+
+
         self.metronome_path = Path(__file__).parent.resolve() / 'metronome/metronome.wav'
         self.metronome = Metronome(bpm=120,path=self.metronome_path, controller=self)
         self.VOL_SENS = False
@@ -61,22 +80,6 @@ class MidiControl:
         self.threads = []
 
 
-        self.devices = list(set(mido.get_input_names()))
-
-        if PI:
-            mido.open_input(callback=self.print_general_message)
-        else:
-            for device in self.devices:
-                if "Midi Through" in device:
-                    pass
-                elif c.SYNTH in device:
-                    mido.open_input(device, callback=self.print_synth_message)
-                    c.MY_DEVICES[1] = device
-                    c.SYNTH = device
-                elif c.MIDI_CONTROLLER in device:
-                    mido.open_input(callback=self.print_sampler_message)
-                    c.MY_DEVICES[0] = device
-                    c.MIDI_CONTROLLER = device
 
 
         while True:
