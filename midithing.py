@@ -107,7 +107,7 @@ class MidiControl:
 
     def print_general_message(self,midi):
         now = time.time()
-        if midi.is_cc():
+        if midi.type == 'control':
             pass
         else:
             if midi.channel ==1:
