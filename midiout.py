@@ -13,7 +13,7 @@ class MIDIPlayer():
         self.triggered = False
         self.midiout = None
         self.available_ports = None
-        self.outport = mido.open_output('reface CP')
+        self.outport = mido.open_output(c.SYNTH)
 
 
 
