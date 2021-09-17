@@ -57,8 +57,11 @@ class MidiControl:
                     c.MY_DEVICES[0] = device
                     c.MIDI_CONTROLLER = device
 
-
-
+        print("STUFF")
+        print(self.devices)
+        print(c.MY_DEVICES)
+        print(c.SYNTH)
+        print(c.MIDI_CONTROLLER)
         self.metronome_path = Path(__file__).parent.resolve() / 'metronome/metronome.wav'
         self.metronome = Metronome(bpm=120,path=self.metronome_path, controller=self)
         self.VOL_SENS = False
