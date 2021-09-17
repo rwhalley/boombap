@@ -111,14 +111,12 @@ class MidiControl:
 
     def print_general_message(self,midi):
         now = time.time()
-        print(midi)
-        if midi.type == 'control_change':
-            pass
-        else:
-            if midi.channel ==1:
-                self.print_message(midi,c.MIDI_CONTROLLER,now)
-            elif midi.channel == 0:
-                self.print_message(midi,c.SYNTH,now)
+        #print(midi)
+
+        if midi.channel ==1:
+            self.print_message(midi,c.MIDI_CONTROLLER,now)
+        elif midi.channel == 0:
+            self.print_message(midi,c.SYNTH,now)
 
     def print_synth_message(self,midi):
         now = time.time()
