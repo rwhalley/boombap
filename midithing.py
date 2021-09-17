@@ -118,7 +118,6 @@ class MidiControl:
 
     def print_general_message(self,midi):
         now = time.time()
-        print(midi)
         if midi.type == 'control_change':
             pass
         else:
