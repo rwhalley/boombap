@@ -15,11 +15,15 @@ import mido
 from midiparse import MIDIParse as mp
 import CONFIG as c
 
+
+PI = None
 try:
     import alsaaudio
     print("Linux OS")
+    PI = True
 except:
     print("Non-Linux OS")
+    PI = False
 
 class MidiControl:
 
@@ -59,16 +63,20 @@ class MidiControl:
 
         self.devices = list(set(mido.get_input_names()))
 
-        # for device in self.devices:
-        #     if "Midi Through" in device:
-        #         pass
-        #     elif c.SYNTH in device:
-        #         #mido.open_input(device, callback=self.print_synth_message)
-        #         c.MY_DEVICES[1] = device
-        #     elif c.MIDI_CONTROLLER in device:
-        #         mido.open_input(callback=self.print_sampler_message)
-        #         c.MY_DEVICES[0] = device
-        mido.open_input(callback=self.print_general_message)
+        if PI:
+            mido.open_input(callback=self.print_general_message)
+        else:
+            for device in self.devices:
+                if "Midi Through" in device:
+                    pass
+                elif c.SYNTH in device:
+                    #mido.open_input(device, callback=self.print_synth_message)
+                    c.MY_DEVICES[1] = device
+                elif c.MIDI_CONTROLLER in device:
+                    mido.open_input(callback=self.print_sampler_message)
+                    c.MY_DEVICES[0] = device
+
+
         while True:
             self.metronome.get_time()
 

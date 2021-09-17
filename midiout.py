@@ -3,6 +3,7 @@ import rtmidi
 import threading
 import midiparse as mp
 import CONFIG as c
+import mido
 
 
 class MIDIPlayer():
@@ -12,7 +13,7 @@ class MIDIPlayer():
         self.triggered = False
         self.midiout = None
         self.available_ports = None
-        self.midiout = rtmidi.MidiOut()
+
 
 
     def play_note(self,midis,ports):
@@ -51,7 +52,7 @@ class MIDIPlayer():
             print("virtual port")
             self.midiout.open_virtual_port("My virtual output")
 
-        with self.midiout:
+        with mido.open_output('reface CP') as outport:
             #print(midi)
             #print("PLAY NOTE")
             #print(threading.active_count())
@@ -61,7 +62,7 @@ class MIDIPlayer():
             # print(midi)
             for i, midi in enumerate(midis):
                     if c.SYNTH in ports[i]:
-                        self.midiout.send_message(midi)
+                        outport.send(midi)
             #time.sleep(0.2)
             #self.midiout.send_message(note_on)
 
