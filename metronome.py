@@ -49,10 +49,8 @@ class Metronome:
 
         self.midi_player = None
         self.midi_recorder = None
-        self.midi_player = MIDIPlayer()
-        print("START MIDIPLAYER")
-        self.midi_recorder = MIDIRecorder(self)
-        print("START RECORDER")
+        self.midi_player = None
+        self.midi_recorder = None
         self.loop_whitelist = []
         self.last_pos = 0
         self.controller = controller
@@ -215,11 +213,16 @@ class Metronome:
                         #print("PLAY COL GRACE")
 
 
-    def get_position(self):
+    def get_position(self,timestamp=None):
         "Get float 0 to 1 that represents current position in bar."
+        ts=None
+        if timestamp:
+            ts = timestamp
+        else:
+            ts = time.time()
         pos = 0
         normalizer = float(self.beats_per_bar*self.notes_per_beat)
-        now = int(round(time.time() * 1000))%(self.note_length)
+        now = int(round(ts * 1000))%(self.note_length)
         micro_pos = now/float(self.note_length)
         pos = (self.current_loop_beat + micro_pos) / normalizer
         # print(f"micro_pos: {micro_pos}")
@@ -232,14 +235,15 @@ class Metronome:
         return pos
 
     def get_time(self):
+        ts = time.time()
         try:
             if self.is_on:
-                now = int(round(time.time() * 1000))%(self.note_length)
+                now = int(round(ts * 1000))%(self.note_length)
                 normal = now < self.last_time
                 grace = now > (int(0.50*self.note_length))
 
                 ### --- MIDI LOoPER ---
-                current_pos = self.get_position()
+                current_pos = self.get_position(timestamp=ts)
 
                 ### -- QUNEO LOOP ---
                 if(len(self.midi_recorder.my_loop)>0):
@@ -249,13 +253,17 @@ class Metronome:
                     ports = []
                     when_addeds = []
                     for i, entry in enumerate(self.midi_recorder.my_loop):
-                        midi = entry[1][0]
+                        midi = entry[1]
                         entry_pos = entry[0]
                         bank = entry[2]
                         port = entry[3]
                         when_added = entry[4]
-                        #print(when_added)
-                        #print(f"entry pos {entry_pos}")
+                        # print(when_added)
+                        # print(f"midi {midi}")
+                        # print(f"entry pos {entry_pos}")
+                        # print(f"bank {bank}")
+                        # print(f"port {port}")
+
                         if (current_pos > entry_pos) and not (i in self.loop_whitelist):
                             #print("WOO")
                             midis.append(midi)
@@ -264,9 +272,16 @@ class Metronome:
                             when_addeds.append(when_added)
                             self.loop_whitelist.append(i)
 
+                    try:
+                        if (time.time() - when_addeds[0]) > 0.1:
 
-                    self.midi_player.play_note(midis,ports)
-                    self.controller.play_sound(midis,False,banks,ports)
+                            self.midi_player.play_note(midis,ports)
+
+                            print(time.time())
+                            print(midis)
+                            self.controller.play_sound(midis,False,banks,ports)
+                    except:
+                        pass
 
 
 #                     try:

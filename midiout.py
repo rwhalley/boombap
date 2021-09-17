@@ -3,6 +3,7 @@ import rtmidi
 import threading
 import midiparse as mp
 import CONFIG as c
+import mido
 
 
 class MIDIPlayer():
@@ -12,6 +13,7 @@ class MIDIPlayer():
         self.triggered = False
         self.midiout = None
         self.available_ports = None
+        self.outport = mido.open_output(c.SYNTH)
 
 
 
@@ -33,11 +35,15 @@ class MIDIPlayer():
 
         self.play_note(midis,ports)
 
-
-
     def play_worker(self,midis,ports):
+        if c.SYNTH in ports:
 
-        self.midiout = rtmidi.MidiOut()
+            for midi in midis:
+                self.outport.send(midi)
+
+    def play_worker_rtmidi(self,midis,ports):
+
+
         #self.available_ports = self.midiout.get_ports()
 
 
@@ -45,13 +51,13 @@ class MIDIPlayer():
             for key in c.PORTS:
                 if c.SYNTH in key:
                     port_num = c.PORTS[key]
-            self.midiout.open_port(port_num)
+                    self.midiout.open_port(port_num)
 
         except (IndexError("MIDI port not open")):
             print("virtual port")
             self.midiout.open_virtual_port("My virtual output")
 
-        with self.midiout:
+        with mido.open_output('reface CP') as outport:
             #print(midi)
             #print("PLAY NOTE")
             #print(threading.active_count())
@@ -61,7 +67,7 @@ class MIDIPlayer():
             # print(midi)
             for i, midi in enumerate(midis):
                     if c.SYNTH in ports[i]:
-                        self.midiout.send_message(midi)
+                        outport.send(midi)
             #time.sleep(0.2)
             #self.midiout.send_message(note_on)
 
@@ -70,7 +76,7 @@ class MIDIPlayer():
             #     print("YEAH BUDDY")
             #     self.midiout.send_message(note_on)
             #     self.triggered = True
-        del self.midiout
+        #del self.midiout
 
 
 
