@@ -107,7 +107,8 @@ class MidiControl:
 
     def print_general_message(self,midi):
         now = time.time()
-        if midi.type == 'control':
+        print(midi.type)
+        if midi.type == 'control_change':
             pass
         else:
             if midi.channel ==1:
@@ -122,7 +123,12 @@ class MidiControl:
 
     def print_sampler_message(self,midi):
         now = time.time()
-        self.print_message(midi,c.MY_DEVICES[0],now)
+
+        print(midi.type)
+        if midi.type == 'control_change':
+            pass
+        else:
+            self.print_message(midi,c.MY_DEVICES[0],now)
 
 
     def return_self(self):
