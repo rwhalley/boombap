@@ -18,7 +18,7 @@ class MIDIPlayer():
 
 
     def play_note(self,midis,ports):
-        if True:#c.THREADING_ACTIVE:
+        if c.THREADING_ACTIVE:
             x = threading.Thread(target=self.play_worker, args=(midis,ports),daemon=True)
             x.start()
             x.join()
@@ -37,9 +37,9 @@ class MIDIPlayer():
 
     def play_worker(self,midis,ports):
         if c.SYNTH in ports:
-            with mido.open_output(c.SYNTH) as outport:
-                for midi in midis:
-                    outport.send(midi)
+
+            for midi in midis:
+                self.outport.send(midi)
 
     def play_worker_rtmidi(self,midis,ports):
 

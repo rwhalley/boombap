@@ -40,6 +40,28 @@ class MidiControl:
         #else:
         self.load_samples()
 
+
+        self.metronome_path = Path(__file__).parent.resolve() / 'metronome/metronome.wav'
+        self.metronome = Metronome(bpm=120,path=self.metronome_path, controller=self)
+        self.VOL_SENS = False
+        self.port_name = None
+        self.ports = []
+        self.pitch_factor = 1.0
+        self.semitone = .059463094359
+
+        self.last_note = 1101001
+
+        # --- Shift Buttons ---
+        self.is_metronome_pressed = False
+        self.is_loop_loader_pressed = False
+        self.is_loop_saver_pressed = False
+        self.is_bank_shift_pressed = False
+
+        self.devices = [] # QUNEO, Reface CP
+        self.messages = []
+        self.threads = []
+
+
         self.devices = list(set(mido.get_input_names()))
 
         if PI:
@@ -72,28 +94,6 @@ class MidiControl:
         print(c.MY_DEVICES)
         print(c.SYNTH)
         print(c.MIDI_CONTROLLER)
-        self.metronome_path = Path(__file__).parent.resolve() / 'metronome/metronome.wav'
-        self.metronome = Metronome(bpm=120,path=self.metronome_path, controller=self)
-        self.VOL_SENS = False
-        self.port_name = None
-        self.ports = []
-        self.pitch_factor = 1.0
-        self.semitone = .059463094359
-
-        self.last_note = 1101001
-
-        # --- Shift Buttons ---
-        self.is_metronome_pressed = False
-        self.is_loop_loader_pressed = False
-        self.is_loop_saver_pressed = False
-        self.is_bank_shift_pressed = False
-
-        self.devices = [] # QUNEO, Reface CP
-        self.messages = []
-        self.threads = []
-
-
-
 
         while True:
             self.metronome.get_time()
