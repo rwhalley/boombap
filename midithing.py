@@ -75,7 +75,11 @@ class MidiControl:
                     c.MIDI_CONTROLLER = device
                     c.MY_DEVICES[0] = device
 
-            mido.open_input(callback=self.print_general_message)
+            #mido.open_input(callback=self.print_general_message)
+            with mido.open_input() as port:
+                for message in port:
+                    self.print_general_message(message)
+
         else:
             for device in self.devices:
                 if "Midi Through" in device:
