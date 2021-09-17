@@ -11,6 +11,8 @@ import QUNEO
 from threading import Thread, Lock
 from errors import DeviceNotFound
 import mido
+from midiout import MIDIPlayer
+from midi_recorder import MIDIRecorder
 
 from midiparse import MIDIParse as mp
 import CONFIG as c
@@ -88,6 +90,11 @@ class MidiControl:
                     mido.open_input(callback=self.print_sampler_message)
                     c.MY_DEVICES[0] = device
                     c.MIDI_CONTROLLER = device
+
+        self.metronome.midi_player = MIDIPlayer()
+        print("START MIDIPLAYER")
+        self.metronome.midi_recorder = MIDIRecorder(self.metronome)
+        print("START RECORDER")
 
         print("STUFF")
         print(self.devices)

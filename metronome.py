@@ -49,10 +49,8 @@ class Metronome:
 
         self.midi_player = None
         self.midi_recorder = None
-        self.midi_player = MIDIPlayer()
-        print("START MIDIPLAYER")
-        self.midi_recorder = MIDIRecorder(self)
-        print("START RECORDER")
+        self.midi_player = None
+        self.midi_recorder = None
         self.loop_whitelist = []
         self.last_pos = 0
         self.controller = controller
