@@ -213,11 +213,16 @@ class Metronome:
                         #print("PLAY COL GRACE")
 
 
-    def get_position(self):
+    def get_position(self,timestamp=None):
         "Get float 0 to 1 that represents current position in bar."
+        ts=None
+        if timestamp:
+            ts = timestamp
+        else:
+            ts = time.time()
         pos = 0
         normalizer = float(self.beats_per_bar*self.notes_per_beat)
-        now = int(round(time.time() * 1000))%(self.note_length)
+        now = int(round(ts * 1000))%(self.note_length)
         micro_pos = now/float(self.note_length)
         pos = (self.current_loop_beat + micro_pos) / normalizer
         # print(f"micro_pos: {micro_pos}")
@@ -230,14 +235,15 @@ class Metronome:
         return pos
 
     def get_time(self):
+        ts = time.time()
         try:
             if self.is_on:
-                now = int(round(time.time() * 1000))%(self.note_length)
+                now = int(round(ts * 1000))%(self.note_length)
                 normal = now < self.last_time
                 grace = now > (int(0.50*self.note_length))
 
                 ### --- MIDI LOoPER ---
-                current_pos = self.get_position()
+                current_pos = self.get_position(timestamp=ts)
 
                 ### -- QUNEO LOOP ---
                 if(len(self.midi_recorder.my_loop)>0):
