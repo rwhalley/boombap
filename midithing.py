@@ -43,7 +43,7 @@ class MidiControl:
         self.devices = list(set(mido.get_input_names()))
 
         if PI:
-            for device in self.device:
+            for device in self.devices:
                 if c.SYNTH in device:
                     c.SYNTH = device
                     c.MY_DEVICES[1] = device
