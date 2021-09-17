@@ -76,7 +76,7 @@ class MidiControl:
                     c.MIDI_CONTROLLER = device
                     c.MY_DEVICES[0] = device
 
-            t1 = Thread(target=self.open_input, args=(device,self.print_general_message))
+            t1 = Thread(target=self.open_input, args=(c.MY_DEVICES[0],self.print_sampler_message))
             t1.start()
             #mido.open_input(callback=self.print_general_message)
         else:
@@ -111,6 +111,8 @@ class MidiControl:
 
         while True:
             self.metronome.get_time()
+            if len(self.messages)>0:
+                self.print_general_message(self.messages.pop(0))
 
     def open_input(self,device,func):
         mido.open_input(device, callback=func)
@@ -127,17 +129,20 @@ class MidiControl:
                 self.print_message(midi,c.SYNTH,now)
 
     def print_synth_message(self,midi):
-        now = time.time()
-        self.print_message(midi,c.MY_DEVICES[1],now)
+        self.messages.append(midi)
+        # now = time.time()
+        # self.print_message(midi,c.MY_DEVICES[1],now)
 
 
     def print_sampler_message(self,midi):
-        now = time.time()
-
-        if midi.type == 'control_change':
-            pass
-        else:
-            self.print_message(midi,c.MY_DEVICES[0],now)
+        self.messages.append(midi)
+        #
+        # now = time.time()
+        #
+        # if midi.type == 'control_change':
+        #     pass
+        # else:
+        #     self.print_message(midi,c.MY_DEVICES[0],now)
 
 
     def return_self(self):
