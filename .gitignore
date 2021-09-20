@@ -130,3 +130,6 @@ oldsamples/
 #Other
 .DS_Store
 .idea
+
+# Pickle
+.p
