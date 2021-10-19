@@ -125,7 +125,8 @@ class MidiControl:
     def print_general_message(self,midi):
         now = time.time()
         if midi.type == 'control_change':
-            pass
+            if midi.channel ==1:
+                self.print_message(midi,c.MIDI_CONTROLLER,now)
         else:
             if midi.channel ==1:
                 self.print_message(midi,c.MIDI_CONTROLLER,now)
@@ -304,7 +305,8 @@ class MidiControl:
             # print(f"port = {port}")
             # note = midi.note
             if c.DEBUG_MODE:
-                 print(midi)
+                print(midi)
+                print(midi.type)
 
 
             if midi.type == 'note_on':
@@ -567,26 +569,28 @@ class MidiControl:
             elif midi.type == "control_change":
                 note = midi.control
 
+
                 #print(f"controller = {midi.getControllerValue()}")
 
-                if note == self.button.BPM_CONTROL and note != self.last_note:
-                    print(midi.control)
-                    print(f"note {note}")
-
-                    print(f"last_note {self.last_note}")
-
-                    self.metronome.set_bpm(midi.control/128.)
-
-
+                # if note == self.button.BPM_CONTROL and note != self.last_note:
+                #     print(midi.control)
+                #     print(f"note {note}")
+                #
+                #     print(f"last_note {self.last_note}")
+                #
+                #     self.metronome.set_bpm(midi.control/128.)
 
 
-                elif note == self.button.MBUNG_VOL_CONTROL:  # mbungmbung volume
+                print(f"midi.control: {midi.control}")
+                print(f"midi.value: {midi.value}")
+
+                if note == self.button.MBUNG_VOL_CONTROL:  # mbungmbung volume
                     drum = 0
-                    self.metronome.update_volume(drum,midi.control)
+                    self.metronome.update_volume(drum,midi.value)
 
                 elif note == self.button.COL_VOL_CONTROL:  # col volume
                     drum = 1
-                    self.metronome.update_volume(drum,midi.control)
+                    self.metronome.update_volume(drum,midi.value)
 
                 #print('CONTROLLER', midi.getControllerNumber(), midi.getControllerValue())
 
