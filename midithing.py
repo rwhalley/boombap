@@ -90,15 +90,19 @@ class MidiControl:
                     t1 = Thread(target=self.open_input, args=(device,self.print_synth_message))
                     c.MY_DEVICES[1] = device
                     c.SYNTH = device
+                    t1.start()
+
+
                 elif c.MIDI_CONTROLLER in device:
                     print("MIDI CONTROLLER IN DEVICE")
                     t2 = Thread(target=self.open_input, args=(device,self.print_sampler_message))
                     c.MY_DEVICES[0] = device
                     c.MIDI_CONTROLLER = device
-            t1.start()
-            t2.start()
+                    t2.start()
 
-        self.metronome.midi_player = MIDIPlayer()
+
+
+        self.metronome.midi_player = MIDIPlayer(self.devices)
         print("START MIDIPLAYER")
         self.metronome.midi_recorder = MIDIRecorder(self.metronome)
         print("START RECORDER")
@@ -311,8 +315,8 @@ class MidiControl:
                     try:
                         if self.metronome.midi_recorder.RECORD:
                             self.metronome.midi_recorder.add_entry(midi,port,when_added=midi_time)
-                            #print("ADDED")
-                            #print(self.metronome.midi_recorder.my_loop)
+                            print("ADDED")
+                            print(self.metronome.midi_recorder.my_loop)
                     except:
                         pass
 

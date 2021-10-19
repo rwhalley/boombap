@@ -8,12 +8,17 @@ import mido
 
 class MIDIPlayer():
 
-    def __init__(self):
+    def __init__(self,ports):
 
         self.triggered = False
         self.midiout = None
         self.available_ports = None
-        self.outport = mido.open_output(c.SYNTH)
+        self.outport = None
+        for port in ports:
+            if c.SYNTH in port:
+                self.outport = mido.open_output(c.SYNTH)
+                break
+
 
 
 

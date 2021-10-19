@@ -273,6 +273,7 @@ class Metronome:
                             self.loop_whitelist.append(i)
 
                     try:
+                        print(time.time() - when_addeds[0])
                         if (time.time() - when_addeds[0]) > 0.1:
 
                             self.midi_player.play_note(midis,ports)
@@ -280,6 +281,7 @@ class Metronome:
                             print(time.time())
                             print(midis)
                             self.controller.play_sound(midis,False,banks,ports)
+
                     except:
                         pass
 

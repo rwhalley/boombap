@@ -2,7 +2,7 @@ DEBUG_MODE = 0
 PORTS = {}
 
 THREADING_ACTIVE = False
-PI_FAST_LOAD = True
+PI_FAST_LOAD = False
 
 
 
