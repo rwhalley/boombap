@@ -51,6 +51,7 @@ class MIDIRecorder:
         self.my_loop = []
 
     def clear_all_loops(self):
+        self.my_loop = []
         self.my_loops = {}
 
     def add_play_loop(self,i):
