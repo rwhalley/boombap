@@ -133,6 +133,38 @@ empty.talmbat =                     [[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],  # pax 4
 empty.parts = [empty.mbalax1,empty.talmbat]
 
 
-rhythms = {"empty" : empty.parts, "kaolack" : kaolack.parts,"lumbuel":lumbuel.parts,'thieboudjeun':thieboudjeun.parts,"njouk":njouk.parts,"yaaba":yaaba.parts,"niari_gorong":niari_gorong.parts}
-meters = {"empty":empty.metronome,"kaolack":kaolack.metronome,"lumbuel":lumbuel.metronome,'thieboudjeun':thieboudjeun.metronome,"njouk":njouk.metronome,"yaaba":yaaba.metronome,"niari_gorong":niari_gorong.metronome}
-button_order = ["empty","kaolack","lumbuel","thieboudjeun","njouk","yaaba","niari_gorong"]
+met44 = Rhythm()
+met44.metronome =                    [1,0,0,0,0,0,1,0,1,0,0,0,1,0,0,0]
+
+met44.mbalax =                      [[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],  # pax
+                                     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],  # gin
+                                     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],  # tan
+                                     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]] # tet
+
+met44.talmbat =                     [[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],  # pax 4
+                                     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],  # gin 0
+                                     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],  # ran 1
+                                     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],  # tan 2
+                                     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]] # tet 3
+met44.parts = [met44.mbalax1,met44.talmbat]
+
+
+met34 = Rhythm()
+met34.metronome =                    [1,0,0,0,1,0,1,0,0,1,0,0]
+
+met34.mbalax =                      [[0,0,0,0,0,0,0,0,0,0,0,0],  # pax
+                                     [0,0,0,0,0,0,0,0,0,0,0,0],  # gin
+                                     [0,0,0,0,0,0,0,0,0,0,0,0],  # tan
+                                     [0,0,0,0,0,0,0,0,0,0,0,0]] # tet
+
+met34.talmbat =                     [[0,0,0,0,0,0,0,0,0,0,0,0],  # pax 4
+                                     [0,0,0,0,0,0,0,0,0,0,0,0],  # gin 0
+                                     [0,0,0,0,0,0,0,0,0,0,0,0],  # ran 1
+                                     [0,0,0,0,0,0,0,0,0,0,0,0],  # tan 2
+                                     [0,0,0,0,0,0,0,0,0,0,0,0]] # tet 3
+met34.parts = [met34.mbalax1,met34.talmbat]
+
+
+rhythms = {"empty" : empty.parts,"met44" : met44.parts,"met34" : met34.parts, "kaolack" : kaolack.parts,"lumbuel":lumbuel.parts,'thieboudjeun':thieboudjeun.parts,"njouk":njouk.parts,"yaaba":yaaba.parts,"niari_gorong":niari_gorong.parts}
+meters = {"empty":empty.metronome,"met44" : met44.metronome,"met34" : met34.metronome,"kaolack":kaolack.metronome,"lumbuel":lumbuel.metronome,'thieboudjeun':thieboudjeun.metronome,"njouk":njouk.metronome,"yaaba":yaaba.metronome,"niari_gorong":niari_gorong.metronome}
+button_order = ["empty","met44","met34","kaolack","lumbuel","thieboudjeun","njouk","yaaba","niari_gorong"]
