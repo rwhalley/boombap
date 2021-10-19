@@ -80,14 +80,14 @@ class Metronome:
 
     def _update_interval(self, new_bpm):
         self.beat_length = int(60 / new_bpm * 1000)
-        self.measure_length = int(self.beat_length * 4)
-        self.note_length = int(self.beat_length / 4)
+        self.measure_length = int(self.beat_length * self.beats_per_bar)
+        self.note_length = int(self.beat_length /  self.notes_per_beat)
 
     def _update_meter(self,notes_per_beat):
         self.notes_per_beat = notes_per_beat
         self.max_notes = self.max_beats * self.notes_per_beat
         self.measure_length = int(self.beat_length * 4)
-        self.note_length = int(self.beat_length / 4)
+        self.note_length = int(self.beat_length / notes_per_beat)
 
 
     def switch(self,i):
@@ -103,10 +103,16 @@ class Metronome:
             self.is_on = True
             self.metronome_seq = sr.meters[sr.button_order[i]]
             self.accompaniment = sr.rhythms[sr.button_order[i]]
+
             if (len(self.metronome_seq) % 3) == 0:
                 self._update_meter(3)
             else:
                 self._update_meter(4)
+
+            self.notes_per_beat = sr.objects[i].notes_per_beat
+            self.beats_per_bar = sr.objects[i].beats_per_bar
+            self.notes_per_bar = self.notes_per_beat*self.beats_per_bar * 2
+
         else:
             self.is_on = False
 
@@ -273,7 +279,7 @@ class Metronome:
                             self.loop_whitelist.append(i)
 
                     try:
-                        print(time.time() - when_addeds[0])
+                        #print(time.time() - when_addeds[0])
                         if (time.time() - when_addeds[0]) > 0.1:
 
                             self.midi_player.play_note(midis,ports)
@@ -354,6 +360,8 @@ class Metronome:
                 if normal:
 
                     self.current_note = ((self.current_note+1)%self.max_notes)
+
+                    #print(self.notes_per_bar)
                     self.current_loop_beat = ((self.current_loop_beat+1) %self.notes_per_bar)
                     #print(f"CURRENT NOTE: {self.current_note}")
                     #print(f"CURRENT_LOOP_NOTE: {self.current_loop_beat}")

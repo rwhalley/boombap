@@ -11,3 +11,5 @@ class Rhythm:
         self.nder = []
         self.metronome = []
         self.parts = []
+        self.notes_per_beat = None
+        self.beats_per_bar = None

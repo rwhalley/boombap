@@ -581,8 +581,8 @@ class MidiControl:
                 #     self.metronome.set_bpm(midi.control/128.)
 
 
-                print(f"midi.control: {midi.control}")
-                print(f"midi.value: {midi.value}")
+                #print(f"midi.control: {midi.control}")
+                #print(f"midi.value: {midi.value}")
 
                 if note == self.button.MBUNG_VOL_CONTROL:  # mbungmbung volume
                     drum = 0
