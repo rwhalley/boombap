@@ -1,13 +1,13 @@
 #!/usr/bin/python
 
-PI = None
-try:
-    import alsaaudio
-    print("Linux OS")
-    PI = True
-except:
-    print("Non-Linux OS")
-    PI = False
+# PI = None
+# try:
+#     import alsaaudio
+#     print("Linux OS")
+#     PI = True
+# except:
+#     print("Non-Linux OS")
+#     PI = False
 
 import rtmidi as rtmidi
 import time
@@ -246,23 +246,23 @@ class MidiControl:
         self.VOL_SENS = not self.VOL_SENS
         #print(self.VOL_SENS)
 
-    def adjust_volume(self, turn_up):
-        try:
-            m = alsaaudio.Mixer()
-            current_volume = m.getvolume()
-            #print(current_volume)
-            if turn_up:
-                new_volume = current_volume[0]+10
-            else:
-                new_volume = current_volume[0]-10
-            if new_volume<0:
-                new_volume = 0
-            elif new_volume>100:
-                new_volume = 100
-            m.setvolume(new_volume)
-        except ImportError:
-            print("Volume Adjustment Not Available for Non-Linux")
-            pass
+    # def adjust_volume(self, turn_up):
+    #     try:
+    #         m = alsaaudio.Mixer()
+    #         current_volume = m.getvolume()
+    #         #print(current_volume)
+    #         if turn_up:
+    #             new_volume = current_volume[0]+10
+    #         else:
+    #             new_volume = current_volume[0]-10
+    #         if new_volume<0:
+    #             new_volume = 0
+    #         elif new_volume>100:
+    #             new_volume = 100
+    #         m.setvolume(new_volume)
+    #     except ImportError:
+    #         print("Volume Adjustment Not Available for Non-Linux")
+    #         pass
 
 
 
