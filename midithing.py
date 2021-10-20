@@ -1,13 +1,15 @@
 #!/usr/bin/python
 
-# PI = None
-# try:
-#     import alsaaudio
-#     print("Linux OS")
-#     PI = True
-# except:
-#     print("Non-Linux OS")
-#     PI = False
+while True:
+    PI = None
+    try:
+        import alsaaudio
+        print("Linux OS")
+        PI = True
+        break
+    except:
+        print("Non-Linux OS")
+        PI = False
 
 import rtmidi as rtmidi
 import time
