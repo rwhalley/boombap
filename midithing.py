@@ -1,4 +1,14 @@
 #!/usr/bin/python
+
+PI = None
+try:
+    import alsaaudio
+    print("Linux OS")
+    PI = True
+except:
+    print("Non-Linux OS")
+    PI = False
+
 import rtmidi as rtmidi
 import time
 from soundy_pygame import Soundy
@@ -18,14 +28,7 @@ from midiparse import MIDIParse as mp
 import CONFIG as c
 
 
-PI = None
-try:
-    import alsaaudio
-    print("Linux OS")
-    PI = True
-except:
-    print("Non-Linux OS")
-    PI = False
+
 
 class MidiControl:
 
