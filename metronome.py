@@ -285,8 +285,8 @@ class Metronome:
 
                             self.midi_player.play_note(midis,ports)
 
-                            print(time.time())
-                            print(midis)
+                            #print(time.time())
+                            #print(midis)
                             self.controller.play_sound(midis,False,banks,ports)
 
                     except:

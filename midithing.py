@@ -320,8 +320,8 @@ class MidiControl:
                     try:
                         if self.metronome.midi_recorder.RECORD:
                             self.metronome.midi_recorder.add_entry(midi,port,when_added=midi_time)
-                            print("ADDED")
-                            print(self.metronome.midi_recorder.my_loop)
+                            #print("ADDED")
+                            #print(self.metronome.midi_recorder.my_loop)
                     except:
                         pass
 
