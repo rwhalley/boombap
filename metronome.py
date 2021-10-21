@@ -21,6 +21,7 @@ class Metronome:
         self.current_loop_beat = 0
         self.notes_per_beat = 4
         self.notes_per_bar = self.notes_per_beat*self.beats_per_bar
+        self.bars_per_loop = 2
         # --- end for looper ---
 
         self.max_notes = self.max_beats * self.notes_per_beat
@@ -77,6 +78,12 @@ class Metronome:
                 sound.make_loud()
             all_sounds.append(sounds)
         return all_sounds
+
+    def get_notes_per_loop(self):
+        return self.notes_per_bar*self.bars_per_loop
+
+    def set_bars_per_loop(self,num):
+        self.bars_per_loop = num
 
     def _update_interval(self, new_bpm):
         self.beat_length = int(60 / new_bpm * 1000)
@@ -234,7 +241,7 @@ class Metronome:
         else:
             ts = time.time()
         pos = 0
-        normalizer = float(self.beats_per_bar*self.notes_per_beat)
+        normalizer = float(self.bars_per_loop*self.beats_per_bar*self.notes_per_beat)
         now = int(round(ts * 1000))%(self.note_length)
         micro_pos = now/float(self.note_length)
         pos = (self.current_loop_beat + micro_pos) / normalizer
@@ -369,7 +376,7 @@ class Metronome:
                     self.current_note = ((self.current_note+1)%self.max_notes)
 
                     #print(self.notes_per_bar)
-                    self.current_loop_beat = ((self.current_loop_beat+1) %self.notes_per_bar)
+                    self.current_loop_beat = ((self.current_loop_beat+1) %self.get_notes_per_loop())
                     #print(f"CURRENT NOTE: {self.current_note}")
                     #print(f"CURRENT_LOOP_NOTE: {self.current_loop_beat}")
 
