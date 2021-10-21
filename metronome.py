@@ -107,21 +107,29 @@ class Metronome:
         # print("WHAT")
 
         if id != "empty":
-            self.is_on = False
-            time.sleep(0.1)
+            #self.is_on = False
+            #time.sleep(0.1)
 
             self.metronome_seq = sr.meters[sr.button_order[i]]
             self.accompaniment = sr.rhythms[sr.button_order[i]]
             self.midi_recorder.clear_all_loops()
 
-            if (len(self.metronome_seq) % 3) == 0:
-                self._update_meter(3)
-            else:
-                self._update_meter(4)
+            # if (len(self.metronome_seq) % 3) == 0:
+            #     self._update_meter(3)
+            # else:
+            #     self._update_meter(4)
 
             self.notes_per_beat = sr.objects[i].notes_per_beat
             self.beats_per_bar = sr.objects[i].beats_per_bar
             self.notes_per_bar = self.notes_per_beat*self.beats_per_bar
+
+            self.max_notes = self.max_beats * self.notes_per_beat
+            self.measure_length = int(self.beat_length * self.beats_per_bar)
+            self.note_length = int(self.beat_length / self.notes_per_beat)
+            self.current_note = 0
+            self.current_grace_note = 0
+            self.offset = 0
+            self.current_beat = 0
 
 
             self.is_on = True
