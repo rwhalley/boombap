@@ -1,15 +1,7 @@
 #!/usr/bin/python
 
 
-    # PI = None
-    # try:
-    #     import alsaaudio
-    #     print("Linux OS")
-    #     PI = True
-    #
-    # except:
-    #     print("Non-Linux OS")
-    #     PI = False
+
 
 import rtmidi as rtmidi
 import time
@@ -28,7 +20,15 @@ from midi_recorder import MIDIRecorder
 
 from midiparse import MIDIParse as mp
 import CONFIG as c
+PI = None
+try:
+    import alsaaudio
+    print("Linux OS")
+    PI = True
 
+except:
+    print("Non-Linux OS")
+    PI = False
 
 
 
