@@ -68,6 +68,8 @@ class MidiControl:
         self.messages = []
         self.threads = []
 
+        self.control_msgs = []
+
 
         self.devices = list(set(mido.get_input_names()))
 
@@ -129,14 +131,25 @@ class MidiControl:
 
     def print_general_message(self,midi):
         now = time.time()
-        if midi.type == 'control_change':
-            if midi.channel ==1:
-                self.print_message(midi,c.MIDI_CONTROLLER,now)
-        else:
+        #print(midi.type)
+
+        if midi.type == 'note_on' or midi.type == 'note_off':
             if midi.channel ==1:
                 self.print_message(midi,c.MIDI_CONTROLLER,now)
             elif midi.channel == 0:
                 self.print_message(midi,c.SYNTH,now)
+        elif midi.type == 'control_change':
+            self.control_msgs.append(midi)
+            #print(self.control_msgs)
+
+        if midi.type == 'note_off' and len(self.control_msgs) >0:
+            #print("YOOOO")
+            msg = self.control_msgs[-2]
+            #print(msg)
+            #print(f"message {msg.value}")
+            self.control_msgs = []
+            if msg.channel ==1:
+                self.print_message(msg,c.MIDI_CONTROLLER,now)
 
     def print_synth_message(self,midi):
         self.messages.append(midi)
