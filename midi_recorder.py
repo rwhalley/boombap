@@ -54,6 +54,7 @@ class MIDIRecorder:
         self.my_loop = []
 
     def clear_all_loops(self):
+        self.my_loop = []
         self.my_loops = {}
 
     def add_play_loop(self,i):
@@ -73,8 +74,8 @@ class MIDIRecorder:
 
 
     def add_entry(self, midi, port, when_added):
-        pos = self.metronome.get_position()
-        note = mp.getNoteNumber(midi)
+        pos = self.metronome.get_position(timestamp=when_added)
+        note = midi.note
         bank = self.metronome.controller.current_bank
         port = port
         when_added = when_added
