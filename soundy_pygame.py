@@ -18,24 +18,26 @@ class Soundy:
         self.pgsound = pg.mixer.Sound(soundpath)
         self.original_sound = pg.mixer.Sound(soundpath)
 
-    def restrict_length(self,len_in_seconds):
-        self.pgsound = pg.sndarray.make_sound(pg.sndarray.array(self.pgsound)[:int(self.sample_rate*len_in_seconds),:])
+    def restrict_length(self,len_in_seconds,snd_array):
+        return snd_array[:int(self.sample_rate*len_in_seconds),:]
 
-    def normalize(self):
-        snd_array = pg.sndarray.array(self.pgsound)
-        self.pgsound = pg.sndarray.make_sound(np.array([(snd_array / np.max(np.abs(snd_array))) * 32767], np.int16)[0])
+    def normalize(self,snd_array):
+        return np.array([(snd_array / np.max(np.abs(snd_array))) * 32767], np.int16)[0]
 
-    def make_loud(self):
-        snd_array = pg.sndarray.array(self.pgsound)
+    def make_loud(self,np_arr):
+        return np.array([dsp.limiter(np_arr[:])], np.int16)[0]
+        #print(np.array([dsp.arctan_compressor(dsp.limiter(snd_array[:]))], np.int16)[0])
 
-        #print(dsp.arctan_compressor(dsp.limiter(snd_array[:])))
-        self.pgsound = pg.sndarray.make_sound(np.array([dsp.limiter(snd_array[:])], np.int16)[0])
-        print(np.array([dsp.arctan_compressor(dsp.limiter(snd_array[:]))], np.int16)[0])
+    def sound_2_np(self):
+        return pg.sndarray.array(self.pgsound)
+
+    def np_2_sound(self,np_arr):
+        self.pgsound = pg.sndarray.make_sound(np_arr)
+        return self.pgsound
+
+    def remove_artifacts(self,snd_array):
 
 
-    def remove_artifacts(self):
-
-        snd_array = pg.sndarray.array(self.pgsound)
 
         # --- REMOVE SILENCE AT BEGINNING OF SAMPLES ---
         sound_start = None
@@ -57,8 +59,9 @@ class Soundy:
         #    snd_array[-fade:,i] = np.multiply(snd_array[-fade:,i], fade_out)
 
         # --- SET NEW DEFAULT SOUND AFTER PROCESSING ---
-        self.pgsound = pg.sndarray.make_sound(snd_array)
-        self.original_sound=self.pgsound
+        # self.pgsound = pg.sndarray.make_sound(snd_array)
+        # self.original_sound=self.pgsound
+        return snd_array
 
 
     def lowpass_filter(self):
@@ -75,8 +78,9 @@ class Soundy:
         #factor = int(len(snd_array)*factor)
         #snd_resample = resampy.resample(snd_array,self.sample_rate, int(self.sample_rate*factor) - int(self.sample_rate*factor)%128 ,axis=0)
         #snd_resample = signal.resample(snd_array,factor).astype(snd_array.dtype)
-        snd_resample=resample(snd_array,factor,'sinc_fastest').astype(snd_array.dtype)
-        self.pgsound = pg.sndarray.make_sound(snd_resample)
+
+        self.pgsound = self.np_2_sound(self.make_loud(self.normalize(resample(snd_array,factor,'sinc_fastest').astype(snd_array.dtype))))
+
 
     def set_volume(self,midi_vel_in):
         normalized_vel = midi_vel_in/128.

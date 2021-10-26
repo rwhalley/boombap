@@ -222,40 +222,29 @@ class MidiControl:
 
             if(c.THREADING_ACTIVE):
                 # Run DSP as background process
-                x = Thread(sound.change_pitch(factor), daemon=True)
-                x.start()
-                x = Thread(sound.normalize(), daemon=True)
-                x.start()
-                x = Thread(sound.make_loud(), daemon=True)
+
+                x = Thread(target=sound.change_pitch, args=(factor,), daemon=True)
                 x.start()
             else:
-                sound.change_pitch(factor)
-                sound.normalize()
-                sound.make_loud()
+                sound.make_loud(sound.normalize(sound.change_pitch(factor)))
+
 
         for sound in self.all_sounds[self.current_bank]:
 
             if c.THREADING_ACTIVE:
                 # Run DSP as background process
-                x = Thread(sound.change_pitch(factor), daemon=True)
-                x.start()
-                x = Thread(sound.normalize(), daemon=True)
-                x.start()
-                x = Thread(sound.make_loud(), daemon=True)
+                x = Thread(target=sound.change_pitch, args=(factor,), daemon=True)
                 x.start()
             else:
-                sound.change_pitch(factor)
-                sound.normalize()
-                sound.make_loud()
+                sound.make_loud(sound.normalize(sound.change_pitch(factor)))
 
     def pre_process_sounds(self, sounds = None):
         if not sounds:
             sounds = self.sounds
         for sound in sounds:
-            sound.restrict_length(self.max_sample_length_seconds)  # Truncate Samples longer than n seconds
-            sound.remove_artifacts()
-            sound.normalize()
-            sound.make_loud()
+
+              # Truncate Samples longer than n seconds
+            sound.np_2_sound(sound.make_loud(sound.normalize(sound.remove_artifacts(sound.restrict_length(self.max_sample_length_seconds,sound.sound_2_np())))))
 
     def switch_vol_sens(self):
         self.VOL_SENS = not self.VOL_SENS

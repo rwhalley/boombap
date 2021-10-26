@@ -73,9 +73,9 @@ class Metronome:
                     else:
                         sounds.append(Soundy(path+file))
             for sound in sounds:
-                sound.remove_artifacts()
-                sound.normalize()
-                sound.make_loud()
+
+
+                sound.make_loud(sound.normalize(sound.remove_artifacts(sound.sound_2_np())))
             all_sounds.append(sounds)
         return all_sounds
 
