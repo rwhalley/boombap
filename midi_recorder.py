@@ -80,16 +80,9 @@ class MIDIRecorder:
         port = port
         when_added = when_added
         entry = [pos, midi, bank, port, when_added]
-        i = note - QUNEO.PAD_START
-        #if port == "QUNEO" and (i<0 or i>15):
-        #    raise IndexError
-        #else:
         self.my_loop.append(entry)
+        print("ENTRY ADDED")
+        print(self.my_loop)
 
-
-        # if len(self.my_loop)>0 and self.my_loop[-1][1]>pos:
-        #     self.my_loops.append(self.my_loop)
-        #     self.my_loop = []
-        # else:
 
 

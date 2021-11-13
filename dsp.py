@@ -1,6 +1,12 @@
 import numpy as np
 from scipy.interpolate import interp1d
 from scipy.io import wavfile
+from threading import Thread
+import CONFIG as c
+
+
+
+
 
 def apply_transfer(signal, transfer, interpolation='linear'):
     constant = np.linspace(-32767, 32767, len(transfer))

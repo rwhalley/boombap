@@ -30,7 +30,7 @@ class Soundy:
 
         #print(dsp.arctan_compressor(dsp.limiter(snd_array[:])))
         self.pgsound = pg.sndarray.make_sound(np.array([dsp.limiter(snd_array[:])], np.int16)[0])
-        print(np.array([dsp.arctan_compressor(dsp.limiter(snd_array[:]))], np.int16)[0])
+        #print(np.array([dsp.arctan_compressor(dsp.limiter(snd_array[:]))], np.int16)[0])
 
 
     def remove_artifacts(self):

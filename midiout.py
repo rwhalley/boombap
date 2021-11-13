@@ -41,51 +41,53 @@ class MIDIPlayer():
         self.play_note(midis,ports)
 
     def play_worker(self,midis,ports):
+        print("YES")
         if c.SYNTH in ports:
-
             for midi in midis:
+                print(midi)
+                print("NO")
                 self.outport.send(midi)
 
-    def play_worker_rtmidi(self,midis,ports):
-
-
-        #self.available_ports = self.midiout.get_ports()
-
-
-        try:
-            for key in c.PORTS:
-                if c.SYNTH in key:
-                    port_num = c.PORTS[key]
-                    self.midiout.open_port(port_num)
-
-        except (IndexError("MIDI port not open")):
-            print("virtual port")
-            self.midiout.open_virtual_port("My virtual output")
-
-        with mido.open_output('reface CP') as outport:
-            #print(midi)
-            #print("PLAY NOTE")
-            #print(threading.active_count())
-            #print(f"MIDI + {[hex(midi[0]),midi[1],midi[2]]}")
-            # note_on = [0x90, 60, 90] # channel 1, middle C, velocity 112
-            # note_off=[0x90, 60,0]
-            # print(midi)
-            for i, midi in enumerate(midis):
-                    if c.SYNTH in ports[i]:
-                        outport.send(midi)
-            #time.sleep(0.2)
-            #self.midiout.send_message(note_on)
-
-
-            # if(midi[2]>0) and not self.triggered:
-            #     print("YEAH BUDDY")
-            #     self.midiout.send_message(note_on)
-            #     self.triggered = True
-        #del self.midiout
-
-
-
-
-## Debug
-#m = MIDIPlayer()
-#m.play_note([0x90, 60, 90])
+#     def play_worker_rtmidi(self,midis,ports):
+#
+#
+#         #self.available_ports = self.midiout.get_ports()
+#
+#
+#         try:
+#             for key in c.PORTS:
+#                 if c.SYNTH and c.SYNTH in key:
+#                     port_num = c.PORTS[key]
+#                     self.midiout.open_port(port_num)
+#
+#         except (IndexError("MIDI port not open")):
+#             print("virtual port")
+#             self.midiout.open_virtual_port("My virtual output")
+#
+#         with mido.open_output('reface CP') as outport:
+#             #print(midi)
+#             #print("PLAY NOTE")
+#             #print(threading.active_count())
+#             #print(f"MIDI + {[hex(midi[0]),midi[1],midi[2]]}")
+#             # note_on = [0x90, 60, 90] # channel 1, middle C, velocity 112
+#             # note_off=[0x90, 60,0]
+#             # print(midi)
+#             for i, midi in enumerate(midis):
+#                 if c.SYNTH and c.SYNTH in ports[i]:
+#                     outport.send(midi)
+#             #time.sleep(0.2)
+#             #self.midiout.send_message(note_on)
+#
+#
+#             # if(midi[2]>0) and not self.triggered:
+#             #     print("YEAH BUDDY")
+#             #     self.midiout.send_message(note_on)
+#             #     self.triggered = True
+#         #del self.midiout
+#
+#
+#
+#
+# ## Debug
+# #m = MIDIPlayer()
+# #m.play_note([0x90, 60, 90])
