@@ -140,13 +140,13 @@ class MidiControl:
                 self.sort_midi(midi,c.MIDI_CONTROLLER,now)
             elif midi.channel == c.SYNTH_MIDI_CHANNEL:
                 self.sort_midi(midi,c.SYNTH,now)
-        # elif midi.type == 'control_change':
-        #    self.control_msgs.append(midi)
-        # if midi.type == 'note_off' and len(self.control_msgs) >0:
-        #     msg = self.control_msgs[-2]
-        #     self.control_msgs = []
-        #     if msg.channel == c.MIDI_CONTROLLER_CHANNEL:
-        #         self.sort_midi(msg,c.MIDI_CONTROLLER,now)
+        elif midi.type == 'control_change':
+           self.control_msgs.append(midi)
+        if midi.type == 'note_off' and len(self.control_msgs) >1:
+            msg = self.control_msgs[-2]
+            self.control_msgs = []
+            if msg.channel == c.MIDI_CONTROLLER_CHANNEL:
+                self.sort_midi(msg,c.MIDI_CONTROLLER,now)
 
 
 # SAMPLE LOADING
@@ -438,7 +438,6 @@ class MidiControl:
 
                 else:
                     if entry.midi.velocity == 0 or entry.midi.type == "note_off":
-                        print("CUTTING OFF")
                         self.cutoff_sound(entry.midi)  # clear sound if already playing
 
                 if entry.bank < c.NUM_SABAR_BANKS:
