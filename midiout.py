@@ -9,10 +9,10 @@ import mido
 class MIDIPlayer():
 
     def __init__(self,ports):
-
-        self.triggered = False
-        self.midiout = None
-        self.available_ports = None
+        pass
+        # self.triggered = False
+        # self.midiout = None
+        # self.available_ports = None
         self.outport = None
         for port in ports:
             if c.SYNTH in port:
@@ -20,9 +20,35 @@ class MIDIPlayer():
                 break
 
 
+    ### PLAY MIDI NOTE
+
+    def play_note(self,note):
+        if c.THREADING_ACTIVE:
+            x = threading.Thread(target=self.play_worker, args=(note,),daemon=True)
+            x.start()
+            x.join()
+        else:
+            self.play_worker(note)
+
+    def play_note(self,note):
+        if c.SYNTH in note.port:
+            self.outport.send(note.midi)
+            # with mido.open_output(c.SYNTH) as outport:
+            #
+            #     outport.send(note.midi)
+            #
+            # outport.close()
+            #print("before")
+            #midiout = mido.open_output(note.port)
+            #self.outport.send(note.midi)
+            #midiout.close()
+            #print("after")
+            #self.outport.send(note.midi)
 
 
-    def play_note(self,midis,ports):
+
+
+    def play_note_old(self,midis,ports):
         if c.THREADING_ACTIVE:
             x = threading.Thread(target=self.play_worker, args=(midis,ports),daemon=True)
             x.start()
@@ -31,7 +57,7 @@ class MIDIPlayer():
             self.play_worker(midis,ports)
 
 
-    def all_notes_off(self):
+    def all_notes_off_old(self):
         midis = []
         ports = []
         for i in range(0,128):
@@ -40,7 +66,7 @@ class MIDIPlayer():
 
         self.play_note(midis,ports)
 
-    def play_worker(self,midis,ports):
+    def play_worker_old(self,midis,ports):
         print("YES")
         if c.SYNTH in ports:
             for midi in midis:

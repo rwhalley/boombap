@@ -2,6 +2,7 @@ from midiparse import MIDIParse as mp
 import QUNEO
 import CONFIG as c
 from operator import itemgetter
+import note
 
 class MIDIRecorder:
     def __init__(self,metronome):
@@ -73,7 +74,7 @@ class MIDIRecorder:
             pass
 
 
-    def add_entry(self, midi, port, when_added):
+    def add_entry_old(self, midi, port, when_added):
         pos = self.metronome.get_position(timestamp=when_added)
         note = midi.note
         bank = self.metronome.controller.current_bank
@@ -84,5 +85,11 @@ class MIDIRecorder:
         print("ENTRY ADDED")
         print(self.my_loop)
 
+    def add_entry(self,midi,port,when_added):
+        self.my_loop.append(note.Note(self.metronome.get_position(timestamp=when_added),
+                                      midi,
+                                      self.metronome.controller.current_bank,
+                                      port,
+                                      when_added))
 
 

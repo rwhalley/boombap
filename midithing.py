@@ -15,6 +15,7 @@ import QUNEO
 from midiout import MIDIPlayer
 from midi_recorder import MIDIRecorder
 import CONFIG as c
+import note
 
 
 class MidiControl:
@@ -57,28 +58,36 @@ class MidiControl:
 
         ## LOAD MIDI THREADS FOR TWO DEVICES
 
+        self.midoports = []
         t1 = None
         t2 = None
         for device in self.devices:
             if "Midi Through" in device:
                 pass
             elif c.SYNTH in device:
+                #self.open_input(device,self.add_message)
                 print(f"{c.SYNTH} synth found")
-                t1 = Thread(target=self.open_input, args=(device,self.add_message))
+                #t1 = Thread(target=self.open_input, args=(device,self.add_message))
                 c.MY_DEVICES[1] = device
                 c.SYNTH = device
-                t1.start()
+                #t1.start()
+                self.midoports.append(mido.open_input(device))
 
             elif c.MIDI_CONTROLLER in device:
                 print(f"{c.MIDI_CONTROLLER} midi controller found")
-                t2 = Thread(target=self.open_input, args=(device,self.add_message))
+                #self.open_input(device,self.add_message)
+
+                #t2 = Thread(target=self.open_input, args=(device,self.add_message))
                 c.MY_DEVICES[0] = device
                 c.MIDI_CONTROLLER = device
-                t2.start()
+                #t2.start()
+                self.midoports.append(mido.open_input(device))
+
 
 
         # START MIDI Player
-        self.metronome.midi_player = MIDIPlayer(self.devices)
+        #self.metronome.midi_player = MIDIPlayer(self.devices)
+        self.midi_player = MIDIPlayer(self.devices)
 
         # START MIDI RECORDER
         self.metronome.midi_recorder = MIDIRecorder(self.metronome)
@@ -89,11 +98,27 @@ class MidiControl:
         # MAIN LOOP FOR PROCESSING MIDI INPUT
         while True:
 
-            # TIMING FOR THE LOOPER
-            self.metronome.get_time()
+            for port in self.midoports:
+                self.add_message(port.poll())
+
+            if self.metronome.is_on:
+
+                # RUN LOOPER
+                ts = time.time()
+                notes = self.metronome.get_note(ts)
+                if notes:
+                    for note in notes:
+                        if (ts-note.when)>0.1: # don't play if note was just recorded
+                            if note.port in c.SYNTH:
+                                self.midi_player.play_note(note)
+                            if note.port in c.MIDI_CONTROLLER:
+                                self.play_sound(note)
+
+            # RUN ACCOMPANIMENT
+                self.metronome.play_sequencer(ts)
 
             # PROCESS INPUT MIDI
-            if len(self.messages)>0:
+            if self.messages:
                 self.print_general_message(self.messages.pop(0))
 
 
@@ -104,7 +129,8 @@ class MidiControl:
 
     # ADD MIDI MESSAGE TO PROCESS QUEUE
     def add_message(self,midi):
-        self.messages.append(midi)
+        if midi:
+            self.messages.append(midi)
 
     # Filter out unnecessary change control messages
     def print_general_message(self,midi):
@@ -114,8 +140,7 @@ class MidiControl:
                 self.sort_midi(midi,c.MIDI_CONTROLLER,now)
             elif midi.channel == c.SYNTH_MIDI_CHANNEL:
                 self.sort_midi(midi,c.SYNTH,now)
-        #elif midi.type == 'control_change':
-        #    print(midi)
+        # elif midi.type == 'control_change':
         #    self.control_msgs.append(midi)
         # if midi.type == 'note_off' and len(self.control_msgs) >0:
         #     msg = self.control_msgs[-2]
@@ -218,27 +243,28 @@ class MidiControl:
     # MAIN INPUT MIDI SORTING LOGIC TREE
 
     def sort_midi(self,midi,port,time):
-        print(midi)
+        # if midi.channel == c.SYNTH_MIDI_CHANNEL:
+        #     if midi.type == "note_on":
+        #         if self.button_is_shift(midi):
+        #             self.metronome_shift(midi)
+        #             self.bank_shift(midi)
+        #             self.loop_shift(midi)
+        #         if self.button_is_playable(midi):
+        #             self.add_to_loop(midi,port,time)
+        #         if self.button_is_switch(midi):
+        #             self.bpm_up(midi)
+        #             self.bpm_down(midi)
+        #             self.pitch_up(midi)
+        #             self.pitch_down(midi)
+        #             self.clear_loop(midi)
+        #             self.record(midi)
+        #             self.velocity_sensitivity(midi)
+        #             self.exit_program(midi)
+        #             self.switch_bank(midi)
+        #             self.switch_metronome(midi)
         if midi.channel == c.SYNTH_MIDI_CHANNEL:
+            print("ADDING")
             self.add_to_loop(midi,port,time)
-            if midi.type == "note_on":
-                if self.button_is_shift(midi):
-                    self.metronome_shift(midi)
-                    self.bank_shift(midi)
-                    self.loop_shift(midi)
-                if self.button_is_playable(midi):
-                    self.add_to_loop(midi,port,time)
-                if self.button_is_switch(midi):
-                    self.bpm_up(midi)
-                    self.bpm_down(midi)
-                    self.pitch_up(midi)
-                    self.pitch_down(midi)
-                    self.clear_loop(midi)
-                    self.record(midi)
-                    self.velocity_sensitivity(midi)
-                    self.exit_program(midi)
-                    self.switch_bank(midi)
-                    self.switch_metronome(midi)
         if midi.channel == c.MIDI_CONTROLLER_CHANNEL:
             if midi.type == "note_on":
                 if self.button_is_shift(midi):
@@ -247,7 +273,8 @@ class MidiControl:
                     self.loop_shift(midi)
                 if self.button_is_playable(midi):
                     self.add_to_loop(midi,port,time)
-                    self.play_sound([midi],None,[self.current_bank],[port])
+                    self.play_sound(note.Note(None,midi,self.current_bank,port,time))
+                    #self.play_sound([midi],None,[self.current_bank],[port])
                 if self.button_is_switch(midi):
                     self.bpm_up(midi)
                     self.bpm_down(midi)
@@ -267,7 +294,7 @@ class MidiControl:
                 if self.button_is_playable(midi):
                     self.add_to_loop(midi,port,time)
                     self.cutoff_sound(midi)
-            if midi.type == "change control":
+            if midi.is_cc():
                 self.update_mbung_vol(midi)
                 self.update_col_vol(midi)
 
@@ -392,15 +419,43 @@ class MidiControl:
     #         print("Sound not found")
     #         pass
 
-    def play_sound(self,midis,note,banks,ports):
+    def play_sound(self,entry):
+        if c.MIDI_CONTROLLER in entry.port:
+
+            i = entry.midi.note - self.button.PAD_START  # get the midi note of pad
+            if i >= 0 and i < len(self.all_sounds[entry.bank]):  # if sound has an ID
+
+                if self.VOL_SENS:  # set volume if volume sensitivity is turned on
+                    self.all_sounds[entry.bank][i].set_volume(entry.midi.velocity)
+                else:
+                    self.all_sounds[entry.bank][i].set_volume(128)
+
+
+
+                if self.current_bank < c.NUM_SABAR_BANKS:
+                    for sound in self.all_sounds[self.current_bank]:
+                        sound.stop() # Clear all other sounds in current bank
+
+                else:
+                    if entry.midi.velocity == 0 or entry.midi.type == "note_off":
+                        print("CUTTING OFF")
+                        self.cutoff_sound(entry.midi)  # clear sound if already playing
+
+                if entry.bank < c.NUM_SABAR_BANKS:
+                    for sound in self.all_sounds[entry.bank]:
+                        sound.stop()
+
+                if entry.midi.velocity>0:
+                    self.all_sounds[entry.bank][i].play(block=False)  # play sound from beginning
+
+
+    def play_sound_old(self,midis,note,banks,ports):
         for j,midi in enumerate(midis):
             if c.MIDI_CONTROLLER in ports[j]:
                 if not note:
                     note = midi.note
                 i = note - self.button.PAD_START
-                if i<0 or i>15:
-                    raise IndexError
-                else:
+                if i>=0 and i<len(self.all_sounds[banks[j]]):
                     if self.VOL_SENS:
                         self.all_sounds[banks[j]][i].set_volume(midi.velocity)
                     else:
@@ -419,7 +474,7 @@ class MidiControl:
 
     def cutoff_sound(self,midi):
         i = midi.note - self.button.PAD_START
-        if self.current_bank > 3:
+        if (self.current_bank > 3) and (i>=0 and i<len(self.all_sounds[self.current_bank])):
             self.sounds[i].stop()
             self.all_sounds[self.current_bank][i].stop()
 
@@ -427,12 +482,12 @@ class MidiControl:
     # CHANGE CONTROL FUNCTIONS
 
     def update_mbung_vol(self,midi):
-        if midi.note == self.button.MBUNG_VOL_CONTROL:  # mbungmbung volume
+        if midi.control == self.button.MBUNG_VOL_CONTROL:  # mbungmbung volume
             drum = 0
             self.metronome.update_volume(drum,midi.value)
 
     def update_col_vol(self,midi):
-        if midi.note == self.button.COL_VOL_CONTROL:  # mbungmbung volume
+        if midi.control == self.button.COL_VOL_CONTROL:  # mbungmbung volume
             drum = 1
             self.metronome.update_volume(drum,midi.value)
 

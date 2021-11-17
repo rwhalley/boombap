@@ -258,19 +258,108 @@ class Metronome:
         # print(f"current_beat: {self.current_loop_beat}")
         # print(f"pre_pos: {self.current_loop_beat + micro_pos}")
         # print(f"pos: {pos}")
-        #if self.current_loop_beat > 30:
-        #    print("WHATTSSGSTRDSDFGSD")
         return pos
 
     def get_time(self):
         ts = time.time()
+        return ts
 
+    # def midithingloop(self):
+    #     ts = time.time()
+    #     if self.metronome.is_on:
+    #         note = self.metronome.get_note()
+    #         if note:
+    #             if (ts-note.when)<0.1: # don't play if note was just recorded
+    #                 self.midi_player.play_note(note)
+    #                 self.play_sound(note)
+
+    def get_note(self,ts):
+
+        current_pos = self.get_position(timestamp=ts)
+
+        notes=[]
+
+        if (self.midi_recorder.my_loop):
+
+                for i, entry in enumerate(self.midi_recorder.my_loop):  # Go through all the notes in loop
+                    if (current_pos > entry.bar_position) and not (i in self.loop_blacklist): # if it's time to play, play the entry, and add it to the blacklist for this measure
+                        self.loop_blacklist.append(i)
+                        notes.append(entry)
+
+
+        if self.last_pos > 0.9 and current_pos < 0.1:  # loop has ended
+            self.loop_blacklist = []  # clear loop blacklist
+
+        self.last_pos = current_pos
+
+        return notes
+
+
+
+    def play_sequencer(self, ts):
+        # When now = 0, play a note.
+        now = int(round(ts * 1000))%(self.note_length)
+
+        # Is it time to play a sequence note? Or a Grace note?
+        is_note_available = now < self.last_time
+        is_grace_note_available = now > (int(0.50*self.note_length))
+
+        if is_note_available:
+
+            # if metronome sequence has note to play, play it
+            if self.metronome_seq[self.current_note]:
+                    self.sound.play(block=False)
+
+            # play grace notes if available
+
+            if self.bpm<self.grace_BPM_thresh:
+
+                if (is_grace_note_available and self.grace_note_active>=0) :
+
+                    self.play_accompaniment("grace")
+                    self.grace_note_active = -1
+
+                if (is_grace_note_available and self.col_grace_seq >=0):
+                    #print("Col Grace")
+                    self.play_accompaniment("col_grace")
+
+                    self.col_grace_seq = -1
+
+                if not self.grace_note_active>=0:
+                    self.play_accompaniment("normal")
+
+            else:
+                self.play_accompaniment("normal")
+            self.current_note = ((self.current_note+1)%self.max_notes)
+            self.current_loop_beat = ((self.current_loop_beat+1) %self.get_notes_per_loop())
+
+        self.last_time = now
+
+
+
+
+    def get_time_old(self):
+
+        # get current timestamp
+        ts = time.time()
+
+        # if metronome is on
         if self.is_on:
+
+            ### For Accompaniment
+
+            # is_time_to_play_seq_note()
+            # is_time_to_play_grace_note()
+
+            # When now = 0, play a note.
             now = int(round(ts * 1000))%(self.note_length)
+
+            # Is it time to play a sequence note? Or a Grace note?
             normal = now < self.last_time
             grace = now > (int(0.50*self.note_length))
 
             ### --- MIDI LOoPER ---
+            #get_current_position_in_bar()
             current_pos = self.get_position(timestamp=ts)
 
             ### -- QUNEO LOOP ---
@@ -302,7 +391,7 @@ class Metronome:
                         print("DOUBLE OK")
                         #print(time.time() - when_addeds[0])
 
-                        if (time.time() - when_addeds[0]) > 0.1: #if time has passed
+                        if (ts - when_addeds[0]) > 0.1: #if time has passed
                             self.controller.play_sound(midis,False,banks,ports)
                             self.midi_player.play_note(midis,ports)
 

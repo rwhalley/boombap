@@ -27,7 +27,7 @@ def limiter(x, treshold=1):
 
 # smooth compression: if factor is small, its near linear, the bigger it is the
 # stronger the compression
-def arctan_compressor(x, factor=10):
+def arctan_compressor(x, factor=5):
     constant = np.linspace(-1, 1, len(x))
     #print(constant)
     transfer = np.arctan(factor * constant)
