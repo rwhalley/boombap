@@ -99,35 +99,34 @@ class MidiControl:
         # MAIN LOOP FOR PROCESSING MIDI INPUT
         while True:
 
-            ts = time.time()
-            if (ts - self.last_ts) > 0.0001:
+            time.sleep(0.0002) # Reduce number of unnecessary cycles
 
-                for port in self.midoports:
-                    self.add_message(port.poll())
+            for port in self.midoports:
+                self.add_message(port.poll())
 
-                # IF METRONOME BUTTON TURNED ON
-                if self.metronome.is_on:
+            # IF METRONOME BUTTON TURNED ON
+            if self.metronome.is_on:
 
-                    # RUN LOOPER
-                    notes = self.metronome.get_note(ts)
-                    if notes:
-                        for note in notes:
-                            if (ts-note.when)>0.1: # don't play if note was just recorded
-                                if note.port in c.SYNTH:
-                                    self.midi_player.play_note(note)
-                                if note.port in c.MIDI_CONTROLLER:
-                                    self.play_sound(note)
+                ts = time.time()
+                # RUN LOOPER
+                notes = self.metronome.get_note(ts)
+                if notes:
+                    for note in notes:
+                        if (ts-note.when)>0.1: # don't play if note was just recorded
+                            if note.port in c.SYNTH:
+                                self.midi_player.play_note(note)
+                            if note.port in c.MIDI_CONTROLLER:
+                                self.play_sound(note)
 
-                    # RUN ACCOMPANIMENT
+                # RUN ACCOMPANIMENT
 
-                    self.metronome.play_sequencer(ts)
+                self.metronome.play_sequencer(ts)
 
-                # PROCESS INPUT MIDI
+            # PROCESS INPUT MIDI
 
-                if self.messages:
-                    self.print_general_message(self.messages.pop(0))
+            if self.messages:
+                self.print_general_message(self.messages.pop(0))
 
-                self.last_ts = ts
 
 
 
