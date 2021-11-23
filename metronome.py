@@ -28,6 +28,7 @@ class Metronome:
         self.measure_length = int(self.beat_length * 4)
         self.note_length = int(self.beat_length / 4)
         self.last_time = 0
+        self.last_ts = 0
         self.current_note = 0
         self.current_grace_note = 0
         self.offset = 0
@@ -298,51 +299,36 @@ class Metronome:
 
 
 
+
     def play_sequencer(self, ts):
+
         # When now = 0, play a note.
         now = int(round(ts * 1000))%(self.note_length)
 
         # Is it time to play a sequence note? Or a Grace note?
-        is_note_available = now < self.last_time
-        is_grace_note_available = now > (int(0.50*self.note_length))
+        normal = now < self.last_time
+        grace = now > (int(0.50*self.note_length))
 
-        if is_note_available:
+        self.last_time = now
 
-            #print(self.metronome_seq[self.current_note])
-            # if metronome sequence has note to play, play it
+        if grace and self.bpm<self.grace_BPM_thresh:
+            if (self.grace_note_active>=0) :
+                self.play_accompaniment("grace")
+                self.grace_note_active = -1
+
+            if (self.col_grace_seq >=0):
+                self.play_accompaniment("col_grace")
+                self.col_grace_seq = -1
+
+        if normal:
+            self.play_accompaniment("normal")
+
             if self.metronome_seq[self.current_note]:
-                self.sound.play(block=False)
-
-            # play grace notes if available
-            print(self.grace_note_active)
-
-            if self.bpm<self.grace_BPM_thresh:
-                if (is_grace_note_available and self.grace_note_active>=0) :
-                    print("MBUNG GRACE")
-                    self.play_accompaniment("grace")
-                    self.grace_note_active = -1
-
-
-                if (is_grace_note_available and self.col_grace_seq >=0):
-                    print("COL GRACE")
-
-                    #print("Col Grace")
-                    self.play_accompaniment("col_grace")
-
-                    self.col_grace_seq = -1
-
-                if not self.grace_note_active>=0:
-                    self.play_accompaniment("normal")
-
-            else:
-                print("FAST")
-
-                self.play_accompaniment("normal")
+                    self.sound.play(block=False)
 
             self.current_note = ((self.current_note+1)%self.max_notes)
             self.current_loop_beat = ((self.current_loop_beat+1) %self.get_notes_per_loop())
 
-        self.last_time = now
 
 
 

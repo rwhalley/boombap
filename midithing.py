@@ -55,6 +55,7 @@ class MidiControl:
         self.metronome_path = Path(__file__).parent.resolve() / 'metronome/metronome.wav'
         self.metronome = Metronome(bpm=120,path=self.metronome_path, controller=self)
 
+        self.last_ts = 0
 
         ## LOAD MIDI THREADS FOR TWO DEVICES
 
@@ -98,28 +99,35 @@ class MidiControl:
         # MAIN LOOP FOR PROCESSING MIDI INPUT
         while True:
 
-            for port in self.midoports:
-                self.add_message(port.poll())
+            ts = time.time()
+            if (ts - self.last_ts) > 0.0001:
 
-            if self.metronome.is_on:
+                for port in self.midoports:
+                    self.add_message(port.poll())
 
-                # RUN LOOPER
-                ts = time.time()
-                notes = self.metronome.get_note(ts)
-                if notes:
-                    for note in notes:
-                        if (ts-note.when)>0.1: # don't play if note was just recorded
-                            if note.port in c.SYNTH:
-                                self.midi_player.play_note(note)
-                            if note.port in c.MIDI_CONTROLLER:
-                                self.play_sound(note)
+                # IF METRONOME BUTTON TURNED ON
+                if self.metronome.is_on:
 
-            # RUN ACCOMPANIMENT
-                self.metronome.play_sequencer(ts)
+                    # RUN LOOPER
+                    notes = self.metronome.get_note(ts)
+                    if notes:
+                        for note in notes:
+                            if (ts-note.when)>0.1: # don't play if note was just recorded
+                                if note.port in c.SYNTH:
+                                    self.midi_player.play_note(note)
+                                if note.port in c.MIDI_CONTROLLER:
+                                    self.play_sound(note)
 
-            # PROCESS INPUT MIDI
-            if self.messages:
-                self.print_general_message(self.messages.pop(0))
+                    # RUN ACCOMPANIMENT
+
+                    self.metronome.play_sequencer(ts)
+
+                # PROCESS INPUT MIDI
+
+                if self.messages:
+                    self.print_general_message(self.messages.pop(0))
+
+                self.last_ts = ts
 
 
 
