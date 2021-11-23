@@ -180,7 +180,10 @@ class MidiControl:
 
     def load_samples(self):
         path = self.basepath + str(self.current_bank)+'/'
-        onlyfiles = [f for f in sorted(listdir(path)) if isfile(join(path, f))]
+        try:
+            onlyfiles = [f for f in sorted(listdir(path)) if isfile(join(path, f))]
+        except FileNotFoundError:
+            return None
         self.sounds = []
         for file in onlyfiles:
             if file.endswith('.wav'):
@@ -189,6 +192,7 @@ class MidiControl:
                 else:
                     self.sounds.append(Soundy(path+file))
         self.sounds = self.sounds[0:self.max_bank_size]
+        print(f"LOADING SOUND BANK: {self.current_bank}")
         if c.PI_FAST_LOAD:
             pass
         else:
