@@ -21,7 +21,7 @@ class Metronome:
         self.current_loop_beat = 0
         self.notes_per_beat = 4
         self.notes_per_bar = self.notes_per_beat*self.beats_per_bar
-        self.bars_per_loop = 2
+        self.bars_per_loop = 4
         # --- end for looper ---
 
         self.max_notes = self.max_beats * self.notes_per_beat
@@ -99,6 +99,8 @@ class Metronome:
 
     def switch(self,i):
         print(f"i: {i}")
+        if i> len(sr.button_order)-1:
+            return None
         id = sr.button_order[i]
         print(f"id: {id}")
         # print(sr.meters[sr.button_order[i]])
@@ -306,20 +308,24 @@ class Metronome:
 
         if is_note_available:
 
+            #print(self.metronome_seq[self.current_note])
             # if metronome sequence has note to play, play it
             if self.metronome_seq[self.current_note]:
-                    self.sound.play(block=False)
+                self.sound.play(block=False)
 
             # play grace notes if available
+            print(self.grace_note_active)
 
             if self.bpm<self.grace_BPM_thresh:
-
                 if (is_grace_note_available and self.grace_note_active>=0) :
-
+                    print("MBUNG GRACE")
                     self.play_accompaniment("grace")
                     self.grace_note_active = -1
 
+
                 if (is_grace_note_available and self.col_grace_seq >=0):
+                    print("COL GRACE")
+
                     #print("Col Grace")
                     self.play_accompaniment("col_grace")
 
@@ -329,7 +335,10 @@ class Metronome:
                     self.play_accompaniment("normal")
 
             else:
+                print("FAST")
+
                 self.play_accompaniment("normal")
+
             self.current_note = ((self.current_note+1)%self.max_notes)
             self.current_loop_beat = ((self.current_loop_beat+1) %self.get_notes_per_loop())
 
