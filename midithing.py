@@ -485,7 +485,7 @@ class MidiControl:
     def cutoff_sound(self,midi):
         i = midi.note - self.button.PAD_START
         if (self.current_bank > 3) and (i>=0 and i<len(self.all_sounds[self.current_bank])):
-            self.sounds[i].stop()
+            #self.sounds[i].stop()
             self.all_sounds[self.current_bank][i].stop()
 
 

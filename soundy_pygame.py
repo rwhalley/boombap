@@ -13,7 +13,7 @@ class Soundy:
     def __init__(self,soundpath):
         self.sample_rate = 44100
         self.repeat = False
-        pg.mixer.init(frequency=self.sample_rate, size=-16, channels=2, buffer=32)
+        pg.mixer.init(frequency=self.sample_rate, size=-16, channels=2, buffer=64)
         pg.init()
         self.pgsound = pg.mixer.Sound(soundpath)
         self.original_sound = pg.mixer.Sound(soundpath)
