@@ -274,7 +274,6 @@ class MidiControl:
         #             self.switch_bank(midi)
         #             self.switch_metronome(midi)
         if midi.channel == c.SYNTH_MIDI_CHANNEL:
-            print("ADDING")
             self.add_to_loop(midi,port,time)
         if midi.channel == c.MIDI_CONTROLLER_CHANNEL:
             if midi.type == "note_on":
