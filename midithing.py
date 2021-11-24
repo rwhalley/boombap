@@ -119,7 +119,7 @@ class MidiControl:
                                 if note.midi.type == "note_on":
                                     self.play_sound(note)
                                 if note.midi.type == "note_off":
-                                    if self.current_bank > c.MAX_SABAR_BANK_INDEX:
+                                    if note.bank > c.MAX_SABAR_BANK_INDEX:
                                         self.cutoff_current_sound(note)
 
                 # RUN ACCOMPANIMENT
