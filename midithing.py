@@ -116,7 +116,11 @@ class MidiControl:
                             if note.port in c.SYNTH:
                                 self.midi_player.play_note(note)
                             if note.port in c.MIDI_CONTROLLER:
-                                self.play_sound(note)
+                                if note.midi.type == "note_on":
+                                    self.play_sound(note)
+                                if note.midi.type == "note_off":
+                                    if self.current_bank > c.MAX_SABAR_BANK_INDEX:
+                                        self.cutoff_current_sound(note)
 
                 # RUN ACCOMPANIMENT
 
@@ -303,7 +307,8 @@ class MidiControl:
                     self.loop_shift(midi)
                 if self.button_is_playable(midi):
                     self.add_to_loop(midi,port,time)
-                    self.cutoff_sound(midi)
+                    if self.current_bank > c.MAX_SABAR_BANK_INDEX:
+                        self.cutoff_current_sound(note.Note(None,midi,self.current_bank,port,time))
             if midi.is_cc():
                 self.update_mbung_vol(midi)
                 self.update_col_vol(midi)
@@ -441,51 +446,64 @@ class MidiControl:
                     self.all_sounds[entry.bank][i].set_volume(128)
 
 
+                if entry.bank < c.MAX_SABAR_BANK_INDEX:
+                    self.cutoff_all_sounds_in_same_bank(entry) # if any sound in same bank is playing, cut it off (hand drums)
 
-                if self.current_bank < c.NUM_SABAR_BANKS:
-                    for sound in self.all_sounds[self.current_bank]:
-                        sound.stop() # Clear all other sounds in current bank
-
-                else:
-                    if entry.midi.velocity == 0 or entry.midi.type == "note_off":
-                        self.cutoff_sound(entry.midi)  # clear sound if already playing
-
-                if entry.bank < c.NUM_SABAR_BANKS:
-                    for sound in self.all_sounds[entry.bank]:
-                        sound.stop()
+                if entry.bank >= c.MAX_SABAR_BANK_INDEX:
+                    self.cutoff_current_sound(entry)  # if exact same sound is playing, cut it off
 
                 if entry.midi.velocity>0:
-                    self.all_sounds[entry.bank][i].play(block=False)  # play sound from beginning
+                    self.all_sounds[entry.bank][i].play(block=False)  # play sound
 
 
-    def play_sound_old(self,midis,note,banks,ports):
-        for j,midi in enumerate(midis):
-            if c.MIDI_CONTROLLER in ports[j]:
-                if not note:
-                    note = midi.note
-                i = note - self.button.PAD_START
-                if i>=0 and i<len(self.all_sounds[banks[j]]):
-                    if self.VOL_SENS:
-                        self.all_sounds[banks[j]][i].set_volume(midi.velocity)
-                    else:
-                        self.all_sounds[banks[j]][i].set_volume(128)
-                    if self.current_bank < 3:
-                        for sound in self.all_sounds[banks[j]]:
-                            sound.stop()
-                    else:
-                        if midi.velocity==0 or midi.type == "note_off":
-                            self.cutoff_sound(midi)
-                            #self.all_sounds[banks[j]][i].stop()
-                            # for sound in self.all_sounds[banks[j]]:
-                            #     sound.stop()
-                    if midi.velocity>0:
-                        self.all_sounds[banks[j]][i].play(block=False)
+    # def play_sound_old(self,midis,note,banks,ports):
+    #     for j,midi in enumerate(midis):
+    #         if c.MIDI_CONTROLLER in ports[j]:
+    #             if not note:
+    #                 note = midi.note
+    #             i = note - self.button.PAD_START
+    #             if i>=0 and i<len(self.all_sounds[banks[j]]):
+    #                 if self.VOL_SENS:
+    #                     self.all_sounds[banks[j]][i].set_volume(midi.velocity)
+    #                 else:
+    #                     self.all_sounds[banks[j]][i].set_volume(128)
+    #                 if self.current_bank < 3:
+    #                     for sound in self.all_sounds[banks[j]]:
+    #                         sound.stop()
+    #                 else:
+    #                     if midi.velocity==0 or midi.type == "note_off":
+    #                         self.cutoff_sound(midi)
+    #                         #self.all_sounds[banks[j]][i].stop()
+    #                         # for sound in self.all_sounds[banks[j]]:
+    #                         #     sound.stop()
+    #                 if midi.velocity>0:
+    #                     self.all_sounds[banks[j]][i].play(block=False)
 
-    def cutoff_sound(self,midi):
-        i = midi.note - self.button.PAD_START
-        if (self.current_bank > 3) and (i>=0 and i<len(self.all_sounds[self.current_bank])):
+    # cutoff current sound
+    # cutoff all sounds in same bank
+    # cutoff all sounds
+
+    def cutoff_current_sound(self,entry):
+        i = entry.midi.note - self.button.PAD_START
+        if i>=0 and i<len(self.all_sounds[entry.bank]): # if midi note is in bank
+            self.all_sounds[entry.bank][i].stop() # stop sound
+
+    def cutoff_all_sounds_in_same_bank(self,entry):
+        i = entry.midi.note - self.button.PAD_START
+        if i>=0 and i<len(self.all_sounds[entry.bank]): # if midi note is in bank
+            for sound in (self.all_sounds[entry.bank]):
+                sound.stop() # stop sound
+
+    def cutoff_all_sounds(self):
+        for bank in self.all_sounds:
+            for sound in bank:
+                sound.stop()
+
+    def cutoff_sound(self,entry):
+        i = entry.midi.note - self.button.PAD_START
+        if (entry.bank > 3) and (i>=0 and i<len(self.all_sounds[entry.bank])):
             #self.sounds[i].stop()
-            self.all_sounds[self.current_bank][i].stop()
+            self.all_sounds[entry.bank][i].stop()
 
 
     # CHANGE CONTROL FUNCTIONS
