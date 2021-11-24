@@ -95,5 +95,5 @@ class Soundy:
             sleep(self.nssound.duration())
 
     def stop(self):
-        #self.pgsound.fadeout(25)
-        self.pgsound.stop()
+        self.pgsound.fadeout(25)
+        #self.pgsound.stop()
