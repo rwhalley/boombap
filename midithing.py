@@ -99,7 +99,7 @@ class MidiControl:
         # MAIN LOOP FOR PROCESSING MIDI INPUT
         while True:
 
-            time.sleep(0.0002) # Reduce number of unnecessary cycles
+            #time.sleep(0.0002) # Reduce number of unnecessary cycles
 
             for port in self.midoports:
                 self.add_message(port.poll())
