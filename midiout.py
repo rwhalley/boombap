@@ -20,15 +20,15 @@ class MIDIPlayer():
                 break
 
 
-    ### PLAY MIDI NOTE
-
-    def play_note(self,note):
-        if c.THREADING_ACTIVE:
-            x = threading.Thread(target=self.play_worker, args=(note,),daemon=True)
-            x.start()
-            x.join()
-        else:
-            self.play_worker(note)
+    # ### PLAY MIDI NOTE
+    #
+    # def play_note(self,note):
+    #     if c.THREADING_ACTIVE:
+    #         x = threading.Thread(target=self.play_worker, args=(note,),daemon=True)
+    #         x.start()
+    #         x.join()
+    #     else:
+    #         self.play_worker(note)
 
     def play_note(self,note):
         if c.SYNTH in note.port:
