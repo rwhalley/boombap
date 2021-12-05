@@ -277,8 +277,6 @@ class MidiControl:
         #             self.exit_program(midi)
         #             self.switch_bank(midi)
         #             self.switch_metronome(midi)
-        if midi.channel == c.SYNTH_MIDI_CHANNEL:
-            self.add_to_loop(midi,port,time)
         if midi.channel == c.MIDI_CONTROLLER_CHANNEL:
             if midi.type == "note_on":
                 if self.button_is_shift(midi):
@@ -286,8 +284,8 @@ class MidiControl:
                     self.bank_shift(midi)
                     self.loop_shift(midi)
                 if self.button_is_playable(midi):
-                    self.add_to_loop(midi,port,time)
                     self.play_sound(note.Note(None,midi,self.current_bank,port,time))
+                    self.add_to_loop(midi,port,time)
                     #self.play_sound([midi],None,[self.current_bank],[port])
                 if self.button_is_switch(midi):
                     self.bpm_up(midi)
@@ -306,13 +304,14 @@ class MidiControl:
                     self.bank_shift(midi)
                     self.loop_shift(midi)
                 if self.button_is_playable(midi):
-                    self.add_to_loop(midi,port,time)
                     if self.current_bank > c.MAX_SABAR_BANK_INDEX:
                         self.cutoff_current_sound(note.Note(None,midi,self.current_bank,port,time))
+                    self.add_to_loop(midi,port,time)
             if midi.is_cc():
                 self.update_mbung_vol(midi)
                 self.update_col_vol(midi)
-
+        if midi.channel == c.SYNTH_MIDI_CHANNEL:
+            self.add_to_loop(midi,port,time)
 
             #if c.SYNTH_ONLY:
 
@@ -434,7 +433,15 @@ class MidiControl:
     #         print("Sound not found")
     #         pass
 
-    def play_sound(self,entry):
+    def play_sound(self,note):
+        if True:#c.THREADING_ACTIVE:
+            x = Thread(target=self.play_sound_thread, args=(note,),daemon=True)
+            x.start()
+            x.join()
+        else:
+            self.play_sound_thread(note)
+
+    def play_sound_thread(self,entry):
         if c.MIDI_CONTROLLER in entry.port:
 
             i = entry.midi.note - self.button.PAD_START  # get the midi note of pad
@@ -445,6 +452,8 @@ class MidiControl:
                 else:
                     self.all_sounds[entry.bank][i].set_volume(128)
 
+                if entry.midi.velocity>0:
+                    self.all_sounds[entry.bank][i].play(block=False)  # play sound
 
                 if entry.bank < c.MAX_SABAR_BANK_INDEX:
                     self.cutoff_all_sounds_in_same_bank(entry) # if any sound in same bank is playing, cut it off (hand drums)
@@ -452,8 +461,7 @@ class MidiControl:
                 if entry.bank >= c.MAX_SABAR_BANK_INDEX:
                     self.cutoff_current_sound(entry)  # if exact same sound is playing, cut it off
 
-                if entry.midi.velocity>0:
-                    self.all_sounds[entry.bank][i].play(block=False)  # play sound
+
 
 
     # def play_sound_old(self,midis,note,banks,ports):
