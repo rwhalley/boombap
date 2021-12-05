@@ -434,7 +434,7 @@ class MidiControl:
     #         pass
 
     def play_sound(self,note):
-        if False:#c.THREADING_ACTIVE:
+        if True:#c.THREADING_ACTIVE:
             x = Thread(target=self.play_sound_thread, args=(note,),daemon=True)
             x.start()
             x.join()
@@ -452,16 +452,14 @@ class MidiControl:
                 else:
                     self.all_sounds[entry.bank][i].set_volume(128)
 
-                if entry.midi.velocity>0:
-                    self.all_sounds[entry.bank][i].play(block=False)  # play sound
-
                 if entry.bank < c.MAX_SABAR_BANK_INDEX:
                     self.cutoff_all_sounds_in_same_bank(entry) # if any sound in same bank is playing, cut it off (hand drums)
 
                 if entry.bank >= c.MAX_SABAR_BANK_INDEX:
                     self.cutoff_current_sound(entry)  # if exact same sound is playing, cut it off
 
-
+                if entry.midi.velocity>0:
+                    self.all_sounds[entry.bank][i].play(block=False)  # play sound
 
 
     # def play_sound_old(self,midis,note,banks,ports):
