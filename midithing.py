@@ -434,7 +434,7 @@ class MidiControl:
     #         pass
 
     def play_sound(self,note):
-        if True:#c.THREADING_ACTIVE:
+        if False:#c.THREADING_ACTIVE:
             x = Thread(target=self.play_sound_thread, args=(note,),daemon=True)
             x.start()
             x.join()
