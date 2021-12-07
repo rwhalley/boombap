@@ -31,6 +31,7 @@ class Metronome:
         self.last_ts = 0
         self.current_note = 0
         self.current_grace_note = 0
+
         self.offset = 0
         self.current_beat = 0
         self.sound = Soundy(path)
@@ -263,9 +264,9 @@ class Metronome:
         # print(f"pos: {pos}")
         return pos
 
-    def get_time(self):
-        ts = time.time()
-        return ts
+    # def get_time(self):
+    #     ts = time.time()
+    #     return ts
 
     # def midithingloop(self):
     #     ts = time.time()
@@ -276,7 +277,7 @@ class Metronome:
     #                 self.midi_player.play_note(note)
     #                 self.play_sound(note)
 
-    def get_note(self,ts):
+    def get_note_alt(self,ts):
 
         current_pos = self.get_position(timestamp=ts)
 
@@ -297,7 +298,29 @@ class Metronome:
 
         return notes
 
+    def get_note(self,ts):
 
+
+        current_pos = self.get_position(timestamp=ts)
+
+        notes=[]
+
+        if (self.midi_recorder.my_loop):
+
+            entry = self.midi_recorder.my_loop[self.midi_recorder.current_loop_index]  # Go through all the notes in loop
+            if (current_pos > entry.bar_position) and not (self.midi_recorder.current_loop_index in self.loop_blacklist): # if it's time to play, play the entry, and add it to the blacklist for this measure
+                self.loop_blacklist.append(self.midi_recorder.current_loop_index)
+                notes.append(entry)
+                self.midi_recorder.current_loop_index+=1
+                self.midi_recorder.current_loop_index = self.midi_recorder.current_loop_index%self.midi_recorder.current_loop_length
+
+
+        if self.last_pos > 0.9 and current_pos < 0.1:  # loop has ended
+            self.loop_blacklist = []  # clear loop blacklist
+
+        self.last_pos = current_pos
+
+        return notes
 
 
     def play_sequencer(self, ts):

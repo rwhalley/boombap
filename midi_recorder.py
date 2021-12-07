@@ -12,6 +12,8 @@ class MIDIRecorder:
         self.play_loops = {} # all stored loops being played
         self.metronome = metronome
         self.active_loops = []
+        self.current_loop_length = 0
+        self.current_loop_index = 0
 
     def start_record (self):
         self.RECORD = True
@@ -53,10 +55,14 @@ class MIDIRecorder:
 
     def clear_current_loop(self):
         self.my_loop = []
+        self.current_loop_length = 0
+        self.current_loop_index = 0
 
     def clear_all_loops(self):
         self.my_loop = []
         self.my_loops = {}
+        self.current_loop_length = 0
+        self.current_loop_index = 0
 
     def add_play_loop(self,i):
         try:
@@ -91,5 +97,8 @@ class MIDIRecorder:
                                       self.metronome.controller.current_bank,
                                       port,
                                       when_added))
+
+        self.current_loop_length = len(self.my_loop)
+        self.my_loop.sort(key=lambda x: x.bar_position) #resort the list every time a new item added
 
 

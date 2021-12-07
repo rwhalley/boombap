@@ -433,15 +433,9 @@ class MidiControl:
     #         print("Sound not found")
     #         pass
 
-    def play_sound(self,note):
-        if True:#c.THREADING_ACTIVE:
-            x = Thread(target=self.play_sound_thread, args=(note,),daemon=True)
-            x.start()
-            x.join()
-        else:
-            self.play_sound_thread(note)
 
-    def play_sound_thread(self,entry):
+
+    def play_sound(self,entry):
         if c.MIDI_CONTROLLER in entry.port:
 
             i = entry.midi.note - self.button.PAD_START  # get the midi note of pad
