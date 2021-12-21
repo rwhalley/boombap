@@ -7,6 +7,7 @@ import threading
 from midiout import MIDIPlayer
 from midi_recorder import MIDIRecorder
 import sabar_rhythms as sr
+from wav import Wav
 
 
 class Metronome:
@@ -34,7 +35,7 @@ class Metronome:
 
         self.offset = 0
         self.current_beat = 0
-        self.sound = Soundy(path)
+        self.sound = None#Wav(path)
         self.grace_note_active = -1
         self.col_grace_seq = -1
         self.grace_played = False
@@ -73,11 +74,11 @@ class Metronome:
                     if file.startswith('.'):
                         pass
                     else:
-                        sounds.append(Soundy(path+file))
-            for sound in sounds:
-                sound.remove_artifacts()
-                sound.normalize()
-                sound.make_loud()
+                        sounds.append(Wav(path+file))
+            # for sound in sounds:
+            #     sound.remove_artifacts()
+            #     sound.normalize()
+            #     sound.make_loud()
             all_sounds.append(sounds)
         return all_sounds
 

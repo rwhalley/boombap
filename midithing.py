@@ -16,6 +16,8 @@ from midiout import MIDIPlayer
 from midi_recorder import MIDIRecorder
 import CONFIG as c
 import note
+import wav_player
+from wav import Wav
 
 
 class MidiControl:
@@ -93,6 +95,9 @@ class MidiControl:
         # START MIDI RECORDER
         self.metronome.midi_recorder = MIDIRecorder(self.metronome)
 
+        # START WAV PLAYER
+        self.wav_player = wav_player.WavPlayer()
+        self.wav_player.open_stream()
 
         print("LOADING COMPLETE - STARTING MAIN LOOP")
 
@@ -178,7 +183,7 @@ class MidiControl:
                         if file.startswith('.'):
                             pass
                         else:
-                            bank.append(Soundy(path+file))
+                            bank.append(Wav(path+file))
                 self.all_sounds.append(bank)
             except FileNotFoundError:
                 #print("less than 8 sample banks found")
@@ -187,7 +192,8 @@ class MidiControl:
             if c.PI_FAST_LOAD:
                 print("PI FAST LOAD ACTIVE")
             else:
-                self.pre_process_sounds(sounds = bank)
+                pass
+                #self.pre_process_sounds(sounds = bank)
 
     def load_samples(self):
         path = self.basepath + str(self.current_bank)+'/'
@@ -201,13 +207,14 @@ class MidiControl:
                 if file.startswith('.'):
                     pass
                 else:
-                    self.sounds.append(Soundy(path+file))
+                    self.sounds.append(Wav(path+file))
         self.sounds = self.sounds[0:self.max_bank_size]
         print(f"LOADING SOUND BANK: {self.current_bank}")
         if c.PI_FAST_LOAD:
             pass
         else:
-            self.pre_process_sounds()
+            pass
+            #self.pre_process_sounds()
 
 
 # SOUND PROCESSING
@@ -453,7 +460,7 @@ class MidiControl:
                     self.cutoff_current_sound(entry)  # if exact same sound is playing, cut it off
 
                 if entry.midi.velocity>0:
-                    self.all_sounds[entry.bank][i].play(block=False)  # play sound
+                    self.wav_player.play(self.all_sounds[entry.bank][i])  # play sound
 
 
     # def play_sound_old(self,midis,note,banks,ports):
@@ -486,24 +493,24 @@ class MidiControl:
     def cutoff_current_sound(self,entry):
         i = entry.midi.note - self.button.PAD_START
         if i>=0 and i<len(self.all_sounds[entry.bank]): # if midi note is in bank
-            self.all_sounds[entry.bank][i].stop() # stop sound
+            self.wav_player.stop(self.all_sounds[entry.bank][i]) # stop sound
 
     def cutoff_all_sounds_in_same_bank(self,entry):
         i = entry.midi.note - self.button.PAD_START
         if i>=0 and i<len(self.all_sounds[entry.bank]): # if midi note is in bank
             for sound in (self.all_sounds[entry.bank]):
-                sound.stop() # stop sound
+                self.wav_player.stop(sound) # stop sound
 
     def cutoff_all_sounds(self):
         for bank in self.all_sounds:
             for sound in bank:
-                sound.stop()
+                self.wav_player.stop(sound)
 
     def cutoff_sound(self,entry):
         i = entry.midi.note - self.button.PAD_START
         if (entry.bank > 3) and (i>=0 and i<len(self.all_sounds[entry.bank])):
             #self.sounds[i].stop()
-            self.all_sounds[entry.bank][i].stop()
+            self.wav_player.stop(self.all_sounds[entry.bank][i])
 
 
     # CHANGE CONTROL FUNCTIONS

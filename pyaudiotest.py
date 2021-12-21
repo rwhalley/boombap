@@ -21,7 +21,14 @@ class WavPlayer:
         self.last_chunks = []
         self.last_chunk = None
         self.chunk_size = 1024
+        self.framerate = 44100
+        self.format = 8
+        self.num_channels = 1
         self.stream = None
+        self.silence = numpy.pad([], (0, self.chunk_size), 'constant').tobytes()
+        # print(self.p.get_format_from_width(self.wf.getsampwidth()))
+        # print(self.wf.getnchannels())
+        # print(self.wf.getframerate())
 
 
     def play(self,filepath):
@@ -51,8 +58,8 @@ class WavPlayer:
             data = sum(datas)
             return (data.tobytes(), pyaudio.paContinue)
 
-        else:
-            return (numpy.pad([], (0, self.chunk_size), 'constant').tobytes(),pyaudio.paContinue)
+        else: # Run silence to keep stream going
+            return (self.silence,pyaudio.paContinue)
 
     # define callback (2)
     def callback(self,in_data, frame_count, time_info, status):
@@ -115,9 +122,9 @@ class WavPlayer:
 
     def open_stream(self):
         # open stream using callback (3)
-        self.stream = self.p.open(format=self.p.get_format_from_width(self.wf.getsampwidth()),
-                        channels=self.wf.getnchannels(),
-                        rate=self.wf.getframerate(),
+        self.stream = self.p.open(format=self.format,
+                        channels=self.num_channels,
+                        rate=self.framerate,
                         output=True,
                         stream_callback=self.multicallback)
 
