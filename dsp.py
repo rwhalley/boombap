@@ -1,12 +1,6 @@
 import numpy as np
 from scipy.interpolate import interp1d
 from scipy.io import wavfile
-from threading import Thread
-import CONFIG as c
-
-
-
-
 
 def apply_transfer(signal, transfer, interpolation='linear'):
     constant = np.linspace(-32767, 32767, len(transfer))
@@ -27,7 +21,7 @@ def limiter(x, treshold=1):
 
 # smooth compression: if factor is small, its near linear, the bigger it is the
 # stronger the compression
-def arctan_compressor(x, factor=5):
+def arctan_compressor(x, factor=10):
     constant = np.linspace(-1, 1, len(x))
     #print(constant)
     transfer = np.arctan(factor * constant)

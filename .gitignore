@@ -126,10 +126,6 @@ dmypy.json
 
 # Samples
 oldsamples/
-samples/10/
-samples/11/
-samples/12/
-samples/13/
 
 #Other
 .DS_Store

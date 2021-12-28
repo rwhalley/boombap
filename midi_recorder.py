@@ -2,7 +2,6 @@ from midiparse import MIDIParse as mp
 import QUNEO
 import CONFIG as c
 from operator import itemgetter
-import note
 
 class MIDIRecorder:
     def __init__(self,metronome):
@@ -12,8 +11,6 @@ class MIDIRecorder:
         self.play_loops = {} # all stored loops being played
         self.metronome = metronome
         self.active_loops = []
-        self.current_loop_length = 0
-        self.current_loop_index = 0
 
     def start_record (self):
         self.RECORD = True
@@ -55,14 +52,10 @@ class MIDIRecorder:
 
     def clear_current_loop(self):
         self.my_loop = []
-        self.current_loop_length = 0
-        self.current_loop_index = 0
 
     def clear_all_loops(self):
         self.my_loop = []
         self.my_loops = {}
-        self.current_loop_length = 0
-        self.current_loop_index = 0
 
     def add_play_loop(self,i):
         try:
@@ -80,25 +73,23 @@ class MIDIRecorder:
             pass
 
 
-    def add_entry_old(self, midi, port, when_added):
+    def add_entry(self, midi, port, when_added):
         pos = self.metronome.get_position(timestamp=when_added)
         note = midi.note
         bank = self.metronome.controller.current_bank
         port = port
         when_added = when_added
         entry = [pos, midi, bank, port, when_added]
+        i = note - QUNEO.PAD_START
+        #if port == "QUNEO" and (i<0 or i>15):
+        #    raise IndexError
+        #else:
         self.my_loop.append(entry)
-        print("ENTRY ADDED")
-        print(self.my_loop)
 
-    def add_entry(self,midi,port,when_added):
-        self.my_loop.append(note.Note(self.metronome.get_position(timestamp=when_added),
-                                      midi,
-                                      self.metronome.controller.current_bank,
-                                      port,
-                                      when_added))
 
-        self.current_loop_length = len(self.my_loop)
-        self.my_loop.sort(key=lambda x: x.bar_position) #resort the list every time a new item added
+        # if len(self.my_loop)>0 and self.my_loop[-1][1]>pos:
+        #     self.my_loops.append(self.my_loop)
+        #     self.my_loop = []
+        # else:
 
 
