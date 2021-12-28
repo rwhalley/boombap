@@ -81,6 +81,5 @@ class Soundy:
 
 
     def stop(self):
-        #self.pgsound.fadeout(20)
-
+        #self.pgsound.fadeout(200)
         self.pgsound.stop()

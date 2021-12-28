@@ -56,7 +56,7 @@ print(f"The final count is: {counter}")
 #
 #
 # # create threads
-# t1 = Thread(target=increase, args=(8,))
+# t1 = Thread(target=increase, args=(10,))
 # t2 = Thread(target=increase, args=(20,))
 #
 # # start the threads
