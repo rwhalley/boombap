@@ -41,4 +41,4 @@ waveFile.setframerate(RATE)
 waveFile.writeframes(b''.join(frames))
 waveFile.close()
 
-Slicer("file.wav",[0,5],13)
+Slicer("file.wav",[0,5],10)
