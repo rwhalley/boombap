@@ -247,7 +247,6 @@ class MidiControl:
         if not sounds:
             sounds = self.sounds
         for sound in sounds:
-            print(sound.path)
             sound.restrict_length(self.max_sample_length_seconds)  # Truncate Samples longer than n seconds
             sound.remove_artifacts()
             sound.normalize()

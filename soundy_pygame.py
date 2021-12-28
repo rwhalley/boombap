@@ -11,7 +11,6 @@ import dsp
 class Soundy:
 
     def __init__(self,soundpath):
-        self.path = soundpath
         self.sample_rate = 44100
         self.repeat = False
         pg.mixer.init(frequency=self.sample_rate, size=-16, channels=2, buffer=64)
