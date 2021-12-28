@@ -107,7 +107,7 @@ threads = []
 # else:
 #     midiout.open_virtual_port("My virtual output")
 #
-# for i in range(0,10):
+# for i in range(0,8):
 #     with midiout:
 #         # channel 1, middle C, velocity 112
 #         note_on = [0x90, 60, 112]
