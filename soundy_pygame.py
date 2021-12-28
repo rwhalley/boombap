@@ -11,10 +11,9 @@ import dsp
 class Soundy:
 
     def __init__(self,soundpath):
-        self.path = soundpath
         self.sample_rate = 44100
         self.repeat = False
-        pg.mixer.init(frequency=self.sample_rate, size=-16, channels=2, buffer=64)
+        pg.mixer.init(frequency=self.sample_rate, size=-16, channels=2, buffer=32)
         pg.init()
         self.pgsound = pg.mixer.Sound(soundpath)
         self.original_sound = pg.mixer.Sound(soundpath)
@@ -31,7 +30,7 @@ class Soundy:
 
         #print(dsp.arctan_compressor(dsp.limiter(snd_array[:])))
         self.pgsound = pg.sndarray.make_sound(np.array([dsp.limiter(snd_array[:])], np.int16)[0])
-        #print(np.array([dsp.arctan_compressor(dsp.limiter(snd_array[:]))], np.int16)[0])
+        print(np.array([dsp.arctan_compressor(dsp.limiter(snd_array[:]))], np.int16)[0])
 
 
     def remove_artifacts(self):
