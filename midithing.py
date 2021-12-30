@@ -303,6 +303,7 @@ class MidiControl:
                     self.metronome_shift(midi)
                     self.bank_shift(midi)
                     self.loop_shift(midi)
+                    self.mode_shift(midi)
                 if self.button_is_playable(midi):
                     self.play_sound(note.Note(None,midi,self.current_bank,port,time))
                     self.add_to_loop(midi,port,time)
@@ -323,6 +324,7 @@ class MidiControl:
                     self.metronome_shift(midi)
                     self.bank_shift(midi)
                     self.loop_shift(midi)
+                    self.mode_shift(midi)
                 if self.button_is_playable(midi):
                     if self.current_bank > c.MAX_SABAR_BANK_INDEX:
                         self.cutoff_current_sound(note.Note(None,midi,self.current_bank,port,time))
@@ -396,11 +398,16 @@ class MidiControl:
             print("CLEARING LOOP")
             self.metronome.midi_recorder.clear_all_loops()
 
+    def audio_record(self,midi):
+        mode_num = midi.note - self.button.PAD_START
+        if self.is_mode_shift_pressed and mode_num == self.button.AUDIO_RECORD_MODE_NUM:
+            self.record_new_samples()
     def record(self,midi):
         if midi.note == self.button.RECORD:
             self.metronome.midi_recorder.switch_record_button()
     def velocity_sensitivity(self,midi):
-        if midi.note == self.button.VELOCITY_SENSITIVITY:
+        mode_num = midi.note - self.button.PAD_START
+        if self.is_mode_shift_pressed and mode_num == self.button.VELOCITY_SENSITIVITY:
             self.VOL_SENS = not self.VOL_SENS
     def exit_program(self,midi):
         if midi.note == self.button.EXIT:
@@ -424,7 +431,8 @@ class MidiControl:
                     else:
                         self.load_samples()
             except FileNotFoundError:
-                self.current_bank = old_bank
+                pass  # allow to be in an empty bank
+                #self.current_bank = old_bank
 
 
     # PLAYABLE FUNCTIONS - if note plays a sound
