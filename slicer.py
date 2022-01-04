@@ -62,7 +62,7 @@ class Slicer:
 
     def folder_has_files(self,folder):
         try:
-            for f in folder:
+            for f in os.listdir(folder):
                 if ".wav" in f:
                     return True
             else:
