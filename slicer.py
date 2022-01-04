@@ -8,7 +8,7 @@ from datetime import datetime as dt
 class Slicer:
     def __init__(self,input_wav_file, pre_slice,folder_num):
         self.path = './samples/'+str(folder_num)+'/'
-        self.old_files_path = './oldsamples/' + str(dt.now().strftime("%y%m%d%H%M%S"))
+        self.old_files_path = './oldsamples/' + str(dt.now().strftime("%y%m%d%H%M%S"))+"/"
         self.input_wav_file = input_wav_file
         self.pre_slice = pre_slice
         if int(folder_num)>7:
