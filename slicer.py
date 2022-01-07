@@ -90,5 +90,5 @@ class Slicer:
     def delete_wav(self,filename):
         os.remove(filename)
 #Slicer("/Users/richwhalley/Samples/sax.wav",[63,70],11)
-
+# $ youtube-dl --extract-audio --audio-format wav -o [OUTPUT].wav '[URL]'
 #Slicer("file.wav",[0,5],12)
