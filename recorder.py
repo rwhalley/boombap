@@ -7,38 +7,47 @@ import wave
 from slicer import Slicer
 import time
 
-FORMAT = pyaudio.paInt16
-CHANNELS = 1
-RATE = 44100
-CHUNK = 1024
-RECORD_SECONDS = 5
-WAVE_OUTPUT_FILENAME = "file.wav"
+class AudioRecorder():
+    def __init__(self,seconds):
 
-audio = pyaudio.PyAudio()
-
-# start Recording
-stream = audio.open(format=FORMAT, channels=CHANNELS,
-                rate=RATE, input=True,
-                frames_per_buffer=CHUNK)
-print ("recording...")
-frames = []
-
-for i in range(0, int(RATE / CHUNK * RECORD_SECONDS)):
-    data = stream.read(CHUNK)
-    frames.append(data)
-print ("finished recording")
+        self.FORMAT = pyaudio.paInt16
+        self.CHANNELS = 1
+        self.RATE = 44100
+        self.CHUNK = 1024
+        self.RECORD_SECONDS = seconds
+        self.WAVE_OUTPUT_FILENAME = "file.wav"
+        self.audio = pyaudio.PyAudio()
+        self.stream = None
+        self.frames = None
 
 
-# stop Recording
-stream.stop_stream()
-stream.close()
-audio.terminate()
+    def start_record(self):
+        # start Recording
+        self.stream = self.audio.open(format=self.FORMAT, channels=self.CHANNELS,
+                        rate=self.RATE, input=True,
+                        frames_per_buffer=self.CHUNK)
+        print ("recording...")
+        self.frames = []
 
-waveFile = wave.open(WAVE_OUTPUT_FILENAME, 'wb')
-waveFile.setnchannels(CHANNELS)
-waveFile.setsampwidth(audio.get_sample_size(FORMAT))
-waveFile.setframerate(RATE)
-waveFile.writeframes(b''.join(frames))
-waveFile.close()
+        for i in range(0, int(self.RATE / self.CHUNK * self.RECORD_SECONDS)):
+            data = self.stream.read(self.CHUNK)
+            self.frames.append(data)
+        print ("finished recording")
 
-Slicer("file.wav",[0,5],10)
+
+    def stop_record(self):
+        # stop Recording
+        self.stream.stop_stream()
+        self.stream.close()
+        self.audio.terminate()
+
+    def create_wav(self):
+
+        waveFile = wave.open(self.WAVE_OUTPUT_FILENAME, 'wb')
+        waveFile.setnchannels(self.CHANNELS)
+        waveFile.setsampwidth(self.audio.get_sample_size(self.FORMAT))
+        waveFile.setframerate(self.RATE)
+        waveFile.writeframes(b''.join(self.frames))
+        waveFile.close()
+
+

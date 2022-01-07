@@ -14,6 +14,8 @@ from metronome import Metronome
 import QUNEO
 from midiout import MIDIPlayer
 from midi_recorder import MIDIRecorder
+from recorder import AudioRecorder
+from slicer import Slicer
 import CONFIG as c
 import note
 
@@ -39,6 +41,7 @@ class MidiControl:
         self.is_loop_loader_pressed = False
         self.is_loop_saver_pressed = False
         self.is_bank_shift_pressed = False
+        self.is_mode_shift_pressed = False
 
         self.devices = [] # QUNEO, Reface CP
         self.messages = []
@@ -50,6 +53,9 @@ class MidiControl:
         # LOAD SAMPLES
         self.load_all_samples()
         self.load_samples()
+
+        # AUDIO RECORDER
+        self.sample_recording_length_in_seconds = 5
 
         # START METRONOME
         self.metronome_path = Path(__file__).parent.resolve() / 'metronome/metronome.wav'
@@ -161,6 +167,22 @@ class MidiControl:
 
 
 # SAMPLE LOADING
+
+    def reload_bank(self,bank_num):
+        new_bank = []
+        path = self.basepath+str(bank_num)+'/'
+        onlyfiles = [f for f in sorted(listdir(path)) if isfile(join(path, f))]
+        for file in onlyfiles:
+            if file.endswith('.wav'):
+                if file.startswith('.'):
+                    pass
+                else:
+                    new_bank.append(Soundy(path+file))
+        try:
+            self.all_sounds[bank_num] = new_bank
+        except IndexError:
+            self.all_sounds.append(new_bank)
+        self.pre_process_sounds(sounds = self.all_sounds[bank_num])
 
     def load_all_samples(self):
         self.all_sounds = []
@@ -284,6 +306,7 @@ class MidiControl:
                     self.metronome_shift(midi)
                     self.bank_shift(midi)
                     self.loop_shift(midi)
+                    self.mode_shift(midi)
                 if self.button_is_playable(midi):
                     self.play_sound(note.Note(None,midi,self.current_bank,port,time))
                     self.add_to_loop(midi,port,time)
@@ -295,6 +318,7 @@ class MidiControl:
                     self.pitch_down(midi)
                     self.clear_loop(midi)
                     self.record(midi)
+                    self.audio_record(midi)
                     self.velocity_sensitivity(midi)
                     self.exit_program(midi)
                     self.switch_bank(midi)
@@ -304,6 +328,7 @@ class MidiControl:
                     self.metronome_shift(midi)
                     self.bank_shift(midi)
                     self.loop_shift(midi)
+                    self.mode_shift(midi)
                 if self.button_is_playable(midi):
                     if self.current_bank > c.MAX_SABAR_BANK_INDEX:
                         self.cutoff_current_sound(note.Note(None,midi,self.current_bank,port,time))
@@ -320,7 +345,8 @@ class MidiControl:
     # SHIFT FUNCTIONS - held buttons that activate selection modes
 
     def shift_is_active(self):
-        if self.is_metronome_pressed or self.is_loop_loader_pressed or self.is_loop_saver_pressed or self.is_bank_shift_pressed:
+        if self.is_metronome_pressed or self.is_loop_loader_pressed or self.is_loop_saver_pressed or self.is_bank_shift_pressed\
+                or self.is_mode_shift_pressed:
            return True
         else:
             return False
@@ -331,6 +357,10 @@ class MidiControl:
             return True
         else:
             return False
+
+    def mode_shift(self,midi):
+        if midi.note == self.button.MODE_SHIFT:
+            self.is_mode_shift_pressed = not self.is_mode_shift_pressed
 
     def bank_shift(self,midi):
         if midi.note == self.button.BANK_SELECTOR:
@@ -372,11 +402,16 @@ class MidiControl:
             print("CLEARING LOOP")
             self.metronome.midi_recorder.clear_all_loops()
 
+    def audio_record(self,midi):
+        mode_num = midi.note - self.button.PAD_START
+        if self.is_mode_shift_pressed and mode_num == self.button.AUDIO_RECORD_MODE_NUM:
+            self.record_new_samples()
     def record(self,midi):
         if midi.note == self.button.RECORD:
             self.metronome.midi_recorder.switch_record_button()
     def velocity_sensitivity(self,midi):
-        if midi.note == self.button.VELOCITY_SENSITIVITY:
+        mode_num = midi.note - self.button.PAD_START
+        if self.is_mode_shift_pressed and mode_num == self.button.VELOCITY_SENSITIVITY:
             self.VOL_SENS = not self.VOL_SENS
     def exit_program(self,midi):
         if midi.note == self.button.EXIT:
@@ -400,7 +435,8 @@ class MidiControl:
                     else:
                         self.load_samples()
             except FileNotFoundError:
-                self.current_bank = old_bank
+                pass  # allow to be in an empty bank
+                #self.current_bank = old_bank
 
 
     # PLAYABLE FUNCTIONS - if note plays a sound
@@ -440,7 +476,7 @@ class MidiControl:
         if c.MIDI_CONTROLLER in entry.port:
 
             i = entry.midi.note - self.button.PAD_START  # get the midi note of pad
-            if i >= 0 and i < len(self.all_sounds[entry.bank]):  # if sound has an ID
+            if entry.bank < len(self.all_sounds) and i >= 0 and i < len(self.all_sounds[entry.bank]):  # if sound has an ID
 
                 if self.VOL_SENS:  # set volume if volume sensitivity is turned on
                     self.all_sounds[entry.bank][i].set_volume(entry.midi.velocity)
@@ -486,12 +522,12 @@ class MidiControl:
 
     def cutoff_current_sound(self,entry):
         i = entry.midi.note - self.button.PAD_START
-        if i>=0 and i<len(self.all_sounds[entry.bank]): # if midi note is in bank
+        if entry.bank < len(self.all_sounds) and i>=0 and i<len(self.all_sounds[entry.bank]): # if midi note is in bank
             self.all_sounds[entry.bank][i].stop() # stop sound
 
     def cutoff_all_sounds_in_same_bank(self,entry):
         i = entry.midi.note - self.button.PAD_START
-        if i>=0 and i<len(self.all_sounds[entry.bank]): # if midi note is in bank
+        if entry.bank < len(self.all_sounds) and i>=0 and i<len(self.all_sounds[entry.bank]): # if midi note is in bank
             for sound in (self.all_sounds[entry.bank]):
                 sound.stop() # stop sound
 
@@ -502,7 +538,7 @@ class MidiControl:
 
     def cutoff_sound(self,entry):
         i = entry.midi.note - self.button.PAD_START
-        if (entry.bank > 3) and (i>=0 and i<len(self.all_sounds[entry.bank])):
+        if (entry.bank > 3) and (entry.bank < len(self.all_sounds) and i>=0 and i<len(self.all_sounds[entry.bank])):
             #self.sounds[i].stop()
             self.all_sounds[entry.bank][i].stop()
 
@@ -518,6 +554,24 @@ class MidiControl:
         if midi.control == self.button.COL_VOL_CONTROL:  # mbungmbung volume
             drum = 1
             self.metronome.update_volume(drum,midi.value)
+
+
+    # Record Sound
+    def record_new_samples(self):
+        print("RECORDING NEW SAMPLES")
+        # create recording
+        r = AudioRecorder(self.sample_recording_length_in_seconds)
+        r.start_record()
+        r.stop_record()
+
+        # generate wav file
+        r.create_wav()
+
+        # slice wav and export it to current_bank
+        Slicer(r.WAVE_OUTPUT_FILENAME,[0,r.RECORD_SECONDS],self.current_bank)
+
+        # Reload the samples in current bank
+        self.reload_bank(self.current_bank)
 
 
 MidiControl()
