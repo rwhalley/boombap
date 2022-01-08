@@ -11,6 +11,8 @@ import dsp
 class Soundy:
 
     def __init__(self,soundpath):
+        self.sound_name = None
+        self.bank_name = None
         self.path = soundpath
         self.sample_rate = 44100
         self.repeat = False
