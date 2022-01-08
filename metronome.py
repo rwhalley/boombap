@@ -39,9 +39,11 @@ class Metronome:
         self.col_grace_seq = -1
         self.grace_played = False
         self.grace_BPM_thresh = 160
-        self.mbungmbung_path = str(Path(__file__).parent / 'samples/')+'/2/'
-        self.col_path = str(Path(__file__).parent / 'samples/')+'/1/'
-        self.nder_path = str(Path(__file__).parent / 'samples/')+'/0/'
+        self.mbungmbung_path = str(Path(__file__).parent / 'accompaniment/')+'/mbalax1/'
+        self.col_path = str(Path(__file__).parent / 'accompaniment/')+'/talmbat/'
+        self.nder_path = str(Path(__file__).parent / 'accompaniment/')+'/Nder/'
+        self.drums = ["Nder","mbalax1","talmbat","Tulli","Tugone"]
+        self.drum_hits = ["pax","pin","gin","rwan","tan","tet","drin","cex","cek"]
         self.accompaniment_paths = [self.mbungmbung_path,self.col_path]
         self.accompaniment_sounds = self._load_sounds()
         self.mbungmbung_volume = 0 #128
@@ -64,22 +66,34 @@ class Metronome:
     def _load_sounds(self):
 
         paths = self.accompaniment_paths
-        all_sounds = []
+        all_sounds = {}
         for path in paths:
-            sounds = []
+            sounds = {}
             onlyfiles = [f for f in sorted(listdir(path)) if isfile(join(path, f))]
             for file in onlyfiles:
                 if file.endswith('.wav'):
                     if file.startswith('.'):
                         pass
                     else:
-                        sounds.append(Soundy(path+file))
-            for sound in sounds:
+                        sounds[self.get_hit_from_filename(file)] = Soundy(path+file)
+
+                        #sounds.append(Soundy(path+file))
+            for key, sound in sounds.items():
                 sound.remove_artifacts()
                 sound.normalize()
                 sound.make_loud()
-            all_sounds.append(sounds)
+            all_sounds[self.get_drum_from_filename(path)] = sounds
         return all_sounds
+
+    def get_drum_from_filename(self,path):
+        for drum in self.drums:
+            if drum in path:
+                return drum
+
+    def get_hit_from_filename(self,filename):
+        for hit in self.drum_hits:
+            if hit in filename:
+                return hit
 
     def get_notes_per_loop(self):
         return self.notes_per_bar*self.bars_per_loop
@@ -164,6 +178,22 @@ class Metronome:
 
 
     def play_accompaniment(self, state):
+        for i, (drum_key, drum_value) in enumerate(self.accompaniment.items()): # for each drum in accompaniment
+            if drum_value.drum:
+                for j, (hit_key, hit_value) in enumerate (drum_value.drum.items()): # for each type of hit in drum
+                    if hit_value and hit_value[self.current_note] == 2 and state != 2:
+                        self.grace_note_active = True
+                    elif hit_value and hit_value[self.current_note-1] == 2 and state == 2:
+                        self.accompaniment_sounds[drum_key][hit_key].play(block=False)
+                        self.grace_note_active = False
+                    elif hit_value and hit_value[self.current_note] == 1 and state == 1:
+                        for j, (shit_key, shit_value) in enumerate (drum_value.drum.items()): # iterate through hits and
+                                if shit_value:
+                                    self.accompaniment_sounds[drum_key][shit_key].stop() # stop any other sounds playing
+                        self.accompaniment_sounds[drum_key][hit_key].play(block=False)
+
+
+    def play_accompaniment_old(self, state):
         for i,drum in enumerate(self.accompaniment):
             for j,seq in enumerate(drum):
                 place = seq[self.current_note]
@@ -335,16 +365,16 @@ class Metronome:
         self.last_time = now
 
         if grace and self.bpm<self.grace_BPM_thresh:
-            if (self.grace_note_active>=0) :
-                self.play_accompaniment("grace")
-                self.grace_note_active = -1
+            if (self.grace_note_active == True) :
+                self.play_accompaniment(2)
 
-            if (self.col_grace_seq >=0):
-                self.play_accompaniment("col_grace")
-                self.col_grace_seq = -1
+
+            # if (self.col_grace_seq >=0):
+            #     self.play_accompaniment("col_grace")
+            #     self.col_grace_seq = -1
 
         if normal:
-            self.play_accompaniment("normal")
+            self.play_accompaniment(1)
 
             if self.metronome_seq[self.current_note]:
                     self.sound.play(block=False)
@@ -356,111 +386,111 @@ class Metronome:
 
 
 
-    def get_time_old(self):
-
-        # get current timestamp
-        ts = time.time()
-
-        # if metronome is on
-        if self.is_on:
-
-            ### For Accompaniment
-
-            # is_time_to_play_seq_note()
-            # is_time_to_play_grace_note()
-
-            # When now = 0, play a note.
-            now = int(round(ts * 1000))%(self.note_length)
-
-            # Is it time to play a sequence note? Or a Grace note?
-            normal = now < self.last_time
-            grace = now > (int(0.50*self.note_length))
-
-            ### --- MIDI LOoPER ---
-            #get_current_position_in_bar()
-            current_pos = self.get_position(timestamp=ts)
-
-            ### -- QUNEO LOOP ---
-            if(len(self.midi_recorder.my_loop)>0):  # If there are notes to loop
-                midis = []
-                banks = []
-                ports = []
-                when_addeds = []
-                for i, entry in enumerate(self.midi_recorder.my_loop):  # Go through all the notes in loop
-                    midi = entry[1]
-                    entry_pos = entry[0]
-                    bank = entry[2]
-                    port = entry[3]
-                    when_added = entry[4]
-                    # print(when_added)
-                    # print(f"midi {midi}")
-                    # print(f"entry pos {entry_pos}")
-                    # print(f"bank {bank}")
-                    # print(f"port {port}")
-
-                    if (current_pos > entry_pos) and not (i in self.loop_blacklist): # if it's time to play, play the entry, and add it to the blacklist for this measure
-                        #print("WOO")
-                        midis.append(midi)
-                        banks.append(bank)
-                        ports.append(port)
-                        when_addeds.append(when_added)
-                        self.loop_blacklist.append(i)
-
-                        print("DOUBLE OK")
-                        #print(time.time() - when_addeds[0])
-
-                        if (ts - when_addeds[0]) > 0.1: #if time has passed
-                            self.controller.play_sound(midis,False,banks,ports)
-                            self.midi_player.play_note(midis,ports)
-
-
-                if self.last_pos > 0.9 and current_pos < 0.1:  # loop has ended
-                    self.loop_blacklist = []  # clear loop blacklist
-
-            self.last_pos = current_pos
-
-            # --- End MIDI looper ---
-
-
-
-            # --- ACCOMPANIMENT ----
-
-            if normal:
-                if self.metronome_seq[self.current_note]:
-                        self.sound.play(block=False)
-            if True:
-                if self.bpm<self.grace_BPM_thresh:
-                    if (grace and self.grace_note_active>=0) :
-                        #print("Grace")
-
-                        self.play_accompaniment("grace")
-                        self.grace_note_active = -1
-
-                    if (grace and self.col_grace_seq >=0):
-                        #print("Col Grace")
-                        self.play_accompaniment("col_grace")
-
-                        self.col_grace_seq = -1
-
-
-                ### Metronome ###
-                if self.bpm<self.grace_BPM_thresh:
-                    if normal and not self.grace_note_active>=0:
-                        self.play_accompaniment("normal")
-                else:
-                    if normal:
-                        self.play_accompaniment("normal")
-
-            if normal:
-
-                self.current_note = ((self.current_note+1)%self.max_notes)
-
-                #print(self.notes_per_bar)
-                self.current_loop_beat = ((self.current_loop_beat+1) %self.get_notes_per_loop())
-                #print(f"CURRENT NOTE: {self.current_note}")
-                #print(f"CURRENT_LOOP_NOTE: {self.current_loop_beat}")
-
-            self.last_time = now
+    # def get_time_old(self):
+    #
+    #     # get current timestamp
+    #     ts = time.time()
+    #
+    #     # if metronome is on
+    #     if self.is_on:
+    #
+    #         ### For Accompaniment
+    #
+    #         # is_time_to_play_seq_note()
+    #         # is_time_to_play_grace_note()
+    #
+    #         # When now = 0, play a note.
+    #         now = int(round(ts * 1000))%(self.note_length)
+    #
+    #         # Is it time to play a sequence note? Or a Grace note?
+    #         normal = now < self.last_time
+    #         grace = now > (int(0.50*self.note_length))
+    #
+    #         ### --- MIDI LOoPER ---
+    #         #get_current_position_in_bar()
+    #         current_pos = self.get_position(timestamp=ts)
+    #
+    #         ### -- QUNEO LOOP ---
+    #         if(len(self.midi_recorder.my_loop)>0):  # If there are notes to loop
+    #             midis = []
+    #             banks = []
+    #             ports = []
+    #             when_addeds = []
+    #             for i, entry in enumerate(self.midi_recorder.my_loop):  # Go through all the notes in loop
+    #                 midi = entry[1]
+    #                 entry_pos = entry[0]
+    #                 bank = entry[2]
+    #                 port = entry[3]
+    #                 when_added = entry[4]
+    #                 # print(when_added)
+    #                 # print(f"midi {midi}")
+    #                 # print(f"entry pos {entry_pos}")
+    #                 # print(f"bank {bank}")
+    #                 # print(f"port {port}")
+    #
+    #                 if (current_pos > entry_pos) and not (i in self.loop_blacklist): # if it's time to play, play the entry, and add it to the blacklist for this measure
+    #                     #print("WOO")
+    #                     midis.append(midi)
+    #                     banks.append(bank)
+    #                     ports.append(port)
+    #                     when_addeds.append(when_added)
+    #                     self.loop_blacklist.append(i)
+    #
+    #                     print("DOUBLE OK")
+    #                     #print(time.time() - when_addeds[0])
+    #
+    #                     if (ts - when_addeds[0]) > 0.1: #if time has passed
+    #                         self.controller.play_sound(midis,False,banks,ports)
+    #                         self.midi_player.play_note(midis,ports)
+    #
+    #
+    #             if self.last_pos > 0.9 and current_pos < 0.1:  # loop has ended
+    #                 self.loop_blacklist = []  # clear loop blacklist
+    #
+    #         self.last_pos = current_pos
+    #
+    #         # --- End MIDI looper ---
+    #
+    #
+    #
+    #         # --- ACCOMPANIMENT ----
+    #
+    #         if normal:
+    #             if self.metronome_seq[self.current_note]:
+    #                     self.sound.play(block=False)
+    #         if True:
+    #             if self.bpm<self.grace_BPM_thresh:
+    #                 if (grace and self.grace_note_active) :
+    #                     #print("Grace")
+    #
+    #                     self.play_accompaniment(2)
+    #                     #self.grace_note_active = -1
+    #
+    #                 # if (grace and self.col_grace_seq >=0):
+    #                 #     #print("Col Grace")
+    #                 #     self.play_accompaniment("col_grace")
+    #                 #
+    #                 #     self.col_grace_seq = -1
+    #
+    #
+    #             ### Metronome ###
+    #             if self.bpm<self.grace_BPM_thresh:
+    #                 if normal and not self.grace_note_active:
+    #                     self.play_accompaniment(1)
+    #             else:
+    #                 if normal:
+    #                     self.play_accompaniment(1)
+    #
+    #         if normal:
+    #
+    #             self.current_note = ((self.current_note+1)%self.max_notes)
+    #
+    #             #print(self.notes_per_bar)
+    #             self.current_loop_beat = ((self.current_loop_beat+1) %self.get_notes_per_loop())
+    #             #print(f"CURRENT NOTE: {self.current_note}")
+    #             #print(f"CURRENT_LOOP_NOTE: {self.current_loop_beat}")
+    #
+    #         self.last_time = now
 
 
 
