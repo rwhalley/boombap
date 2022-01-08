@@ -2,12 +2,16 @@ from rhythm import Rhythm
 
 kaolack = Rhythm()
 kaolack.metronome = [1,0,0,0,0,0,1,0,1,0,0,0,1,0,0,0]
+kaolack.drums["mbalax1"].lvol = (1.0)
+kaolack.drums["mbalax1"].rvol = (0.0)
 kaolack.drums["mbalax1"].pax = [1,0,0,0,0,1,0,0,1,0,0,0,0,2,0,0]  # pax
 kaolack.drums["mbalax1"].gin = [0,0,0,1,0,0,0,0,0,0,0,1,1,0,0,0]  # gin
 kaolack.drums["mbalax1"].tan = [0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,1]  # tan
 kaolack.drums["mbalax1"].tet = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0] # tet
 kaolack.drums["mbalax1"].load_drum()
 
+kaolack.drums["talmbat"].lvol = (1.0)
+kaolack.drums["talmbat"].rvol = (1.0)
 kaolack.drums["talmbat"].pax = [0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0]  # pax 4
 kaolack.drums["talmbat"].gin = [1,0,0,0,0,2,0,0,1,0,0,0,0,0,0,0]  # gin 0
 kaolack.drums["talmbat"].rwan = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]  # ran 1
@@ -15,6 +19,13 @@ kaolack.drums["talmbat"].tan = [0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1]  # tan 2
 kaolack.drums["talmbat"].tet = [0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0] # tet
 kaolack.drums["talmbat"].load_drum()
 
+kaolack.drums["tugone1"].lvol = (0.0)
+kaolack.drums["tugone1"].rvol = (1.0)
+kaolack.drums["tugone1"].pax = [0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0]  # pax
+kaolack.drums["tugone1"].gin = [0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,1]  # gin
+kaolack.drums["tugone1"].tan = [0,0,1,1,0,0,0,0,1,1,0,0,1,1,0,0]  # tan
+kaolack.drums["tugone1"].tet = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0] # tet
+kaolack.drums["tugone1"].load_drum()
 
 kaolack.parts = [kaolack.mbalax1, kaolack.talmbat]
 kaolack.notes_per_beat = 4
@@ -26,7 +37,7 @@ yaaba.mbalax1 = [[1,0,0,2,0,0,1,0,0,2,0,0],
                  [0,0,1,1,0,0,0,0,1,1,0,0],
                  [0,1,0,0,1,1,0,1,0,0,1,1],
                  [0,0,0,0,0,0,0,0,0,0,0,0]]
-kaolack.talmbat =   [[0,0,0,0,0,0,0,0,0,0,0,0],  # pax 4  EMPTY
+yaaba.talmbat =   [[0,0,0,0,0,0,0,0,0,0,0,0],  # pax 4  EMPTY
                      [0,0,0,0,0,0,0,0,0,0,0,0],  # gin 0
                      [0,0,0,0,0,0,0,0,0,0,0,0],  # ran 1
                      [0,0,0,0,0,0,0,0,0,0,0,0],  # tan 2

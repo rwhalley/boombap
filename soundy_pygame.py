@@ -85,8 +85,12 @@ class Soundy:
         normalized_vel = midi_vel_in/128.
         self.pgsound.set_volume(normalized_vel)
 
-    def play(self, block = True):
-        self.pgsound.play()
+    # def set_volume_stereo(self,left,right):
+    #     self.pgsound.set_volume(left,right)
+
+    def play(self, block = True, lvol = 1.0, rvol = 1.0):
+        channel = self.pgsound.play()
+        channel.set_volume(lvol,rvol)
 
         if(self.repeat):
             sleep(0.1)

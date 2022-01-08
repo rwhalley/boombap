@@ -1,6 +1,8 @@
 class Drum:
     def __init__(self, name):
         self.name = name
+        self.lvol = 1.0
+        self.rvol = 1.0
         self.drum = None
         self.gin = None
         self.pin = None

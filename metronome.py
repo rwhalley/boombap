@@ -41,10 +41,11 @@ class Metronome:
         self.grace_BPM_thresh = 160
         self.mbungmbung_path = str(Path(__file__).parent / 'accompaniment/')+'/mbalax1/'
         self.col_path = str(Path(__file__).parent / 'accompaniment/')+'/talmbat/'
+        self.tugone_path = str(Path(__file__).parent / 'accompaniment/')+'/tugone1/'
         self.nder_path = str(Path(__file__).parent / 'accompaniment/')+'/Nder/'
-        self.drums = ["Nder","mbalax1","talmbat","Tulli","Tugone"]
+        self.drums = ["Nder","mbalax1","talmbat","Tulli","tugone1"]
         self.drum_hits = ["pax","pin","gin","rwan","tan","tet","drin","cex","cek"]
-        self.accompaniment_paths = [self.mbungmbung_path,self.col_path]
+        self.accompaniment_paths = [self.mbungmbung_path,self.col_path,self.tugone_path]
         self.accompaniment_sounds = self._load_sounds()
         self.mbungmbung_volume = 0 #128
         self.col_volume = 0 #128
@@ -184,95 +185,97 @@ class Metronome:
                     if hit_value and hit_value[self.current_note] == 2 and state != 2:
                         self.grace_note_active = True
                     elif hit_value and hit_value[self.current_note-1] == 2 and state == 2:
+                        #self.accompaniment_sounds[drum_key][hit_key].set_volume_stereo(drum_value.volume_left, drum_value.volume_right)
                         self.accompaniment_sounds[drum_key][hit_key].play(block=False)
                         self.grace_note_active = False
                     elif hit_value and hit_value[self.current_note] == 1 and state == 1:
                         for j, (shit_key, shit_value) in enumerate (drum_value.drum.items()): # iterate through hits and
                                 if shit_value:
                                     self.accompaniment_sounds[drum_key][shit_key].stop() # stop any other sounds playing
-                        self.accompaniment_sounds[drum_key][hit_key].play(block=False)
+                        self.accompaniment_sounds[drum_key][hit_key].play(block=False, lvol= drum_value.lvol, rvol = drum_value.rvol)
+                        #self.accompaniment_sounds[drum_key][hit_key].play(block=False)
 
 
-    def play_accompaniment_old(self, state):
-        for i,drum in enumerate(self.accompaniment):
-            for j,seq in enumerate(drum):
-                place = seq[self.current_note]
-
-                ### MBUNG MBUNG ###
-                if place == 2 and i ==0 and self.bpm<self.grace_BPM_thresh:
-                    self.grace_note_active = j
-
-                ### COL ###
-                if place == 2 and i ==1 and self.bpm<self.grace_BPM_thresh:
-                    self.col_grace_seq = j
-
-                ### MBUNG MBUNG ###
-                if i==0:
-                    if (state=="normal" and j == self.grace_note_active):
-                        #print("SKIP MBUNG")
-                        pass
-                    elif(state == "normal" and place != 0 and j != self.grace_note_active):
-                        #print("PLAY NOTES")
-                        for sound in self.accompaniment_sounds[i]:
-                            sound.stop()
-                        if (j==0):
-                            self.accompaniment_sounds[i][0].play(block=False)
-                        if (j==1):
-                            self.accompaniment_sounds[i][4].play(block=False)
-                        if (j==2):
-                            self.accompaniment_sounds[i][2].play(block=False)
-                        if (j==3):
-                            self.accompaniment_sounds[i][3].play(block=False)
-
-                    elif (state=="grace" and i==0 and j==self.grace_note_active):
-                        #print("PLAY GRACE NOTES")
-                        for sound in self.accompaniment_sounds[i]:
-                            sound.stop()
-                        if (j==0):
-                            self.accompaniment_sounds[i][0].play(block=False)
-                        if (j==1):
-                            self.accompaniment_sounds[i][4].play(block=False)
-                        if (j==2):
-                            self.accompaniment_sounds[i][2].play(block=False)
-                        if (j==3):
-                            self.accompaniment_sounds[i][3].play(block=False)
-                        self.grace_note_active = -1
-
-                ### COL ###
-                if i==1:
-                    if (state=="normal" and j == self.col_grace_seq):
-                        #print("SKIP COL")
-                        pass
-                    elif (state=="normal" and place != 0 and j != self.col_grace_seq):
-                        #print("PLAY COL")
-                        for sound in self.accompaniment_sounds[i]:
-                            sound.stop()
-                        if (j==0):
-                            self.accompaniment_sounds[i][4].play(block=False)
-                        if (j==1):
-                            self.accompaniment_sounds[i][0].play(block=False)
-                        if (j==2):
-                            self.accompaniment_sounds[i][1].play(block=False)
-                        if (j==3):
-                            self.accompaniment_sounds[i][2].play(block=False)
-                        if (j==4):
-                            self.accompaniment_sounds[i][3].play(block=False)
-
-                    elif (state=="col_grace" and i==1 and j == self.col_grace_seq):
-                        for sound in self.accompaniment_sounds[i]:
-                            sound.stop()
-                        if (j==0):
-                            self.accompaniment_sounds[i][4].play(block=False)
-                        if (j==1):
-                            self.accompaniment_sounds[i][0].play(block=False)
-                        if (j==2):
-                            self.accompaniment_sounds[i][1].play(block=False)
-                        if (j==3):
-                            self.accompaniment_sounds[i][2].play(block=False)
-                        if (j==4):
-                            self.accompaniment_sounds[i][3].play(block=False)
-                        self.col_grace_seq = -1
-                        #print("PLAY COL GRACE")
+    # def play_accompaniment_old(self, state):
+    #     for i,drum in enumerate(self.accompaniment):
+    #         for j,seq in enumerate(drum):
+    #             place = seq[self.current_note]
+    #
+    #             ### MBUNG MBUNG ###
+    #             if place == 2 and i ==0 and self.bpm<self.grace_BPM_thresh:
+    #                 self.grace_note_active = j
+    #
+    #             ### COL ###
+    #             if place == 2 and i ==1 and self.bpm<self.grace_BPM_thresh:
+    #                 self.col_grace_seq = j
+    #
+    #             ### MBUNG MBUNG ###
+    #             if i==0:
+    #                 if (state=="normal" and j == self.grace_note_active):
+    #                     #print("SKIP MBUNG")
+    #                     pass
+    #                 elif(state == "normal" and place != 0 and j != self.grace_note_active):
+    #                     #print("PLAY NOTES")
+    #                     for sound in self.accompaniment_sounds[i]:
+    #                         sound.stop()
+    #                     if (j==0):
+    #                         self.accompaniment_sounds[i][0].play(block=False)
+    #                     if (j==1):
+    #                         self.accompaniment_sounds[i][4].play(block=False)
+    #                     if (j==2):
+    #                         self.accompaniment_sounds[i][2].play(block=False)
+    #                     if (j==3):
+    #                         self.accompaniment_sounds[i][3].play(block=False)
+    #
+    #                 elif (state=="grace" and i==0 and j==self.grace_note_active):
+    #                     #print("PLAY GRACE NOTES")
+    #                     for sound in self.accompaniment_sounds[i]:
+    #                         sound.stop()
+    #                     if (j==0):
+    #                         self.accompaniment_sounds[i][0].play(block=False)
+    #                     if (j==1):
+    #                         self.accompaniment_sounds[i][4].play(block=False)
+    #                     if (j==2):
+    #                         self.accompaniment_sounds[i][2].play(block=False)
+    #                     if (j==3):
+    #                         self.accompaniment_sounds[i][3].play(block=False)
+    #                     self.grace_note_active = -1
+    #
+    #             ### COL ###
+    #             if i==1:
+    #                 if (state=="normal" and j == self.col_grace_seq):
+    #                     #print("SKIP COL")
+    #                     pass
+    #                 elif (state=="normal" and place != 0 and j != self.col_grace_seq):
+    #                     #print("PLAY COL")
+    #                     for sound in self.accompaniment_sounds[i]:
+    #                         sound.stop()
+    #                     if (j==0):
+    #                         self.accompaniment_sounds[i][4].play(block=False)
+    #                     if (j==1):
+    #                         self.accompaniment_sounds[i][0].play(block=False)
+    #                     if (j==2):
+    #                         self.accompaniment_sounds[i][1].play(block=False)
+    #                     if (j==3):
+    #                         self.accompaniment_sounds[i][2].play(block=False)
+    #                     if (j==4):
+    #                         self.accompaniment_sounds[i][3].play(block=False)
+    #
+    #                 elif (state=="col_grace" and i==1 and j == self.col_grace_seq):
+    #                     for sound in self.accompaniment_sounds[i]:
+    #                         sound.stop()
+    #                     if (j==0):
+    #                         self.accompaniment_sounds[i][4].play(block=False)
+    #                     if (j==1):
+    #                         self.accompaniment_sounds[i][0].play(block=False)
+    #                     if (j==2):
+    #                         self.accompaniment_sounds[i][1].play(block=False)
+    #                     if (j==3):
+    #                         self.accompaniment_sounds[i][2].play(block=False)
+    #                     if (j==4):
+    #                         self.accompaniment_sounds[i][3].play(block=False)
+    #                     self.col_grace_seq = -1
+    #                     #print("PLAY COL GRACE")
 
 
     def get_position(self,timestamp=None):
@@ -307,26 +310,26 @@ class Metronome:
     #                 self.midi_player.play_note(note)
     #                 self.play_sound(note)
 
-    def get_note_alt(self,ts):
-
-        current_pos = self.get_position(timestamp=ts)
-
-        notes=[]
-
-        if (self.midi_recorder.my_loop):
-
-                for i, entry in enumerate(self.midi_recorder.my_loop):  # Go through all the notes in loop
-                    if (current_pos > entry.bar_position) and not (i in self.loop_blacklist): # if it's time to play, play the entry, and add it to the blacklist for this measure
-                        self.loop_blacklist.append(i)
-                        notes.append(entry)
-
-
-        if self.last_pos > 0.9 and current_pos < 0.1:  # loop has ended
-            self.loop_blacklist = []  # clear loop blacklist
-
-        self.last_pos = current_pos
-
-        return notes
+    # def get_note_alt(self,ts):
+    #
+    #     current_pos = self.get_position(timestamp=ts)
+    #
+    #     notes=[]
+    #
+    #     if (self.midi_recorder.my_loop):
+    #
+    #             for i, entry in enumerate(self.midi_recorder.my_loop):  # Go through all the notes in loop
+    #                 if (current_pos > entry.bar_position) and not (i in self.loop_blacklist): # if it's time to play, play the entry, and add it to the blacklist for this measure
+    #                     self.loop_blacklist.append(i)
+    #                     notes.append(entry)
+    #
+    #
+    #     if self.last_pos > 0.9 and current_pos < 0.1:  # loop has ended
+    #         self.loop_blacklist = []  # clear loop blacklist
+    #
+    #     self.last_pos = current_pos
+    #
+    #     return notes
 
     def get_note(self,ts):
 
