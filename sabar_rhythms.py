@@ -2,15 +2,20 @@ from rhythm import Rhythm
 
 kaolack = Rhythm()
 kaolack.metronome = [1,0,0,0,0,0,1,0,1,0,0,0,1,0,0,0]
-kaolack.mbalax1 = [[1,0,0,0,0,1,0,0,1,0,0,0,0,2,0,0],  # pax
-                   [0,0,0,1,0,0,0,0,0,0,0,1,1,0,0,0],  # gin
-                   [0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,1],  # tan
-                   [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]] # tet
-kaolack.talmbat = [[0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0],  # pax 4
-                     [1,0,0,0,0,2,0,0,1,0,0,0,0,0,0,0],  # gin 0
-                     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],  # ran 1
-                     [0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1],  # tan 2
-                     [0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0]] # tet
+kaolack.drums["mbalax1"].pax = [1,0,0,0,0,1,0,0,1,0,0,0,0,2,0,0]  # pax
+kaolack.drums["mbalax1"].gin = [0,0,0,1,0,0,0,0,0,0,0,1,1,0,0,0]  # gin
+kaolack.drums["mbalax1"].tan = [0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,1]  # tan
+kaolack.drums["mbalax1"].tet = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0] # tet
+kaolack.drums["mbalax1"].load_drum()
+
+kaolack.drums["talmbat"].pax = [0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0]  # pax 4
+kaolack.drums["talmbat"].gin = [1,0,0,0,0,2,0,0,1,0,0,0,0,0,0,0]  # gin 0
+kaolack.drums["talmbat"].rwan = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]  # ran 1
+kaolack.drums["talmbat"].tan = [0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1]  # tan 2
+kaolack.drums["talmbat"].tet = [0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0] # tet
+kaolack.drums["talmbat"].load_drum()
+
+
 kaolack.parts = [kaolack.mbalax1, kaolack.talmbat]
 kaolack.notes_per_beat = 4
 kaolack.beats_per_bar = 4
@@ -199,8 +204,13 @@ met34.parts = [met34.mbalax1,met34.talmbat]
 met34.notes_per_beat = 3
 met34.beats_per_bar = 4
 
+barembaye = Rhythm()
+ardin = Rhythm()
+walowalo = Rhythm()
 
-rhythms = {"empty" : empty.parts,"met22" : met22.parts,"met44" : met44.parts,"met34" : met34.parts, "kaolack" : kaolack.parts,"lumbuel":lumbuel.parts,'thieboudjeun':thieboudjeun.parts,"njouk":njouk.parts,"yaaba":yaaba.parts,"niari_gorong":niari_gorong.parts}
+
+
+rhythms = {"empty" : empty.parts,"met22" : met22.parts,"met44" : met44.parts,"met34" : met34.parts, "kaolack" : kaolack.drums,"lumbuel":lumbuel.parts,'thieboudjeun':thieboudjeun.parts,"njouk":njouk.parts,"yaaba":yaaba.parts,"niari_gorong":niari_gorong.parts}
 meters = {"empty":empty.metronome,"met22" : met22.metronome,"met44" : met44.metronome,"met34" : met34.metronome,"kaolack":kaolack.metronome,"lumbuel":lumbuel.metronome,'thieboudjeun':thieboudjeun.metronome,"njouk":njouk.metronome,"yaaba":yaaba.metronome,"niari_gorong":niari_gorong.metronome}
 button_order = ["empty","met22","met44","met34","kaolack","lumbuel","thieboudjeun","njouk","yaaba","niari_gorong"]
 objects = [empty,met22,met44,met34,kaolack,lumbuel,thieboudjeun,njouk,yaaba,niari_gorong]
