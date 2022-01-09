@@ -10,7 +10,7 @@ class Rhythm:
             "talmbat": Drum("talmbat"),
             "tulli": Drum("Tulli"),
             "tugone1": Drum("tugone1"),
-            "tugone2": Drum("tugone1"),
+            "tugone2": Drum("tugone2"),
             "kung1": Drum("Kung"),
             "kung2": Drum("Kung"),
             "nder": Drum("Nder")
@@ -21,7 +21,7 @@ class Rhythm:
         self.talmbat = Drum("talmbat")
         self.tulli = Drum("Tulli")
         self.tugone1 = Drum("tugone1")
-        self.tugone2 = Drum("tugone1")
+        self.tugone2 = Drum("tugone2")
         self.kung1 = Drum("Kung")
         self.kung2 = Drum("Kung")
         self.nder = Drum("N'Der")

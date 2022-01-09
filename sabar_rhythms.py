@@ -2,22 +2,28 @@ from rhythm import Rhythm
 
 kaolack = Rhythm()
 kaolack.metronome = [1,0,0,0,0,0,1,0,1,0,0,0,1,0,0,0]
-kaolack.drums["mbalax1"].lvol = (1.0)
-kaolack.drums["mbalax1"].rvol = (0.0)
+kaolack.drums["mbalax1"].lvol = (0.5)
+kaolack.drums["mbalax1"].rvol = (0.5)
 kaolack.drums["mbalax1"].pax = [1,0,0,0,0,1,0,0,1,0,0,0,0,2,0,0]  # pax
 kaolack.drums["mbalax1"].gin = [0,0,0,1,0,0,0,0,0,0,0,1,1,0,0,0]  # gin
 kaolack.drums["mbalax1"].tan = [0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,1]  # tan
 kaolack.drums["mbalax1"].tet = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0] # tet
 kaolack.drums["mbalax1"].load_drum()
 
-kaolack.drums["talmbat"].lvol = (1.0)
-kaolack.drums["talmbat"].rvol = (1.0)
+kaolack.drums["talmbat"].lvol = (0.5)
+kaolack.drums["talmbat"].rvol = (0.5)
 kaolack.drums["talmbat"].pax = [0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0]  # pax 4
 kaolack.drums["talmbat"].gin = [1,0,0,0,0,2,0,0,1,0,0,0,0,0,0,0]  # gin 0
-kaolack.drums["talmbat"].rwan = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]  # ran 1
 kaolack.drums["talmbat"].tan = [0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1]  # tan 2
 kaolack.drums["talmbat"].tet = [0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0] # tet
 kaolack.drums["talmbat"].load_drum()
+
+kaolack.drums["tulli"].lvol = (0.5)
+kaolack.drums["tulli"].rvol = (0.5)
+kaolack.drums["tulli"].pax = [0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0]  # pax 4
+kaolack.drums["tulli"].gin = [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0]  # gin 0
+kaolack.drums["tulli"].tan = [1,0,0,1,0,0,1,0,0,0,0,1,0,0,0,0]  # tan 2
+kaolack.drums["tulli"].load_drum()
 
 kaolack.drums["tugone1"].lvol = (0.0)
 kaolack.drums["tugone1"].rvol = (1.0)
@@ -26,6 +32,14 @@ kaolack.drums["tugone1"].gin = [0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,1]  # gin
 kaolack.drums["tugone1"].tan = [0,0,1,1,0,0,0,0,1,1,0,0,1,1,0,0]  # tan
 kaolack.drums["tugone1"].tet = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0] # tet
 kaolack.drums["tugone1"].load_drum()
+
+kaolack.drums["tugone2"].lvol = (1.0)
+kaolack.drums["tugone2"].rvol = (0.0)
+kaolack.drums["tugone2"].pax = [0,0,0,0,0,0,0,1,0,0,0,0,1,0,0,0]  # pax
+kaolack.drums["tugone2"].gin = [1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1]  # gin
+kaolack.drums["tugone2"].tan = [0,0,0,0,0,1,0,0,1,0,1,0,0,1,0,0]  # tan
+kaolack.drums["tugone2"].tet = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0] # tet
+kaolack.drums["tugone2"].load_drum()
 
 kaolack.parts = [kaolack.mbalax1, kaolack.talmbat]
 kaolack.notes_per_beat = 4
@@ -48,16 +62,51 @@ yaaba.beats_per_bar = 4
 
 lumbuel = Rhythm()
 lumbuel.metronome = [1,0,0,0,1,0,1,0,0,1,0,0]
-lumbuel.mbalax1 =             [[0,0,0,0,1,0,0,0,0,0,1,0],
-                               [0,0,1,0,0,0,0,0,1,0,0,0],
-                               [1,1,0,0,0,1,1,1,0,0,0,1],
-                               [0,0,0,0,0,0,0,0,0,0,0,0]]
 
-lumbuel.talmbat =             [[0,0,0,0,0,0,0,0,0,0,0,0],
-                               [1,0,0,0,0,0,1,0,0,0,0,0],
-                               [0,0,0,0,0,0,0,0,0,0,0,0],
-                               [0,0,0,0,0,1,0,0,0,0,0,1],
-                               [0,1,0,1,0,0,0,1,0,1,0,0]]
+lumbuel.drums["mbalax1"].lvol = (0.5)
+lumbuel.drums["mbalax1"].rvol = (0.5)
+lumbuel.drums["mbalax1"].pax = [0,0,0,0,1,0,0,0,0,0,1,0]
+lumbuel.drums["mbalax1"].tan = [1,1,0,0,0,1,1,1,0,0,0,1]
+lumbuel.drums["mbalax1"].gin = [0,0,1,0,0,0,0,0,1,0,0,0]
+lumbuel.drums["mbalax1"].load_drum()
+
+lumbuel.drums["mbalax2"].lvol = (0.5)
+lumbuel.drums["mbalax2"].rvol = (0.5)
+lumbuel.drums["mbalax2"].pax = [0,0,0,0,0,1,0,0,0,0,0,1]
+lumbuel.drums["mbalax2"].tan = [0,0,0,1,1,0,0,0,0,1,1,0]
+lumbuel.drums["mbalax2"].gin = [0,0,1,0,0,0,0,0,1,0,0,0]
+lumbuel.drums["mbalax2"].load_drum()
+
+lumbuel.drums["talmbat"].lvol = (0.5)
+lumbuel.drums["talmbat"].rvol = (0.5)
+lumbuel.drums["talmbat"].tan = [0,0,0,0,0,1,0,0,0,0,0,1]
+lumbuel.drums["talmbat"].tet = [0,1,0,1,0,0,0,1,0,1,0,0]
+lumbuel.drums["talmbat"].gin = [1,0,0,0,0,0,1,0,0,0,0,0]
+lumbuel.drums["talmbat"].load_drum()
+
+lumbuel.drums["tugone1"].lvol = (1.0)
+lumbuel.drums["tugone1"].rvol = (0.0)
+lumbuel.drums["tugone1"].pax = [0,0,0,0,0,0,0,0,0,0,0,2]
+lumbuel.drums["tugone1"].tan = [1,0,1,1,0,0,0,0,1,1,0,0]
+lumbuel.drums["tugone1"].gin = [0,0,0,0,1,0,1,0,0,0,0,0]
+lumbuel.drums["tugone1"].load_drum()
+
+lumbuel.drums["tugone2"].lvol = (0.0)
+lumbuel.drums["tugone2"].rvol = (1.0)
+lumbuel.drums["tugone2"].pax = [0,0,0,0,0,0,1,0,0,0,0,0]
+lumbuel.drums["tugone2"].tan = [0,1,1,0,0,0,0,1,1,0,0,0]
+lumbuel.drums["tugone2"].gin = [0,0,0,0,0,0,0,0,0,1,0,1]
+lumbuel.drums["tugone2"].load_drum()
+# lumbuel.mbalax1 =             [[0,0,0,0,1,0,0,0,0,0,1,0],
+#                                [0,0,1,0,0,0,0,0,1,0,0,0],
+#                                [1,1,0,0,0,1,1,1,0,0,0,1],
+#                                [0,0,0,0,0,0,0,0,0,0,0,0]]
+#
+# lumbuel.talmbat =             [[0,0,0,0,0,0,0,0,0,0,0,0],
+#                                [1,0,0,0,0,0,1,0,0,0,0,0],
+#                                [0,0,0,0,0,0,0,0,0,0,0,0],
+#                                [0,0,0,0,0,1,0,0,0,0,0,1],
+#                                [0,1,0,1,0,0,0,1,0,1,0,0]]
 lumbuel.parts = [lumbuel.mbalax1,lumbuel.talmbat]
 lumbuel.notes_per_beat = 3
 lumbuel.beats_per_bar = 4

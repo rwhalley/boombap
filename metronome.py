@@ -42,10 +42,11 @@ class Metronome:
         self.mbungmbung_path = str(Path(__file__).parent / 'accompaniment/')+'/mbalax1/'
         self.col_path = str(Path(__file__).parent / 'accompaniment/')+'/talmbat/'
         self.tugone_path = str(Path(__file__).parent / 'accompaniment/')+'/tugone1/'
+        self.tugone2_path = str(Path(__file__).parent / 'accompaniment/')+'/tugone2/'
         self.nder_path = str(Path(__file__).parent / 'accompaniment/')+'/Nder/'
-        self.drums = ["Nder","mbalax1","talmbat","Tulli","tugone1"]
+        self.drums = ["Nder","mbalax1","talmbat","Tulli","tugone1","tugone2"]
         self.drum_hits = ["pax","pin","gin","rwan","tan","tet","drin","cex","cek"]
-        self.accompaniment_paths = [self.mbungmbung_path,self.col_path,self.tugone_path]
+        self.accompaniment_paths = [self.mbungmbung_path,self.col_path,self.tugone_path,self.tugone2_path]
         self.accompaniment_sounds = self._load_sounds()
         self.mbungmbung_volume = 0 #128
         self.col_volume = 0 #128
