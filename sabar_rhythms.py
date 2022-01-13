@@ -63,15 +63,15 @@ yaaba.beats_per_bar = 4
 lumbuel = Rhythm()
 lumbuel.metronome = [1,0,0,0,1,0,1,0,0,1,0,0]
 
-lumbuel.drums["mbalax1"].lvol = (0.5)
-lumbuel.drums["mbalax1"].rvol = (0.5)
+lumbuel.drums["mbalax1"].lvol = (1.0)
+lumbuel.drums["mbalax1"].rvol = (0.0)
 lumbuel.drums["mbalax1"].pax = [0,0,0,0,1,0,0,0,0,0,1,0]
 lumbuel.drums["mbalax1"].tan = [1,1,0,0,0,1,1,1,0,0,0,1]
 lumbuel.drums["mbalax1"].gin = [0,0,1,0,0,0,0,0,1,0,0,0]
 lumbuel.drums["mbalax1"].load_drum()
 
-lumbuel.drums["mbalax2"].lvol = (0.5)
-lumbuel.drums["mbalax2"].rvol = (0.5)
+lumbuel.drums["mbalax2"].lvol = (0.0)
+lumbuel.drums["mbalax2"].rvol = (1.0)
 lumbuel.drums["mbalax2"].pax = [0,0,0,0,0,1,0,0,0,0,0,1]
 lumbuel.drums["mbalax2"].tan = [0,0,0,1,1,0,0,0,0,1,1,0]
 lumbuel.drums["mbalax2"].gin = [0,0,1,0,0,0,0,0,1,0,0,0]
@@ -264,13 +264,40 @@ met34.parts = [met34.mbalax1,met34.talmbat]
 met34.notes_per_beat = 3
 met34.beats_per_bar = 4
 
-barembaye = Rhythm()
+barambaye = Rhythm()
+barambaye.metronome = [1,0,0,0,0,0,1,0,0,0,0,0]
+barambaye.drums["mbalax1"].lvol = (0.5)
+barambaye.drums["mbalax1"].rvol = (0.5)
+barambaye.drums["mbalax1"].pax = [0,0,2,0,0,1,0,0,2,0,0,1]
+barambaye.drums["mbalax1"].gin = [0,1,0,0,0,0,0,1,0,0,0,0]
+barambaye.drums["mbalax1"].tan = [1,0,0,1,1,0,1,0,0,1,1,0]
+barambaye.drums["mbalax1"].load_drum()
+
+barambaye.drums["talmbat"].lvol = (0.5)
+barambaye.drums["talmbat"].rvol = (0.5)
+barambaye.drums["talmbat"].pax = [0,0,2,0,0,0,0,0,1,0,0,0]
+barambaye.drums["talmbat"].gin = [1,0,0,0,0,0,1,0,0,0,0,0]
+barambaye.drums["talmbat"].tan = [0,0,0,1,0,1,0,1,0,0,0,1]
+barambaye.drums["talmbat"].tet = [0,0,0,0,0,0,0,0,0,0,0,0]
+barambaye.drums["talmbat"].load_drum()
+
+barambaye.drums["tugone1"].lvol = (0.0)
+barambaye.drums["tugone1"].rvol = (1.0)
+barambaye.drums["tugone1"].pax = [0,0,0,0,0,0,0,0,1,0,0,0]
+barambaye.drums["tugone1"].gin = [1,0,1,1,0,0,0,0,0,0,0,0]
+barambaye.drums["tugone1"].tan = [0,0,0,0,0,1,0,1,0,1,1,0]
+barambaye.drums["tugone1"].tet = [0,0,0,0,0,0,0,0,0,0,0,0]
+barambaye.drums["tugone1"].load_drum()
+barambaye.notes_per_beat = 3
+barambaye.beats_per_bar = 4
+
+
 ardin = Rhythm()
 walowalo = Rhythm()
 
 
 
-rhythms = {"empty" : empty.parts,"met22" : met22.parts,"met44" : met44.parts,"met34" : met34.parts, "kaolack" : kaolack.drums,"lumbuel":lumbuel.parts,'thieboudjeun':thieboudjeun.parts,"njouk":njouk.parts,"yaaba":yaaba.parts,"niari_gorong":niari_gorong.parts}
-meters = {"empty":empty.metronome,"met22" : met22.metronome,"met44" : met44.metronome,"met34" : met34.metronome,"kaolack":kaolack.metronome,"lumbuel":lumbuel.metronome,'thieboudjeun':thieboudjeun.metronome,"njouk":njouk.metronome,"yaaba":yaaba.metronome,"niari_gorong":niari_gorong.metronome}
-button_order = ["empty","met22","met44","met34","kaolack","lumbuel","thieboudjeun","njouk","yaaba","niari_gorong"]
-objects = [empty,met22,met44,met34,kaolack,lumbuel,thieboudjeun,njouk,yaaba,niari_gorong]
+rhythms = {"empty" : empty.parts,"met22" : met22.parts,"met44" : met44.parts,"met34" : met34.parts, "kaolack" : kaolack.drums,"lumbuel":lumbuel.drums,"barambaye":barambaye.drums,'thieboudjeun':thieboudjeun.parts,"njouk":njouk.parts,"yaaba":yaaba.parts,"niari_gorong":niari_gorong.parts}
+meters = {"empty":empty.metronome,"met22" : met22.metronome,"met44" : met44.metronome,"met34" : met34.metronome,"kaolack":kaolack.metronome,"lumbuel":lumbuel.metronome,"barambaye":barambaye.metronome,'thieboudjeun':thieboudjeun.metronome,"njouk":njouk.metronome,"yaaba":yaaba.metronome,"niari_gorong":niari_gorong.metronome}
+button_order = ["empty","met22","met44","met34","kaolack","lumbuel","barambaye","thieboudjeun","njouk","yaaba","niari_gorong"]
+objects = [empty,met22,met44,met34,kaolack,lumbuel,barambaye,thieboudjeun,njouk,yaaba,niari_gorong]
