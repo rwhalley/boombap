@@ -111,16 +111,51 @@ lumbuel.beats_per_bar = 4
 
 njouk = Rhythm()
 njouk.metronome = [1,0,0,0,0,0,1,0,1,0,0,0,1,0,0,0]
-njouk.mbalax1 =             [[0,0,2,0,0,0,0,0,0,0,2,0,0,0,1,0],  # pax
-                             [1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],  # gin
-                             [0,0,0,1,1,0,1,0,0,0,0,1,1,0,1,0],  # tan
-                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]] # tet
+njouk.drums["mbalax1"].lvol = (0.6)
+njouk.drums["mbalax1"].rvol = (0.4)
+njouk.drums["mbalax1"].pax = [0,0,2,0,0,0,0,0,0,0,2,0,0,0,1,0]
+njouk.drums["mbalax1"].gin = [1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0]
+njouk.drums["mbalax1"].tan = [0,0,0,1,1,0,1,0,0,0,0,1,1,0,1,0]
+njouk.drums["mbalax1"].load_drum()
 
-njouk.talmbat =             [[0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0],  # pax 4
-                             [1,0,0,1,0,0,0,0,1,0,0,1,0,0,0,0],  # gin 0
-                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],  # ran 1
-                             [0,0,1,0,1,0,0,1,0,0,1,0,1,0,0,1],  # tan 2
-                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]] # tet 3
+njouk.drums["talmbat"].lvol = (0.8)
+njouk.drums["talmbat"].rvol = (0.2)
+njouk.drums["talmbat"].pax = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]  # pax 4
+njouk.drums["talmbat"].gin = [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0]  # gin 0
+njouk.drums["talmbat"].tan = [0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1]  # tan 2
+njouk.drums["talmbat"].tet = [0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0] # tet
+njouk.drums["talmbat"].load_drum()
+
+njouk.drums["tulli"].lvol = (0.2)
+njouk.drums["tulli"].rvol = (0.8)
+njouk.drums["tulli"].pax = [0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0]  # pax 4
+njouk.drums["tulli"].gin = [0,0,1,0,0,0,0,2,0,0,1,0,0,0,0,2]  # gin 0
+njouk.drums["tulli"].tan = [1,0,0,1,0,0,1,0,1,0,0,1,0,0,1,0]  # tan 2
+njouk.drums["tulli"].load_drum()
+
+njouk.drums["mbalax2"].lvol = (0.4)
+njouk.drums["mbalax2"].rvol = (0.6)
+njouk.drums["mbalax2"].pax = [0,2,0,0,0,0,1,0,0,2,0,0,0,0,1,0]  # pax 4
+njouk.drums["mbalax2"].gin = [1,0,0,1,0,0,0,0,1,0,0,1,0,0,0,0]  # gin 0
+njouk.drums["mbalax2"].tan = [0,0,1,0,1,0,0,1,0,0,1,0,1,0,0,1]  # tan 2
+njouk.drums["mbalax2"].load_drum()
+
+njouk.drums["tugone1"].lvol = (0.1)
+njouk.drums["tugone1"].rvol = (0.9)
+njouk.drums["tugone1"].pax = [1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0]  # pax
+njouk.drums["tugone1"].gin = [0,0,1,1,1,0,0,0,0,0,1,1,1,0,0,0]  # gin
+njouk.drums["tugone1"].tan = [0,2,0,0,0,1,0,0,0,2,0,0,0,1,0,0]  # tan
+njouk.drums["tugone1"].tet = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0] # tet
+njouk.drums["tugone1"].load_drum()
+
+njouk.drums["tugone2"].lvol = (0.9)
+njouk.drums["tugone2"].rvol = (0.1)
+njouk.drums["tugone2"].pax = [0,2,0,0,0,0,0,0,0,0,0,0,1,0,0,0]  # pax 4
+njouk.drums["tugone2"].gin = [0,0,0,1,0,0,1,2,0,0,0,0,0,0,1,2]  # gin 0
+njouk.drums["tugone2"].tan = [0,0,1,0,1,0,0,0,0,0,0,0,0,1,0,0]
+njouk.drums["tugone2"].load_drum()
+
+
 njouk.parts = [njouk.mbalax1,njouk.talmbat]
 njouk.notes_per_beat = 4
 njouk.beats_per_bar = 4
@@ -295,7 +330,7 @@ walowalo = Rhythm()
 
 
 
-rhythms = {"empty" : empty.parts,"met22" : met22.parts,"met44" : met44.parts,"met34" : met34.parts, "kaolack" : kaolack.drums,"lumbuel":lumbuel.drums,"barambaye":barambaye.drums,'thieboudjeun':thieboudjeun.parts,"njouk":njouk.parts,"yaaba":yaaba.parts,"niari_gorong":niari_gorong.parts}
+rhythms = {"empty" : empty.parts,"met22" : met22.parts,"met44" : met44.parts,"met34" : met34.parts, "kaolack" : kaolack.drums,"lumbuel":lumbuel.drums,"barambaye":barambaye.drums,'thieboudjeun':thieboudjeun.drums,"njouk":njouk.drums,"yaaba":yaaba.drums,"niari_gorong":niari_gorong.drums}
 meters = {"empty":empty.metronome,"met22" : met22.metronome,"met44" : met44.metronome,"met34" : met34.metronome,"kaolack":kaolack.metronome,"lumbuel":lumbuel.metronome,"barambaye":barambaye.metronome,'thieboudjeun':thieboudjeun.metronome,"njouk":njouk.metronome,"yaaba":yaaba.metronome,"niari_gorong":niari_gorong.metronome}
 button_order = ["empty","met22","met44","met34","kaolack","lumbuel","barambaye","thieboudjeun","njouk","yaaba","niari_gorong"]
 objects = [empty,met22,met44,met34,kaolack,lumbuel,barambaye,thieboudjeun,njouk,yaaba,niari_gorong]
