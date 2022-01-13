@@ -46,16 +46,14 @@ kaolack.notes_per_beat = 4
 kaolack.beats_per_bar = 4
 
 yaaba = Rhythm()
-yaaba.metronome = [1,0,0,0,0,0,1,0,0,0,0,0,]
-yaaba.mbalax1 = [[1,0,0,2,0,0,1,0,0,2,0,0],
-                 [0,0,1,1,0,0,0,0,1,1,0,0],
-                 [0,1,0,0,1,1,0,1,0,0,1,1],
-                 [0,0,0,0,0,0,0,0,0,0,0,0]]
-yaaba.talmbat =   [[0,0,0,0,0,0,0,0,0,0,0,0],  # pax 4  EMPTY
-                     [0,0,0,0,0,0,0,0,0,0,0,0],  # gin 0
-                     [0,0,0,0,0,0,0,0,0,0,0,0],  # ran 1
-                     [0,0,0,0,0,0,0,0,0,0,0,0],  # tan 2
-                     [0,0,0,0,0,0,0,0,0,0,0,0]] # tet
+yaaba.metronome = [1,0,0,0,0,0,1,0,0,0,0,0]
+yaaba.drums["mbalax1"].lvol = (1.0)
+yaaba.drums["mbalax1"].rvol = (0.0)
+yaaba.drums["mbalax1"].pax = [1,0,0,2,0,0,1,0,0,2,0,0]
+yaaba.drums["mbalax1"].tan = [0,1,0,0,1,1,0,1,0,0,1,1]
+yaaba.drums["mbalax1"].gin = [0,0,1,1,0,0,0,0,1,1,0,0]
+yaaba.drums["mbalax1"].load_drum()
+
 yaaba.parts = [yaaba.mbalax1,yaaba.talmbat]
 yaaba.notes_per_beat = 3
 yaaba.beats_per_bar = 4
