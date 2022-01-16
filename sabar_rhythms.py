@@ -111,50 +111,51 @@ lumbuel.beats_per_bar = 4
 
 njouk = Rhythm()
 njouk.metronome = [1,0,0,0,0,0,1,0,1,0,0,0,1,0,0,0]
-njouk.drums["mbalax1"].lvol = (0.6)
-njouk.drums["mbalax1"].rvol = (0.4)
-njouk.drums["mbalax1"].pax = [0,0,2,0,0,0,0,0,0,0,2,0,0,0,1,0]
-njouk.drums["mbalax1"].gin = [1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0]
-njouk.drums["mbalax1"].tan = [0,0,0,1,1,0,1,0,0,0,0,1,1,0,1,0]
-njouk.drums["mbalax1"].load_drum()
+njouk.drums["mbalax2"].lvol = (1.0)
+njouk.drums["mbalax2"].rvol = (1.0)
+njouk.drums["mbalax2"].pin = [0,0,2,0,0,0,0,0,0,0,2,0,0,0,0,0]
 
-njouk.drums["talmbat"].lvol = (0.8)
-njouk.drums["talmbat"].rvol = (0.2)
-njouk.drums["talmbat"].pax = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]  # pax 4
+njouk.drums["mbalax2"].pax = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+njouk.drums["mbalax2"].gin = [1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0]
+njouk.drums["mbalax2"].tan = [0,0,0,1,1,0,1,0,0,0,0,1,1,0,1,0]
+njouk.drums["mbalax2"].load_drum()
+#
+njouk.drums["talmbat"].lvol = (0.5)
+njouk.drums["talmbat"].rvol = (0.5)
 njouk.drums["talmbat"].gin = [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0]  # gin 0
 njouk.drums["talmbat"].tan = [0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1]  # tan 2
 njouk.drums["talmbat"].tet = [0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0] # tet
 njouk.drums["talmbat"].load_drum()
 
-njouk.drums["tulli"].lvol = (0.2)
-njouk.drums["tulli"].rvol = (0.8)
-njouk.drums["tulli"].pax = [0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0]  # pax 4
-njouk.drums["tulli"].gin = [0,0,1,0,0,0,0,2,0,0,1,0,0,0,0,2]  # gin 0
-njouk.drums["tulli"].tan = [1,0,0,1,0,0,1,0,1,0,0,1,0,0,1,0]  # tan 2
-njouk.drums["tulli"].load_drum()
+# njouk.drums["tulli"].lvol = (0.2)
+# njouk.drums["tulli"].rvol = (0.5)
+# njouk.drums["tulli"].pax = [0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0]  # pax 4
+# njouk.drums["tulli"].gin = [0,0,1,0,0,0,0,2,0,0,1,0,0,0,0,2]  # gin 0
+# njouk.drums["tulli"].tan = [1,0,0,1,0,0,1,0,1,0,0,1,0,0,1,0]  # tan 2
+# njouk.drums["tulli"].load_drum()
 
-njouk.drums["mbalax2"].lvol = (0.4)
-njouk.drums["mbalax2"].rvol = (0.6)
-njouk.drums["mbalax2"].pax = [0,2,0,0,0,0,1,0,0,2,0,0,0,0,1,0]  # pax 4
-njouk.drums["mbalax2"].gin = [1,0,0,1,0,0,0,0,1,0,0,1,0,0,0,0]  # gin 0
-njouk.drums["mbalax2"].tan = [0,0,1,0,1,0,0,1,0,0,1,0,1,0,0,1]  # tan 2
-njouk.drums["mbalax2"].load_drum()
+# njouk.drums["mbalax1"].lvol = (0.5)
+# njouk.drums["mbalax1"].rvol = (1.0)
+# njouk.drums["mbalax1"].pin = [0,2,0,0,0,0,0,0,0,2,0,0,0,0,0,0]  # pax 4
+#
+# njouk.drums["mbalax1"].pax = [0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0]  # pax 4
+# njouk.drums["mbalax1"].gin = [1,0,0,1,0,0,0,0,1,0,0,1,0,0,0,0]  # gin 0
+# njouk.drums["mbalax1"].tan = [0,0,1,0,1,0,0,1,0,0,1,0,1,0,0,1]  # tan 2
+# njouk.drums["mbalax1"].load_drum()
 
-njouk.drums["tugone1"].lvol = (0.1)
-njouk.drums["tugone1"].rvol = (0.9)
+njouk.drums["tugone1"].lvol = (1.0)
+njouk.drums["tugone1"].rvol = (1.0)
 njouk.drums["tugone1"].pax = [1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0]  # pax
 njouk.drums["tugone1"].gin = [0,0,1,1,1,0,0,0,0,0,1,1,1,0,0,0]  # gin
 njouk.drums["tugone1"].tan = [0,2,0,0,0,1,0,0,0,2,0,0,0,1,0,0]  # tan
-njouk.drums["tugone1"].tet = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0] # tet
 njouk.drums["tugone1"].load_drum()
-
-njouk.drums["tugone2"].lvol = (0.9)
-njouk.drums["tugone2"].rvol = (0.1)
-njouk.drums["tugone2"].pax = [0,2,0,0,0,0,0,0,0,0,0,0,1,0,0,0]  # pax 4
-njouk.drums["tugone2"].gin = [0,0,0,1,0,0,1,2,0,0,0,0,0,0,1,2]  # gin 0
-njouk.drums["tugone2"].tan = [0,0,1,0,1,0,0,0,0,0,0,0,0,1,0,0]
-njouk.drums["tugone2"].load_drum()
-
+#
+# njouk.drums["tugone2"].lvol = (0.9)
+# njouk.drums["tugone2"].rvol = (0.1)
+# njouk.drums["tugone2"].pax = [0,2,0,0,0,0,0,0,0,0,0,0,1,0,0,0]  # pax 4
+# njouk.drums["tugone2"].gin = [0,0,0,1,0,0,1,2,0,0,0,0,0,0,1,2]  # gin 0
+# njouk.drums["tugone2"].tan = [0,0,1,0,1,0,0,0,0,0,0,0,0,1,0,0]
+# njouk.drums["tugone2"].load_drum()
 
 njouk.parts = [njouk.mbalax1,njouk.talmbat]
 njouk.notes_per_beat = 4
@@ -163,35 +164,46 @@ njouk.beats_per_bar = 4
 
 thieboudjeun = Rhythm()
 thieboudjeun.metronome = [1,0,0,0,0,0,1,0,1,0,0,0,1,0,0,0]
-thieboudjeun.mbalax1 =  [[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],  # pax
-                                     [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],  # gin
-                                     [0,0,1,1,0,0,1,1,0,0,1,1,0,0,1,1],  # tan
-                                     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]] # tet
+thieboudjeun.drums["mbalax2"].lvol = (0.8)
+thieboudjeun.drums["mbalax2"].rvol = (0.8)
+thieboudjeun.drums["mbalax2"].pax = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+thieboudjeun.drums["mbalax2"].gin = [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0]
+thieboudjeun.drums["mbalax2"].tan = [0,0,1,1,0,0,1,1,0,0,1,1,0,0,1,1]
+thieboudjeun.drums["mbalax2"].load_drum()
 
-thieboudjeun.talmbat =              [[1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],  # pax 4
-                                     [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],  # gin 0
-                                     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],  # ran 1
-                                     [0,0,1,0,0,1,0,0,0,0,1,0,0,1,0,0],  # tan 2
-                                     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]]  # tet 3
+thieboudjeun.drums["talmbat"].lvol = (0.7)
+thieboudjeun.drums["talmbat"].rvol = (0.2)
+thieboudjeun.drums["talmbat"].pax = [1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0]  # pax 4
+thieboudjeun.drums["talmbat"].gin = [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0]  # gin 0
+thieboudjeun.drums["talmbat"].tan = [0,0,1,0,0,1,0,0,0,0,1,0,0,1,0,0]  # tan 2
+thieboudjeun.drums["talmbat"].tet = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0] # tet
+thieboudjeun.drums["talmbat"].load_drum()
 
-thieboudjeun.tulli =                [[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],  # pax 4
-                                     [0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0],  # gin 0
-                                     [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],  # ran 1
-                                     [0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0],  # tan 2
-                                     [0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0]]  # tet 3
+thieboudjeun.drums["tulli"].lvol = (0.2)
+thieboudjeun.drums["tulli"].rvol = (0.7)
+thieboudjeun.drums["tulli"].pax = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]  # pax 4
+thieboudjeun.drums["tulli"].gin = [0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0]  # gin 0
+thieboudjeun.drums["tulli"].tan = [1,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0]  # tan 2
+thieboudjeun.drums["tulli"].tet = [0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0] # tet
+thieboudjeun.drums["tulli"].load_drum()
 
-thieboudjeun.tugone1 =              [[0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0],  # pax
-                                     [1,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0],  # gin
-                                     [0,0,0,0,0,0,0,0,1,0,1,0,0,1,0,0],  # tan
-                                     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]] # tet
+thieboudjeun.drums["tugone1"].lvol = (0.1)
+thieboudjeun.drums["tugone1"].rvol = (0.8)
+thieboudjeun.drums["tugone1"].pax = [0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0]
+thieboudjeun.drums["tugone1"].gin = [1,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0]
+thieboudjeun.drums["tugone1"].tan = [0,0,0,0,0,0,0,0,1,0,1,0,0,1,0,0]
+thieboudjeun.drums["tugone1"].load_drum()
 
-thieboudjeun.tugone2 =              [[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],  # pax
-                                     [0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0],  # gin
-                                     [1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],  # tan
-                                     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]] # tet
-thieboudjeun.parts = [thieboudjeun.mbalax1,thieboudjeun.talmbat]
+thieboudjeun.drums["tugone2"].lvol = (0.8)
+thieboudjeun.drums["tugone2"].rvol = (0.1)
+thieboudjeun.drums["tugone2"].pax = [0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0]
+thieboudjeun.drums["tugone2"].gin = [0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0]
+thieboudjeun.drums["tugone2"].tan = [1,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0]
+thieboudjeun.drums["tugone2"].load_drum()
+
 thieboudjeun.notes_per_beat = 4
 thieboudjeun.beats_per_bar = 4
+
 
 #
 # fass = Rhythm()
@@ -299,9 +311,10 @@ met34.beats_per_bar = 4
 
 barambaye = Rhythm()
 barambaye.metronome = [1,0,0,0,0,0,1,0,0,0,0,0]
-barambaye.drums["mbalax1"].lvol = (0.5)
-barambaye.drums["mbalax1"].rvol = (0.5)
-barambaye.drums["mbalax1"].pax = [0,0,2,0,0,1,0,0,2,0,0,1]
+barambaye.drums["mbalax1"].lvol = (1.0)
+barambaye.drums["mbalax1"].rvol = (1.0)
+barambaye.drums["mbalax1"].pin = [0,0,2,0,0,1,0,0,2,0,0,1]
+barambaye.drums["mbalax1"].pax = [0,0,0,0,0,0,0,0,0,0,0,0]
 barambaye.drums["mbalax1"].gin = [0,1,0,0,0,0,0,1,0,0,0,0]
 barambaye.drums["mbalax1"].tan = [1,0,0,1,1,0,1,0,0,1,1,0]
 barambaye.drums["mbalax1"].load_drum()
@@ -314,19 +327,20 @@ barambaye.drums["talmbat"].tan = [0,0,0,1,0,1,0,1,0,0,0,1]
 barambaye.drums["talmbat"].tet = [0,0,0,0,0,0,0,0,0,0,0,0]
 barambaye.drums["talmbat"].load_drum()
 
-barambaye.drums["tugone1"].lvol = (0.0)
-barambaye.drums["tugone1"].rvol = (1.0)
-barambaye.drums["tugone1"].pax = [0,0,0,0,0,0,0,0,1,0,0,0]
-barambaye.drums["tugone1"].gin = [1,0,1,1,0,0,0,0,0,0,0,0]
-barambaye.drums["tugone1"].tan = [0,0,0,0,0,1,0,1,0,1,1,0]
-barambaye.drums["tugone1"].tet = [0,0,0,0,0,0,0,0,0,0,0,0]
-barambaye.drums["tugone1"].load_drum()
+barambaye.drums["tugone2"].lvol = (0.5)
+barambaye.drums["tugone2"].rvol = (0.5)
+barambaye.drums["tugone2"].pax = [0,0,0,0,0,0,0,0,1,0,0,0]
+barambaye.drums["tugone2"].gin = [1,1,0,1,0,0,0,0,0,0,0,0]
+barambaye.drums["tugone2"].tan = [0,0,0,0,0,1,0,1,0,1,1,0]
+barambaye.drums["tugone2"].tet = [0,0,0,0,0,0,0,0,0,0,0,0]
+barambaye.drums["tugone2"].load_drum()
 barambaye.notes_per_beat = 3
 barambaye.beats_per_bar = 4
 
 
 ardin = Rhythm()
 walowalo = Rhythm()
+farwujen = Rhythm()
 
 
 
