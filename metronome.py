@@ -89,9 +89,9 @@ class Metronome:
                 sound.normalize()
                 sound.make_loud()
                 if "tugone1" in sound.path:
-                    sound.change_pitch(1+2*.059463094359)
+                    sound.change_pitch(1.059463094359)
                 if "tugone2" in sound.path:
-                    sound.change_pitch(1+4*.059463094359)
+                    sound.change_pitch(1+1*.059463094359)
             all_sounds[self.get_drum_from_filename(path)] = sounds
         return all_sounds
 
