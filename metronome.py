@@ -47,6 +47,7 @@ class Metronome:
         self.tugone2_path = str(Path(__file__).parent / 'accompaniment/')+'/tugone2/'
         self.nder_path = str(Path(__file__).parent / 'accompaniment/')+'/Nder/'
         self.drums = ["Nder","mbalax1","talmbat","tulli","tugone1","tugone2","mbalax2"]
+        self.allowed_drums = ["mbalax1","mbalax2","tugone1","talmbat","tugone2"]
         self.drum_hits = ["pax","pin","gin","rwan","tan","tet","drin","cex","cek"]
         self.accompaniment_paths = [self.mbungmbung_path,self.mbalax2_path,self.talmbat_path,self.tulli_path,self.tugone_path,self.tugone2_path]
         self.accompaniment_sounds = self._load_sounds()
@@ -83,9 +84,14 @@ class Metronome:
 
                         #sounds.append(Soundy(path+file))
             for key, sound in sounds.items():
+
                 sound.remove_artifacts()
                 sound.normalize()
                 sound.make_loud()
+                if "tugone1" in sound.path:
+                    sound.change_pitch(1+2*.059463094359)
+                if "tugone2" in sound.path:
+                    sound.change_pitch(1+4*.059463094359)
             all_sounds[self.get_drum_from_filename(path)] = sounds
         return all_sounds
 
@@ -183,7 +189,7 @@ class Metronome:
 
     def play_accompaniment(self, state):
         for i, (drum_key, drum_value) in enumerate(self.accompaniment.items()): # for each drum in accompaniment
-            if drum_value.drum:
+            if drum_value.drum and drum_key in self.allowed_drums:
                 for j, (hit_key, hit_value) in enumerate (drum_value.drum.items()): # for each type of hit in drum
                     if hit_value and hit_value[self.current_note] == 2 and state != 2:
                         self.grace_note_active = True

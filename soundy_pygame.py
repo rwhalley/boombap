@@ -89,8 +89,10 @@ class Soundy:
     #     self.pgsound.set_volume(left,right)
 
     def play(self, block = True, lvol = 1.0, rvol = 1.0):
-        channel = self.pgsound.play()
-        channel.set_volume(lvol,rvol)
+        self.pgsound.set_volume(lvol)
+        self.pgsound.play()
+        # channel = self.pgsound.play()
+        # channel.set_volume(lvol,rvol)
 
         if(self.repeat):
             sleep(0.1)
