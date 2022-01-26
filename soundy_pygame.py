@@ -11,6 +11,8 @@ import dsp
 class Soundy:
 
     def __init__(self,soundpath):
+        self.sound_name = None
+        self.bank_name = None
         self.path = soundpath
         self.sample_rate = 44100
         self.repeat = False
@@ -83,8 +85,14 @@ class Soundy:
         normalized_vel = midi_vel_in/128.
         self.pgsound.set_volume(normalized_vel)
 
-    def play(self, block = True):
+    # def set_volume_stereo(self,left,right):
+    #     self.pgsound.set_volume(left,right)
+
+    def play(self, block = True, lvol = 1.0, rvol = 1.0):
+        self.pgsound.set_volume(lvol)
         self.pgsound.play()
+        # channel = self.pgsound.play()
+        # channel.set_volume(lvol,rvol)
 
         if(self.repeat):
             sleep(0.1)
