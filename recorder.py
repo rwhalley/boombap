@@ -12,8 +12,9 @@ class AudioRecorder():
 
         self.FORMAT = pyaudio.paInt16
         self.CHANNELS = 1
+        self.DEV_INDEX = 0
         self.RATE = 44100
-        self.CHUNK = 1024
+        self.CHUNK = 2048
         self.RECORD_SECONDS = seconds
         self.WAVE_OUTPUT_FILENAME = "file.wav"
         self.audio = pyaudio.PyAudio()
@@ -25,12 +26,13 @@ class AudioRecorder():
         # start Recording
         self.stream = self.audio.open(format=self.FORMAT, channels=self.CHANNELS,
                         rate=self.RATE, input=True,
-                        frames_per_buffer=self.CHUNK)
+                        frames_per_buffer=self.CHUNK,
+			input_device_index = self.DEV_INDEX)
         print ("recording...")
         self.frames = []
 
         for i in range(0, int(self.RATE / self.CHUNK * self.RECORD_SECONDS)):
-            data = self.stream.read(self.CHUNK)
+            data = self.stream.read(self.CHUNK, exception_on_overflow = False)
             self.frames.append(data)
         print ("finished recording")
 
@@ -51,3 +53,6 @@ class AudioRecorder():
         waveFile.close()
 
 
+a= AudioRecorder(5)
+a.start_record()
+a.stop_record()
