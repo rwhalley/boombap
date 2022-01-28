@@ -27,6 +27,8 @@ class Slicer:
             self.create_new_folder(self.old_files_path)
             self.move_files_to_folder(self.path,self.old_files_path)
 
+        print(self.input_wav)
+
         self.input_wav, self.sample_rate = load(self.input_wav_file)
         print(self.input_wav)
         self.max_onsets = 16
