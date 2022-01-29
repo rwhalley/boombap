@@ -7,6 +7,8 @@ import os
 import glob
 from datetime import datetime as dt
 
+import CONFIG as c
+
 class Slicer:
     def __init__(self,input_wav_file, pre_slice,folder_num):
         self.path = './samples/'+str(folder_num)+'/'
@@ -29,7 +31,7 @@ class Slicer:
 
         print(self.input_wav_file)
 
-        self.input_wav, self.sample_rate = load(self.input_wav_file)
+        self.input_wav, self.sample_rate = load(self.input_wav_file, sr=c.SAMPLE_RATE)
         print(self.input_wav)
         self.max_onsets = 16
         self.onsets = onset_detect(y=self.input_wav, sr=self.sample_rate, units='samples',wait=1, pre_avg=1, post_avg=1, pre_max=1, post_max=1)
