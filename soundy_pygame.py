@@ -81,15 +81,19 @@ class Soundy:
         snd_resample=resample(snd_array,factor,'sinc_fastest').astype(snd_array.dtype)
         self.pgsound = pg.sndarray.make_sound(snd_resample)
 
+    def get_volume(self):
+        print(self.pgsound.get_volume())
+
     def set_volume(self,midi_vel_in):
-        normalized_vel = midi_vel_in/128.
-        self.pgsound.set_volume(normalized_vel)
+        if midi_vel_in>1:
+            midi_vel_in = midi_vel_in/128.
+        self.pgsound.set_volume(midi_vel_in)
 
     # def set_volume_stereo(self,left,right):
     #     self.pgsound.set_volume(left,right)
 
-    def play(self, block = True, lvol = 1.0, rvol = 1.0):
-        self.pgsound.set_volume(lvol)
+    def play(self, block = True):
+        #self.pgsound.set_volume(lvol)
         self.pgsound.play()
         # channel = self.pgsound.play()
         # channel.set_volume(lvol,rvol)

@@ -201,7 +201,8 @@ class Metronome:
                         for j, (shit_key, shit_value) in enumerate (drum_value.drum.items()): # iterate through hits and
                                 if shit_value:
                                     self.accompaniment_sounds[drum_key][shit_key].stop() # stop any other sounds playing
-                        self.accompaniment_sounds[drum_key][hit_key].play(block=False, lvol= drum_value.lvol, rvol = drum_value.rvol)
+                        self.accompaniment_sounds[drum_key][hit_key].set_volume(drum_value.lvol)
+                        self.accompaniment_sounds[drum_key][hit_key].play(block=False)
                         #self.accompaniment_sounds[drum_key][hit_key].play(block=False)
 
 
