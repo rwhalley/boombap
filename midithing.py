@@ -2,10 +2,11 @@
 
 import time
 from os import listdir
-from os.path import isfile, join
+from os.path import isfile, join, exists
 import sys
 from pathlib import Path
 from threading import Thread
+import pickle as p
 
 import mido
 
@@ -25,8 +26,11 @@ class MidiControl:
     def __init__(self):
 
         self.basepath = str(Path(__file__).parent / 'samples/')+'/'
+        self.save_path = 'sound_data.pkl'
         self.current_bank = 0
+        self.current_page = 0
         self.max_sample_length_seconds = 3
+        self.max_page_size = 16
         self.max_bank_size = 16
         self.button = QUNEO
         self.VOL_SENS = False
@@ -36,12 +40,17 @@ class MidiControl:
         self.semitone = .059463094359
         self.last_note = 1101001
 
+        # -- Sound Data ---
+        self.all_sounds = None
+        self.all_sound_data = None
+
         # --- Shift Button States ---
         self.is_metronome_pressed = False
         self.is_loop_loader_pressed = False
         self.is_loop_saver_pressed = False
         self.is_bank_shift_pressed = False
         self.is_mode_shift_pressed = False
+        self.is_page_shift_pressed = False
 
         self.devices = [] # QUNEO, Reface CP
         self.messages = []
@@ -50,9 +59,13 @@ class MidiControl:
         self.devices = list(set(mido.get_input_names()))
         print(self.devices)
 
-        # LOAD SAMPLES
-        self.load_all_samples()
-        self.load_samples()
+        # LOAD SAMPLES - Try Fast Load
+        if exists(self.save_path):
+            self.load_all_sound_data()
+        else:
+            self.load_all_samples()
+            self.load_samples()
+            self.save_all_sound_data()
 
         # AUDIO RECORDER
         self.sample_recording_length_in_seconds = 5
@@ -184,7 +197,36 @@ class MidiControl:
             self.all_sounds.append(new_bank)
         self.pre_process_sounds(sounds = self.all_sounds[bank_num])
 
+    def load_all_sound_data(self):
+        print("# Loading Sound Data from Pickle")
+        self.all_sound_data = p.load(open("sound_data.pkl",'rb'))
+        self.all_sounds = []
+
+        for i, bank in enumerate(self.all_sound_data):
+
+            newbank = []
+            for j, sound_arr in enumerate(bank):
+
+                newbank.append(Soundy(fast_load=True, arr=sound_arr))
+            self.all_sounds.append(newbank)
+        print("# Sound Data Loaded from Pickle")
+
+
+    def save_all_sound_data(self):
+        print("# Saving Sound Data to Pickle")
+        self.all_sound_data = []
+        for i, bank in enumerate(self.all_sounds):
+            newbank = []
+            for sound in bank:
+                newbank.append(sound.get_original_sound_array())
+            print(newbank)
+            self.all_sound_data.append(newbank)
+        p.dump(self.all_sound_data, open('sound_data.pkl','wb'))
+        self.all_sound_data = None
+        print("# Sound Data Saved to Pickle")
+
     def load_all_samples(self):
+        print("# Loading All Samples from File")
         self.all_sounds = []
         if c.PI_FAST_LOAD:
             max = 1
@@ -212,6 +254,7 @@ class MidiControl:
                 self.pre_process_sounds(sounds = bank)
 
     def load_samples(self):
+        print("# Loading Samples from File")
         path = self.basepath + str(self.current_bank)+'/'
         try:
             onlyfiles = [f for f in sorted(listdir(path)) if isfile(join(path, f))]
@@ -304,6 +347,7 @@ class MidiControl:
             if midi.type == "note_on":
                 if self.button_is_shift(midi):
                     self.metronome_shift(midi)
+                    self.page_shift(midi)
                     self.bank_shift(midi)
                     self.loop_shift(midi)
                     self.mode_shift(midi)
@@ -321,6 +365,7 @@ class MidiControl:
                     self.audio_record(midi)
                     self.velocity_sensitivity(midi)
                     self.exit_program(midi)
+                    self.change_page(midi)
                     self.switch_bank(midi)
                     self.switch_metronome(midi)
             if midi.type == "note_off":
@@ -346,7 +391,7 @@ class MidiControl:
 
     def shift_is_active(self):
         if self.is_metronome_pressed or self.is_loop_loader_pressed or self.is_loop_saver_pressed or self.is_bank_shift_pressed\
-                or self.is_mode_shift_pressed:
+                or self.is_mode_shift_pressed or self.is_page_shift_pressed:
            return True
         else:
             return False
@@ -365,6 +410,10 @@ class MidiControl:
     def bank_shift(self,midi):
         if midi.note == self.button.BANK_SELECTOR:
             self.is_bank_shift_pressed = not self.is_bank_shift_pressed
+
+    def page_shift(self,midi):
+        if midi.note == self.button.PAGE_SELECTOR:
+            self.is_page_shift_pressed = not self.is_page_shift_pressed
 
     def metronome_shift(self,midi):
         if midi.note == self.button.METRONOME:
@@ -420,10 +469,16 @@ class MidiControl:
     def switch_metronome(self,midi):
         if self.is_metronome_pressed and midi.note in self.button.PADS:
             self.metronome.switch(midi.note-self.button.PAD_START)
+
+    def change_page(self, midi):
+        if self.is_page_shift_pressed and midi.note in self.button.PADS:
+            self.current_page = midi.note-self.button.PAD_START
+
     def switch_bank(self,midi):
         if self.is_bank_shift_pressed and midi.note in self.button.PADS:
             old_bank = self.current_bank
-            self.current_bank = midi.note-self.button.PAD_START
+            page_factor = self.current_page*self.max_page_size  # Zero indexed
+            self.current_bank = page_factor + midi.note-self.button.PAD_START
             try:
                 if c.LOAD_SAMPLES == c.ALL_SAMPLES:
                     pass
