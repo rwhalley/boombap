@@ -64,7 +64,6 @@ class MidiControl:
             self.load_all_sound_data()
         else:
             self.load_all_samples()
-            self.load_samples()
             self.save_all_sound_data()
 
         # AUDIO RECORDER
@@ -219,7 +218,6 @@ class MidiControl:
             newbank = []
             for sound in bank:
                 newbank.append(sound.get_original_sound_array())
-            print(newbank)
             self.all_sound_data.append(newbank)
         p.dump(self.all_sound_data, open('sound_data.pkl','wb'))
         self.all_sound_data = None
@@ -480,18 +478,22 @@ class MidiControl:
             page_factor = self.current_page*self.max_page_size  # Zero indexed
             self.current_bank = page_factor + midi.note-self.button.PAD_START
             try:
-                if c.LOAD_SAMPLES == c.ALL_SAMPLES:
-                    pass
-                else:
-                    #  load samples as background process
-                    if c.THREADING_ACTIVE:
-                        x = Thread(target=self.load_samples, daemon=True)
-                        x.start()
-                    else:
-                        self.load_samples()
-            except FileNotFoundError:
-                pass  # allow to be in an empty bank
-                #self.current_bank = old_bank
+                self.sounds = self.all_sounds[self.current_bank]
+            except IndexError:
+                self.current_bank = old_bank  # Stay on current bank
+            # try:
+            #     if c.LOAD_SAMPLES == c.ALL_SAMPLES:
+            #         pass
+            #     else:
+            #         #  load samples as background process
+            #         if c.THREADING_ACTIVE:
+            #             x = Thread(target=self.load_samples, daemon=True)
+            #             x.start()
+            #         else:
+            #             self.load_samples()
+            # except FileNotFoundError:
+            #     pass  # allow to be in an empty bank
+            #     #self.current_bank = old_bank
 
 
     # PLAYABLE FUNCTIONS - if note plays a sound
