@@ -229,8 +229,8 @@ class MidiControl:
         if c.PI_FAST_LOAD:
             max = 1
         else:
-            max = 16
-        for i in range(0,max): #  Load first 8 banks only
+            max = 32
+        for i in range(0,max): #  Load first 32 banks only
             try:
                 bank = []
                 path = self.basepath + str(i)+'/'
@@ -322,6 +322,7 @@ class MidiControl:
     # MAIN INPUT MIDI SORTING LOGIC TREE
 
     def sort_midi(self,midi,port,time):
+        print(midi)
         # if midi.channel == c.SYNTH_MIDI_CHANNEL:
         #     if midi.type == "note_on":
         #         if self.button_is_shift(midi):
@@ -370,6 +371,7 @@ class MidiControl:
                 if self.button_is_shift(midi):
                     self.metronome_shift(midi)
                     self.bank_shift(midi)
+                    self.page_shift(midi)
                     self.loop_shift(midi)
                     self.mode_shift(midi)
                 if self.button_is_playable(midi):
@@ -390,6 +392,7 @@ class MidiControl:
     def shift_is_active(self):
         if self.is_metronome_pressed or self.is_loop_loader_pressed or self.is_loop_saver_pressed or self.is_bank_shift_pressed\
                 or self.is_mode_shift_pressed or self.is_page_shift_pressed:
+           print("Shift is active")
            return True
         else:
             return False
@@ -412,6 +415,7 @@ class MidiControl:
     def page_shift(self,midi):
         if midi.note == self.button.PAGE_SELECTOR:
             self.is_page_shift_pressed = not self.is_page_shift_pressed
+            print(f"page shift: {self.is_page_shift_pressed}")
 
     def metronome_shift(self,midi):
         if midi.note == self.button.METRONOME:
@@ -470,7 +474,18 @@ class MidiControl:
 
     def change_page(self, midi):
         if self.is_page_shift_pressed and midi.note in self.button.PADS:
+            old_page = self.current_page
             self.current_page = midi.note-self.button.PAD_START
+
+            old_bank = self.current_bank
+            page_factor = self.current_page*self.max_page_size  # Zero indexed
+            self.current_bank = page_factor
+            print(f"Changing Page to {self.current_page}, current bank is {self.current_bank}")
+            try:
+                self.sounds = self.all_sounds[self.current_bank]
+            except IndexError:
+                self.current_bank = old_bank  # Stay on current bank
+                self.current_page = old_page
 
     def switch_bank(self,midi):
         if self.is_bank_shift_pressed and midi.note in self.button.PADS:
