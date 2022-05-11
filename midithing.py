@@ -51,6 +51,7 @@ class MidiControl:
         self.is_bank_shift_pressed = False
         self.is_mode_shift_pressed = False
         self.is_page_shift_pressed = False
+        self.on_notes = []
 
         self.devices = [] # QUNEO, Reface CP
         self.messages = []
@@ -276,35 +277,40 @@ class MidiControl:
 # SOUND PROCESSING
 
     def change_pitch(self,factor):
-        for sound in self.sounds:
+        print(f"pads currently pressed: {self.on_notes}")
+        if self.on_notes: # if there are notes actively pressed
+            for note in self.on_notes:
+                note = note-self.button.PAD_START
+                if c.THREADING_ACTIVE:
+                    # Run DSP as background process
+                    x = Thread(self.all_sounds[self.current_bank][note].change_pitch(factor), daemon=True)
+                    x.start()
+                    x = Thread(self.all_sounds[self.current_bank][note].normalize(), daemon=True)
+                    x.start()
+                    x = Thread(self.all_sounds[self.current_bank][note].make_loud(), daemon=True)
+                    x.start()
+                else:
+                    self.all_sounds[self.current_bank][note].change_pitch(factor)
+                    self.all_sounds[self.current_bank][note].normalize()
+                    self.all_sounds[self.current_bank][note].make_loud()
 
-            if(c.THREADING_ACTIVE):
-                # Run DSP as background process
-                x = Thread(sound.change_pitch(factor), daemon=True)
-                x.start()
-                x = Thread(sound.normalize(), daemon=True)
-                x.start()
-                x = Thread(sound.make_loud(), daemon=True)
-                x.start()
-            else:
-                sound.change_pitch(factor)
-                sound.normalize()
-                sound.make_loud()
+        else:
 
-        for sound in self.all_sounds[self.current_bank]:
 
-            if c.THREADING_ACTIVE:
-                # Run DSP as background process
-                x = Thread(sound.change_pitch(factor), daemon=True)
-                x.start()
-                x = Thread(sound.normalize(), daemon=True)
-                x.start()
-                x = Thread(sound.make_loud(), daemon=True)
-                x.start()
-            else:
-                sound.change_pitch(factor)
-                sound.normalize()
-                sound.make_loud()
+            for sound in self.all_sounds[self.current_bank]:
+
+                if c.THREADING_ACTIVE:
+                    # Run DSP as background process
+                    x = Thread(sound.change_pitch(factor), daemon=True)
+                    x.start()
+                    x = Thread(sound.normalize(), daemon=True)
+                    x.start()
+                    x = Thread(sound.make_loud(), daemon=True)
+                    x.start()
+                else:
+                    sound.change_pitch(factor)
+                    sound.normalize()
+                    sound.make_loud()
 
     def pre_process_sounds(self, sounds = None):
         if not sounds:
@@ -354,6 +360,7 @@ class MidiControl:
                     self.play_sound(note.Note(None,midi,self.current_bank,port,time))
                     self.add_to_loop(midi,port,time)
                     #self.play_sound([midi],None,[self.current_bank],[port])
+                    self.on_notes.append(midi.note)  # keep list of which pads currently pressed
                 if self.button_is_switch(midi):
                     self.bpm_up(midi)
                     self.bpm_down(midi)
@@ -378,6 +385,7 @@ class MidiControl:
                     if self.current_bank > c.MAX_SABAR_BANK_INDEX:
                         self.cutoff_current_sound(note.Note(None,midi,self.current_bank,port,time))
                     self.add_to_loop(midi,port,time)
+                    self.on_notes.remove(midi.note)  # keep list of which pads currently pressed
             if midi.is_cc():
                 self.update_mbung_vol(midi)
                 self.update_col_vol(midi)
@@ -515,6 +523,7 @@ class MidiControl:
 
     def button_is_playable(self,midi):
         if midi.note in QUNEO.PADS and not self.shift_is_active():
+            print("button is playable")
             return True
         else:
             return False
