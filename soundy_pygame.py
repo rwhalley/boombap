@@ -14,6 +14,7 @@ class Soundy:
         self.pgsound = None
         self.original_sound = None
         self.path = soundpath
+        self.pitch_factor = 1.0
         self.sample_rate = 44100
         self.repeat = False
         self.bank = None
@@ -86,11 +87,12 @@ class Soundy:
         self.pgsound = pg.sndarray.make_sound(snd_array)
 
     def change_pitch(self,factor):
-        snd_array = pg.sndarray.array(self.original_sound)
+        self.pitch_factor = self.pitch_factor*factor
+        snd_array = pg.sndarray.array(self.original_sound)  # Change from original reference sound to avoid sample degeneration
         #factor = int(len(snd_array)*factor)
         #snd_resample = resampy.resample(snd_array,self.sample_rate, int(self.sample_rate*factor) - int(self.sample_rate*factor)%128 ,axis=0)
         #snd_resample = signal.resample(snd_array,factor).astype(snd_array.dtype)
-        snd_resample=resample(snd_array,factor,'sinc_fastest').astype(snd_array.dtype)
+        snd_resample=resample(snd_array,self.pitch_factor,'sinc_fastest').astype(snd_array.dtype)
         self.pgsound = pg.sndarray.make_sound(snd_resample)
 
     def set_volume(self,midi_vel_in):

@@ -36,7 +36,6 @@ class MidiControl:
         self.VOL_SENS = False
         self.port_name = None
         self.ports = []
-        self.pitch_factor = 1.0
         self.semitone = .059463094359
         self.last_note = 1101001
 
@@ -277,6 +276,8 @@ class MidiControl:
 # SOUND PROCESSING
 
     def change_pitch(self,factor):
+        #  self.pitch_factor * (1 - self.semitone)
+        #  new factor is just (1 +/- self.semitone)
         print(f"pads currently pressed: {self.on_notes}")
         if self.on_notes: # if there are notes actively pressed
             for note in self.on_notes:
@@ -448,19 +449,16 @@ class MidiControl:
     def bpm_down(self,midi):
         if midi.note == self.button.BPM_DOWN:
             self.metronome.bpm_down()
-    def pitch_up(self,midi):
+    def pitch_up(self,midi, for_one_sample=False):
         if midi.note == self.button.PITCH_UP:
-            self.pitch_factor = self.pitch_factor * (1 - self.semitone)
-            self.change_pitch(self.pitch_factor)
-    def pitch_down(self,midi):
+            self.change_pitch(1 - self.semitone)
+    def pitch_down(self,midi,for_one_sample=False):
         if midi.note == self.button.PITCH_DOWN:
-            self.pitch_factor = self.pitch_factor * (1 + self.semitone)
-            self.change_pitch(self.pitch_factor)
+            self.change_pitch(1 + self.semitone)
     def clear_loop(self,midi):
         if midi.note == self.button.CLEAR_LOOP:
             print("CLEARING LOOP")
             self.metronome.midi_recorder.clear_all_loops()
-
     def audio_record(self,midi):
         mode_num = midi.note - self.button.PAD_START
         if self.is_mode_shift_pressed and mode_num == self.button.AUDIO_RECORD_MODE_NUM:
