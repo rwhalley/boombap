@@ -14,6 +14,7 @@ class MIDIRecorder:
         self.active_loops = []
         self.current_loop_length = 0
         self.current_loop_index = 0
+        self.current_loop_id = -1
 
     def start_record (self):
         self.RECORD = True
@@ -23,8 +24,25 @@ class MIDIRecorder:
             print("LOOP RECORD OFF")
             self.stop_record()
         else:
-            print("LOOP RECORD ON")
+            print(f"LOOP RECORD ON / loop id: {self.current_loop_id}")
+            self.current_loop_id += 1
+            self.active_loops.append(self.current_loop_id)
+            print(f"LOOP RECORD ON / loop id: {self.current_loop_id}")
+            print(f"active loops: {self.active_loops}")
             self.start_record()
+
+
+    def activate_loop_id(self,id):  # activate or deactivate loop from midi controller
+        if id in self.active_loops and id <= self.current_loop_id:
+            self.active_loops.remove(id)
+            print(f"adding loop id: {id}")
+            print(f"active loops: {self.active_loops}")
+
+        elif id not in self.active_loops and id <= self.current_loop_id:
+            self.active_loops.append(id)
+            print(f"removing loop id: {id}")
+            print(f"active loops: {self.active_loops}")
+
 
 
 
@@ -57,12 +75,15 @@ class MIDIRecorder:
         self.my_loop = []
         self.current_loop_length = 0
         self.current_loop_index = 0
+        self.current_loop_id = -1
 
     def clear_all_loops(self):
         self.my_loop = []
         self.my_loops = {}
         self.current_loop_length = 0
         self.current_loop_index = 0
+        self.current_loop_id = -1
+        self.active_loops = []
 
     def add_play_loop(self,i):
         try:
@@ -96,7 +117,8 @@ class MIDIRecorder:
                                       midi,
                                       self.metronome.controller.current_bank,
                                       port,
-                                      when_added))
+                                      when_added,
+                                      self.current_loop_id))
 
         self.current_loop_length = len(self.my_loop)
         self.my_loop.sort(key=lambda x: x.bar_position) #resort the list every time a new item added

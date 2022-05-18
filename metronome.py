@@ -310,7 +310,10 @@ class Metronome:
             entry = self.midi_recorder.my_loop[self.midi_recorder.current_loop_index]  # Go through all the notes in loop
             if (current_pos > entry.bar_position) and not (self.midi_recorder.current_loop_index in self.loop_blacklist): # if it's time to play, play the entry, and add it to the blacklist for this measure
                 self.loop_blacklist.append(self.midi_recorder.current_loop_index)
-                notes.append(entry)
+
+                if (entry.loop_id in self.midi_recorder.active_loops):  # if note is in active loops
+                    notes.append(entry)
+
                 self.midi_recorder.current_loop_index+=1
                 self.midi_recorder.current_loop_index = self.midi_recorder.current_loop_index%self.midi_recorder.current_loop_length
 

@@ -38,6 +38,7 @@ class MidiControl:
         self.ports = []
         self.semitone = .059463094359
         self.last_note = 1101001
+        self.NON_LOOP = -2
 
         # -- Sound Data ---
         self.all_sounds = None
@@ -50,6 +51,7 @@ class MidiControl:
         self.is_bank_shift_pressed = False
         self.is_mode_shift_pressed = False
         self.is_page_shift_pressed = False
+        self.is_loop_activator_shift_pressed = False
         self.on_notes = []
 
         self.devices = [] # QUNEO, Reface CP
@@ -357,8 +359,9 @@ class MidiControl:
                     self.bank_shift(midi)
                     self.loop_shift(midi)
                     self.mode_shift(midi)
+                    self.loop_activator_shift(midi)
                 if self.button_is_playable(midi):
-                    self.play_sound(note.Note(None,midi,self.current_bank,port,time))
+                    self.play_sound(note.Note(None,midi,self.current_bank,port,time,self.NON_LOOP))  # -2 is non-loop loop id
                     self.add_to_loop(midi,port,time)
                     #self.play_sound([midi],None,[self.current_bank],[port])
                     self.on_notes.append(midi.note)  # keep list of which pads currently pressed
@@ -375,6 +378,7 @@ class MidiControl:
                     self.change_page(midi)
                     self.switch_bank(midi)
                     self.switch_metronome(midi)
+                    self.activate_loop(midi)
             if midi.type == "note_off":
                 if self.button_is_shift(midi):
                     self.metronome_shift(midi)
@@ -382,9 +386,10 @@ class MidiControl:
                     self.page_shift(midi)
                     self.loop_shift(midi)
                     self.mode_shift(midi)
+                    self.loop_activator_shift(midi)
                 if self.button_is_playable(midi):
                     if self.current_bank > c.MAX_SABAR_BANK_INDEX:
-                        self.cutoff_current_sound(note.Note(None,midi,self.current_bank,port,time))
+                        self.cutoff_current_sound(note.Note(None,midi,self.current_bank,port,time,self.NON_LOOP))
                     self.add_to_loop(midi,port,time)
                     self.on_notes.remove(midi.note)  # keep list of which pads currently pressed
             if midi.is_cc():
@@ -400,7 +405,7 @@ class MidiControl:
 
     def shift_is_active(self):
         if self.is_metronome_pressed or self.is_loop_loader_pressed or self.is_loop_saver_pressed or self.is_bank_shift_pressed\
-                or self.is_mode_shift_pressed or self.is_page_shift_pressed:
+                or self.is_mode_shift_pressed or self.is_page_shift_pressed or self.is_loop_activator_shift_pressed:
            print("Shift is active")
            return True
         else:
@@ -433,6 +438,11 @@ class MidiControl:
     def loop_shift(self,midi):
         if midi.note == self.button.LOOP_SELECTOR:
             self.is_loop_loader_pressed = not self.is_loop_loader_pressed
+
+    def loop_activator_shift(self,midi):
+        if midi.note == self.button.LOOP_ACTIVATOR_SHIFT:
+            self.is_loop_activator_shift_pressed = not self.is_loop_activator_shift_pressed
+            print(f"Loop activator shift ON? {self.is_loop_activator_shift_pressed}")
 
 
     # SWITCH FUNCTIONS - for changing mode or state settings
@@ -477,6 +487,12 @@ class MidiControl:
     def switch_metronome(self,midi):
         if self.is_metronome_pressed and midi.note in self.button.PADS:
             self.metronome.switch(midi.note-self.button.PAD_START)
+
+    def activate_loop(self, midi):
+        print("ACTIVATE LOOP")
+        if self.is_loop_activator_shift_pressed and midi.note in self.button.PADS:
+            print("ACTIVATE LOOP")
+            self.metronome.midi_recorder.activate_loop_id(midi.note-self.button.PAD_START)
 
     def change_page(self, midi):
         if self.is_page_shift_pressed and midi.note in self.button.PADS:
