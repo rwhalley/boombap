@@ -469,6 +469,7 @@ class MidiControl:
         if midi.note == self.button.CLEAR_LOOP:
             print("CLEARING LOOP")
             self.metronome.midi_recorder.clear_all_loops()
+            self.midi_player.all_notes_off()
     def audio_record(self,midi):
         mode_num = midi.note - self.button.PAD_START
         if self.is_mode_shift_pressed and mode_num == self.button.AUDIO_RECORD_MODE_NUM:
