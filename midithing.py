@@ -1,12 +1,14 @@
 #!/usr/bin/python
 
 import time
+import os
 from os import listdir
 from os.path import isfile, join, exists
 import sys
 from pathlib import Path
 from threading import Thread
 import pickle as p
+from dataclasses import dataclass
 
 import mido
 
@@ -19,13 +21,14 @@ from recorder import AudioRecorder
 from slicer import Slicer
 import CONFIG as c
 import note
+from page  import Kit, Page
 
 
 class MidiControl:
 
     def __init__(self):
 
-        self.basepath = str(Path(__file__).parent / 'samples/')+'/'
+        self.basepath = '/Volumes/SQUIRREL/Kits/' # str(Path(__file__).parent / 'samples/')+'/'
         self.save_path = 'sound_data.pkl'
         self.current_bank = 0
         self.current_page = 0
@@ -139,7 +142,7 @@ class MidiControl:
                                 if note.midi.type == "note_on":
                                     self.play_sound(note)
                                 if note.midi.type == "note_off":
-                                    if note.bank > c.MAX_SABAR_BANK_INDEX:
+                                    if note.page > 0:
                                         self.cutoff_current_sound(note)
 
                 # RUN ACCOMPANIMENT
@@ -193,39 +196,82 @@ class MidiControl:
                 else:
                     new_bank.append(Soundy(path+file))
         try:
-            self.all_sounds[bank_num] = new_bank
+            self.all_sounds[self.current_page].kits[bank_num] = new_bank
         except IndexError:
-            self.all_sounds.append(new_bank)
-        self.pre_process_sounds(sounds = self.all_sounds[bank_num])
+            self.all_sounds[self.current_page].append(new_bank)
+        self.pre_process_sounds(sounds = self.all_sounds[self.current_page].kits[bank_num])
 
     def load_all_sound_data(self):
         print("# Loading Sound Data from Pickle")
-        self.all_sound_data = p.load(open("sound_data.pkl",'rb'))
+        self.all_pages = p.load(open("sound_data.pkl",'rb'))
         self.all_sounds = []
 
-        for i, bank in enumerate(self.all_sound_data):
+        for i, page in enumerate(self.all_pages):
 
-            newbank = []
-            for j, sound_arr in enumerate(bank):
+            newpage = Page("","",[])
+            for j, kit in enumerate(page.kits):
+                newkit = Kit("","",[])
+                for k, sound_arr in enumerate(kit.samples):
 
-                newbank.append(Soundy(fast_load=True, arr=sound_arr))
-            self.all_sounds.append(newbank)
+                    newkit.samples.append(Soundy(fast_load=True, arr=sound_arr))
+                newpage.kits.append(newkit)
+            self.all_sounds.append(newpage)
         print("# Sound Data Loaded from Pickle")
 
 
     def save_all_sound_data(self):
         print("# Saving Sound Data to Pickle")
-        self.all_sound_data = []
-        for i, bank in enumerate(self.all_sounds):
-            newbank = []
-            for sound in bank:
-                newbank.append(sound.get_original_sound_array())
-            self.all_sound_data.append(newbank)
-        p.dump(self.all_sound_data, open('sound_data.pkl','wb'))
-        self.all_sound_data = None
+        self.all_pages = []
+        for i, page in enumerate(self.all_sounds):
+            newpage = Page("","",[])
+            for j, kit in enumerate(page.kits):
+
+                newkit = Kit("","",[])
+                for sound in kit.samples:
+                    newkit.samples.append(sound.get_original_sound_array())
+                newpage.kits.append(newkit)
+            self.all_pages.append(newpage)
+        p.dump(self.all_pages, open('sound_data.pkl','wb'))
+        self.all_pages = None
         print("# Sound Data Saved to Pickle")
 
+
+
+
+
+    def get_immediate_subdirectories(self,a_dir):
+        return [name for name in os.listdir(a_dir)
+                if os.path.isdir(os.path.join(a_dir, name))]
+
+    def get_all_kit_dirs(self,path):
+        output = []
+        for dir in sorted(self.get_immediate_subdirectories(path)):
+            output.append(sorted(self.get_immediate_subdirectories(path+'/'+dir+'/')))
+        return output
+
     def load_all_samples(self):
+        pages = (sorted(self.get_immediate_subdirectories(self.basepath)))
+        kits_names = self.get_all_kit_dirs(self.basepath)
+        self.all_sounds = []
+        for i, page in enumerate(pages):
+            kits = []
+            for kit_name in kits_names[i]:
+                kit = Kit(kit_name,self.basepath+'/'+page+'/'+kit_name+'/',[])
+                samples = [f for f in sorted(listdir(kit.path)) if isfile(join(kit.path, f))]
+                for file in samples:
+                    if file.endswith('.wav'):
+                        if file.startswith('.'):
+                            pass
+                        else:
+                            kit.samples.append(Soundy(kit.path+file))
+
+                kits.append(kit)
+
+            self.all_sounds.append(Page(page,self.basepath+'/'+page+'/',kits))
+            print(self.all_sounds)
+
+
+    def load_all_samples_old(self):
         print("# Loading All Samples from File")
         self.all_sounds = []
         if c.PI_FAST_LOAD:
@@ -243,7 +289,7 @@ class MidiControl:
                             pass
                         else:
                             bank.append(Soundy(path+file))
-                self.all_sounds.append(bank)
+                self.all_sounds[self.current_page].append(bank)
             except FileNotFoundError:
                 #print("less than 8 sample banks found")
                 pass
@@ -253,6 +299,8 @@ class MidiControl:
             else:
                 self.pre_process_sounds(sounds = bank)
 
+
+    # No longer Used
     def load_samples(self):
         print("# Loading Samples from File")
         path = self.basepath + str(self.current_bank)+'/'
@@ -286,21 +334,21 @@ class MidiControl:
                 note = note-self.button.PAD_START
                 if c.THREADING_ACTIVE:
                     # Run DSP as background process
-                    x = Thread(self.all_sounds[self.current_bank][note].change_pitch(factor), daemon=True)
+                    x = Thread(self.all_sounds[self.current_page].kits[self.current_bank].samples[note].change_pitch(factor), daemon=True)
                     x.start()
-                    x = Thread(self.all_sounds[self.current_bank][note].normalize(), daemon=True)
+                    x = Thread(self.all_sounds[self.current_page].kits[self.current_bank].samples[note].normalize(), daemon=True)
                     x.start()
-                    x = Thread(self.all_sounds[self.current_bank][note].make_loud(), daemon=True)
+                    x = Thread(self.all_sounds[self.current_page].kits[self.current_bank].samples[note].make_loud(), daemon=True)
                     x.start()
                 else:
-                    self.all_sounds[self.current_bank][note].change_pitch(factor)
-                    self.all_sounds[self.current_bank][note].normalize()
-                    self.all_sounds[self.current_bank][note].make_loud()
+                    self.all_sounds[self.current_page].kits[self.current_bank].samples[note].change_pitch(factor)
+                    self.all_sounds[self.current_page].kits[self.current_bank].samples[note].normalize()
+                    self.all_sounds[self.current_page].kits[self.current_bank].samples[note].make_loud()
 
         else:
 
 
-            for sound in self.all_sounds[self.current_bank]:
+            for sound in self.all_sounds[self.current_page].kits[self.current_bank]:
 
                 if c.THREADING_ACTIVE:
                     # Run DSP as background process
@@ -361,7 +409,7 @@ class MidiControl:
                     self.mode_shift(midi)
                     self.loop_activator_shift(midi)
                 if self.button_is_playable(midi):
-                    self.play_sound(note.Note(None,midi,self.current_bank,port,time,self.NON_LOOP))  # -2 is non-loop loop id
+                    self.play_sound(note.Note(None,midi,self.current_bank,port,time,self.NON_LOOP,self.current_page))  # -2 is non-loop loop id
                     self.add_to_loop(midi,port,time)
                     #self.play_sound([midi],None,[self.current_bank],[port])
                     self.on_notes.append(midi.note)  # keep list of which pads currently pressed
@@ -388,8 +436,8 @@ class MidiControl:
                     self.mode_shift(midi)
                     self.loop_activator_shift(midi)
                 if self.button_is_playable(midi):
-                    if self.current_bank > c.MAX_SABAR_BANK_INDEX:
-                        self.cutoff_current_sound(note.Note(None,midi,self.current_bank,port,time,self.NON_LOOP))
+                    if self.current_page > 0:
+                        self.cutoff_current_sound(note.Note(None,midi,self.current_bank,port,time,self.NON_LOOP,self.current_page))
                     self.add_to_loop(midi,port,time)
                     self.on_notes.remove(midi.note)  # keep list of which pads currently pressed
             if midi.is_cc():
@@ -501,11 +549,12 @@ class MidiControl:
             self.current_page = midi.note-self.button.PAD_START
 
             old_bank = self.current_bank
-            page_factor = self.current_page*self.max_page_size  # Zero indexed
-            self.current_bank = page_factor
+            #page_factor = self.current_page*self.max_page_size  # Zero indexed
+            #self.current_bank = page_factor
             print(f"Changing Page to {self.current_page}, current bank is {self.current_bank}")
             try:
-                self.sounds = self.all_sounds[self.current_bank]
+                self.sounds = self.all_sounds[self.current_page].kits[0]
+                print(f"current page: {self.current_page}")
             except IndexError:
                 self.current_bank = old_bank  # Stay on current bank
                 self.current_page = old_page
@@ -513,10 +562,10 @@ class MidiControl:
     def switch_bank(self,midi):
         if self.is_bank_shift_pressed and midi.note in self.button.PADS:
             old_bank = self.current_bank
-            page_factor = self.current_page*self.max_page_size  # Zero indexed
-            self.current_bank = page_factor + midi.note-self.button.PAD_START
+            #page_factor = self.current_page*self.max_page_size  # Zero indexed
+            self.current_bank = midi.note-self.button.PAD_START #page_factor + midi.note-self.button.PAD_START
             try:
-                self.sounds = self.all_sounds[self.current_bank]
+                self.sounds = self.all_sounds[self.current_page].kits[self.current_bank]
             except IndexError:
                 self.current_bank = old_bank  # Stay on current bank
             # try:
@@ -555,7 +604,7 @@ class MidiControl:
     #         if self.current_bank < 4:
     #             for sound in self.sounds:
     #                 sound.stop()
-    #             for sound in self.all_sounds[self.current_bank]:
+    #             for sound in self.all_sounds[self.current_page].kits[self.current_bank]:
     #                 sound.stop()
     #         if self.VOL_SENS:
     #             self.sounds[i].set_volume(midi.velocity)
@@ -572,21 +621,21 @@ class MidiControl:
         if c.MIDI_CONTROLLER in entry.port:
 
             i = entry.midi.note - self.button.PAD_START  # get the midi note of pad
-            if entry.bank < len(self.all_sounds) and i >= 0 and i < len(self.all_sounds[entry.bank]):  # if sound has an ID
+            if entry.bank < len(self.all_sounds[self.current_page].kits[entry.bank].samples) and i >= 0 and i < len(self.all_sounds[self.current_page].kits[entry.bank].samples):  # if sound has an ID
 
                 if self.VOL_SENS:  # set volume if volume sensitivity is turned on
-                    self.all_sounds[entry.bank][i].set_volume(entry.midi.velocity)
+                    self.all_sounds[self.current_page].kits[entry.bank].samples[i].set_volume(entry.midi.velocity)
                 else:
-                    self.all_sounds[entry.bank][i].set_volume(128)
+                    self.all_sounds[self.current_page].kits[entry.bank].samples[i].set_volume(128)
 
-                if entry.bank < c.MAX_SABAR_BANK_INDEX:
+                if entry.page == 0:
                     self.cutoff_all_sounds_in_same_bank(entry) # if any sound in same bank is playing, cut it off (hand drums)
 
-                if entry.bank >= c.MAX_SABAR_BANK_INDEX:
+                if entry.page > 0:
                     self.cutoff_current_sound(entry)  # if exact same sound is playing, cut it off
 
                 if entry.midi.velocity>0:
-                    self.all_sounds[entry.bank][i].play(block=False)  # play sound
+                    self.all_sounds[self.current_page].kits[entry.bank].samples[i].play(block=False)  # play sound
 
 
     # def play_sound_old(self,midis,note,banks,ports):
@@ -595,22 +644,22 @@ class MidiControl:
     #             if not note:
     #                 note = midi.note
     #             i = note - self.button.PAD_START
-    #             if i>=0 and i<len(self.all_sounds[banks[j]]):
+    #             if i>=0 and i<len(self.all_sounds[self.current_page].kits[banks[j]]):
     #                 if self.VOL_SENS:
-    #                     self.all_sounds[banks[j]][i].set_volume(midi.velocity)
+    #                     self.all_sounds[self.current_page].kits[banks[j]][i].set_volume(midi.velocity)
     #                 else:
-    #                     self.all_sounds[banks[j]][i].set_volume(128)
+    #                     self.all_sounds[self.current_page].kits[banks[j]][i].set_volume(128)
     #                 if self.current_bank < 3:
-    #                     for sound in self.all_sounds[banks[j]]:
+    #                     for sound in self.all_sounds[self.current_page].kits[banks[j]]:
     #                         sound.stop()
     #                 else:
     #                     if midi.velocity==0 or midi.type == "note_off":
     #                         self.cutoff_sound(midi)
-    #                         #self.all_sounds[banks[j]][i].stop()
-    #                         # for sound in self.all_sounds[banks[j]]:
+    #                         #self.all_sounds[self.current_page].kits[banks[j]][i].stop()
+    #                         # for sound in self.all_sounds[self.current_page].kits[banks[j]]:
     #                         #     sound.stop()
     #                 if midi.velocity>0:
-    #                     self.all_sounds[banks[j]][i].play(block=False)
+    #                     self.all_sounds[self.current_page].kits[banks[j]][i].play(block=False)
 
     # cutoff current sound
     # cutoff all sounds in same bank
@@ -618,25 +667,26 @@ class MidiControl:
 
     def cutoff_current_sound(self,entry):
         i = entry.midi.note - self.button.PAD_START
-        if entry.bank < len(self.all_sounds) and i>=0 and i<len(self.all_sounds[entry.bank]): # if midi note is in bank
-            self.all_sounds[entry.bank][i].stop() # stop sound
+        if entry.bank < len(self.all_sounds[self.current_page].kits) and i>=0 and i<len(self.all_sounds[self.current_page].kits[entry.bank].samples): # if midi note is in bank
+            self.all_sounds[self.current_page].kits[entry.bank].samples[i].stop() # stop sound
 
     def cutoff_all_sounds_in_same_bank(self,entry):
         i = entry.midi.note - self.button.PAD_START
-        if entry.bank < len(self.all_sounds) and i>=0 and i<len(self.all_sounds[entry.bank]): # if midi note is in bank
-            for sound in (self.all_sounds[entry.bank]):
+        if entry.bank < len(self.all_sounds[self.current_page].kits) and i>=0 and i<len(self.all_sounds[self.current_page].kits[entry.bank].samples): # if midi note is in bank
+            for sound in (self.all_sounds[self.current_page].kits[entry.bank].samples):
                 sound.stop() # stop sound
 
     def cutoff_all_sounds(self):
-        for bank in self.all_sounds:
-            for sound in bank:
-                sound.stop()
+        for page in self.all_sounds:
+            for kit in page.kits:
+                for sound in kit.samples:
+                    sound.stop()
 
     def cutoff_sound(self,entry):
         i = entry.midi.note - self.button.PAD_START
-        if (entry.bank > 3) and (entry.bank < len(self.all_sounds) and i>=0 and i<len(self.all_sounds[entry.bank])):
+        if (entry.bank > 3) and (entry.bank < len(self.all_sounds[self.current_page].kits) and i>=0 and i<len(self.all_sounds[self.current_page].kits[entry.bank].samples)):
             #self.sounds[i].stop()
-            self.all_sounds[entry.bank][i].stop()
+            self.all_sounds[self.current_page].kits[entry.bank].samples[i].stop()
 
 
     # CHANGE CONTROL FUNCTIONS

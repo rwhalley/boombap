@@ -1,4 +1,4 @@
-METRONOME = 13
+
 BANK_UP = -100
 BANK_DOWN = -100
 EXIT = 24
@@ -16,12 +16,25 @@ PITCH_CONTROL = 10
 PITCH_UP = 22
 PITCH_DOWN = 23
 PAD_START = 52
-LOOP_SELECTOR = 15
-BANK_SELECTOR = 11
-PAGE_SELECTOR = 12
-SAVE_LOOP = 16
+
+
+# Left Triangle Shift Buttons
+BANK_SELECTOR = 11  # Select Drum Kit on Pads - Row 1 Left
+PAGE_SELECTOR = 12  # Select Bank of Drums on Pads - Row 1 Right
+METRONOME = 13  # Select Metronome on Pads - Row 2 Left
+LOOP_ACTIVATOR_SHIFT = 14  # Activate and Deactivate Loops on Pads - Row 1 Right
+SHIFT_3L = 15 # Not Used
+SHIFT_3R = 16 # Not Used
+SHIFT_4L = 17 # Not Used
+SHIFT_4R = 18 # Not Used
+
+
+LOOP_SELECTOR = 15  # Not Used
+SAVE_LOOP = 16 # Not Used
+
+
 MODE_SHIFT = 26
-LOOP_ACTIVATOR_SHIFT = 14
+
 
 #Mode nums - hold down MODE_SHIFT and press pads 1-16
 AUDIO_RECORD_MODE_NUM = 2 # pad 2
