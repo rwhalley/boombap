@@ -141,3 +141,6 @@ samples/16/
 #Pickle
 .p
 .pkl
+*.p
+*.pkl
+sound_data.pkl

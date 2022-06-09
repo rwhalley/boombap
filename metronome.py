@@ -39,11 +39,7 @@ class Metronome:
         self.col_grace_seq = -1
         self.grace_played = False
         self.grace_BPM_thresh = 160
-        self.mbungmbung_path = str(Path(__file__).parent / 'samples/')+'/2/'
-        self.col_path = str(Path(__file__).parent / 'samples/')+'/1/'
-        self.nder_path = str(Path(__file__).parent / 'samples/')+'/0/'
-        self.accompaniment_paths = [self.mbungmbung_path,self.col_path]
-        self.accompaniment_sounds = self._load_sounds()
+
         self.mbungmbung_volume = 0 #128
         self.col_volume = 0 #128
 
@@ -57,7 +53,11 @@ class Metronome:
         self.loop_blacklist = []
         self.last_pos = 0
         self.controller = controller
-
+        self.mbungmbung_path = str(Path(__file__).parent / 'samples/')+'/2/'
+        self.col_path = str(Path(__file__).parent / 'samples/')+'/1/'
+        self.nder_path = str(Path(__file__).parent / 'samples/')+'/0/'
+        self.accompaniment_paths = [self.mbungmbung_path,self.col_path]
+        self.accompaniment_sounds = self._load_sounds()
 
 
 

@@ -107,7 +107,8 @@ class MIDIRecorder:
         bank = self.metronome.controller.current_bank
         port = port
         when_added = when_added
-        entry = [pos, midi, bank, port, when_added]
+        page = self.metronome.controller.current_page
+        entry = [pos, midi, bank, port, when_added, page]
         self.my_loop.append(entry)
         print("ENTRY ADDED")
         print(self.my_loop)
@@ -118,7 +119,8 @@ class MIDIRecorder:
                                       self.metronome.controller.current_bank,
                                       port,
                                       when_added,
-                                      self.current_loop_id))
+                                      self.current_loop_id,
+                                      self.metronome.controller.current_page))
 
         self.current_loop_length = len(self.my_loop)
         self.my_loop.sort(key=lambda x: x.bar_position) #resort the list every time a new item added

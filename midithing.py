@@ -621,12 +621,12 @@ class MidiControl:
         if c.MIDI_CONTROLLER in entry.port:
 
             i = entry.midi.note - self.button.PAD_START  # get the midi note of pad
-            if entry.bank < len(self.all_sounds[self.current_page].kits[entry.bank].samples) and i >= 0 and i < len(self.all_sounds[self.current_page].kits[entry.bank].samples):  # if sound has an ID
+            if entry.bank < len(self.all_sounds[entry.page].kits) and i >= 0 and i < len(self.all_sounds[entry.page].kits[entry.bank].samples):  # if sound has an ID
 
                 if self.VOL_SENS:  # set volume if volume sensitivity is turned on
-                    self.all_sounds[self.current_page].kits[entry.bank].samples[i].set_volume(entry.midi.velocity)
+                    self.all_sounds[entry.page].kits[entry.bank].samples[i].set_volume(entry.midi.velocity)
                 else:
-                    self.all_sounds[self.current_page].kits[entry.bank].samples[i].set_volume(128)
+                    self.all_sounds[entry.page].kits[entry.bank].samples[i].set_volume(128)
 
                 if entry.page == 0:
                     self.cutoff_all_sounds_in_same_bank(entry) # if any sound in same bank is playing, cut it off (hand drums)
@@ -635,7 +635,7 @@ class MidiControl:
                     self.cutoff_current_sound(entry)  # if exact same sound is playing, cut it off
 
                 if entry.midi.velocity>0:
-                    self.all_sounds[self.current_page].kits[entry.bank].samples[i].play(block=False)  # play sound
+                    self.all_sounds[entry.page].kits[entry.bank].samples[i].play(block=False)  # play sound
 
 
     # def play_sound_old(self,midis,note,banks,ports):
@@ -667,13 +667,13 @@ class MidiControl:
 
     def cutoff_current_sound(self,entry):
         i = entry.midi.note - self.button.PAD_START
-        if entry.bank < len(self.all_sounds[self.current_page].kits) and i>=0 and i<len(self.all_sounds[self.current_page].kits[entry.bank].samples): # if midi note is in bank
-            self.all_sounds[self.current_page].kits[entry.bank].samples[i].stop() # stop sound
+        if entry.bank < len(self.all_sounds[entry.page].kits) and i>=0 and i<len(self.all_sounds[entry.page].kits[entry.bank].samples): # if midi note is in bank
+            self.all_sounds[entry.page].kits[entry.bank].samples[i].stop() # stop sound
 
     def cutoff_all_sounds_in_same_bank(self,entry):
         i = entry.midi.note - self.button.PAD_START
-        if entry.bank < len(self.all_sounds[self.current_page].kits) and i>=0 and i<len(self.all_sounds[self.current_page].kits[entry.bank].samples): # if midi note is in bank
-            for sound in (self.all_sounds[self.current_page].kits[entry.bank].samples):
+        if entry.bank < len(self.all_sounds[entry.page].kits) and i>=0 and i<len(self.all_sounds[entry.page].kits[entry.bank].samples): # if midi note is in bank
+            for sound in (self.all_sounds[entry.page].kits[entry.bank].samples):
                 sound.stop() # stop sound
 
     def cutoff_all_sounds(self):
@@ -684,9 +684,9 @@ class MidiControl:
 
     def cutoff_sound(self,entry):
         i = entry.midi.note - self.button.PAD_START
-        if (entry.bank > 3) and (entry.bank < len(self.all_sounds[self.current_page].kits) and i>=0 and i<len(self.all_sounds[self.current_page].kits[entry.bank].samples)):
+        if (entry.bank > 3) and (entry.bank < len(self.all_sounds[entry.page].kits) and i>=0 and i<len(self.all_sounds[entry.page].kits[entry.bank].samples)):
             #self.sounds[i].stop()
-            self.all_sounds[self.current_page].kits[entry.bank].samples[i].stop()
+            self.all_sounds[entry.page].kits[entry.bank].samples[i].stop()
 
 
     # CHANGE CONTROL FUNCTIONS
