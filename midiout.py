@@ -63,7 +63,7 @@ class MIDIPlayer():
     def all_notes_off(self):
         if self.synth_present:
             for i in range(0,128):
-                self.play_note(Note(0,mido.Message('note_off', note=i),0,c.SYNTH,time.time(), -2))
+                self.play_note(Note(0,mido.Message('note_off', note=i),0,c.SYNTH,time.time(), -2,0))
 
 
 
