@@ -422,6 +422,7 @@ class MidiControl:
                     self.clear_loop(midi)
                     self.record(midi)
                     self.audio_record(midi)
+                    self.switch_loop_length(midi)
                     self.mute_metronome(midi)
                     self.velocity_sensitivity(midi)
                     self.exit_program(midi)
@@ -527,6 +528,14 @@ class MidiControl:
     def record(self,midi):
         if midi.note == self.button.RECORD:
             self.metronome.midi_recorder.switch_record_button()
+
+    def switch_loop_length(self,midi):
+        mode_num = midi.note - self.button.PAD_START
+        if self.is_mode_shift_pressed and mode_num == self.button.SWITCH_LOOP_LENGTH:
+            if self.metronome.bars_per_loop == 4:
+                self.metronome.bars_per_loop = 8
+            elif self.metronome.bars_per_loop == 8:
+                self.metronome.bars_per_loop = 4
     def velocity_sensitivity(self,midi):
         mode_num = midi.note - self.button.PAD_START
         if self.is_mode_shift_pressed and mode_num == self.button.VELOCITY_SENSITIVITY:
