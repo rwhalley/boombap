@@ -21,7 +21,7 @@ class Soundy:
         self.hit = None
         self.page = None
         self.pitch = 0
-        pg.mixer.init(frequency=self.sample_rate, size=-16, channels=2, buffer=64)
+        pg.mixer.init(frequency=self.sample_rate, size=-16, channels=2, buffer=128)
         pg.init()
 
         if fast_load:
