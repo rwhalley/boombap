@@ -144,3 +144,4 @@ samples/16/
 *.p
 *.pkl
 sound_data.pkl
+the_sounds.pkl

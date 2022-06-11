@@ -29,7 +29,7 @@ class MidiControl:
     def __init__(self):
 
         self.basepath = '/mnt/usb/Kits/'  #'/Volumes/SQUIRREL/Kits/' # str(Path(__file__).parent / 'samples/')+'/'
-        self.save_path = 'sound_data.pkl'
+        self.save_path = 'the_sounds.pkl'
         self.current_bank = 0
         self.current_page = 0
         self.max_sample_length_seconds = 3
@@ -203,7 +203,7 @@ class MidiControl:
 
     def load_all_sound_data(self):
         print("# Loading Sound Data from Pickle")
-        self.all_pages = p.load(open("sound_data.pkl",'rb'))
+        self.all_pages = p.load(open(self.save_path,'rb'))
         self.all_sounds = []
 
         for i, page in enumerate(self.all_pages):
@@ -231,7 +231,7 @@ class MidiControl:
                     newkit.samples.append(sound.get_original_sound_array())
                 newpage.kits.append(newkit)
             self.all_pages.append(newpage)
-        p.dump(self.all_pages, open('sound_data.pkl','wb'))
+        p.dump(self.all_pages, open(self.save_path,'wb'))
         self.all_pages = None
         print("# Sound Data Saved to Pickle")
 
