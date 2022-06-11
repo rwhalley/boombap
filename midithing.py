@@ -348,7 +348,7 @@ class MidiControl:
         else:
 
 
-            for sound in self.all_sounds[self.current_page].kits[self.current_bank]:
+            for sound in self.all_sounds[self.current_page].kits[self.current_bank].samples:
 
                 if c.THREADING_ACTIVE:
                     # Run DSP as background process
