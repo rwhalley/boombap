@@ -28,7 +28,7 @@ class MidiControl:
 
     def __init__(self):
 
-        self.basepath = '/Volumes/SQUIRREL/Kits/' # str(Path(__file__).parent / 'samples/')+'/'
+        self.basepath = '/mnt/usb/Kits/'  #'/Volumes/SQUIRREL/Kits/' # str(Path(__file__).parent / 'samples/')+'/'
         self.save_path = 'sound_data.pkl'
         self.current_bank = 0
         self.current_page = 0
