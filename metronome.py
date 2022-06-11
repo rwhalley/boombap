@@ -21,7 +21,7 @@ class Metronome:
         self.current_loop_beat = 0
         self.notes_per_beat = 4
         self.notes_per_bar = self.notes_per_beat*self.beats_per_bar
-        self.bars_per_loop = 4
+        self.bars_per_loop = 8
         # --- end for looper ---
 
         self.max_notes = self.max_beats * self.notes_per_beat
