@@ -37,6 +37,7 @@ class MidiControl:
         self.max_bank_size = 16
         self.button = QUNEO
         self.VOL_SENS = False
+        self.METRONOME_MUTE = False
         self.port_name = None
         self.ports = []
         self.semitone = .059463094359
@@ -421,6 +422,7 @@ class MidiControl:
                     self.clear_loop(midi)
                     self.record(midi)
                     self.audio_record(midi)
+                    self.mute_metronome(midi)
                     self.velocity_sensitivity(midi)
                     self.exit_program(midi)
                     self.change_page(midi)
@@ -529,6 +531,10 @@ class MidiControl:
         mode_num = midi.note - self.button.PAD_START
         if self.is_mode_shift_pressed and mode_num == self.button.VELOCITY_SENSITIVITY:
             self.VOL_SENS = not self.VOL_SENS
+    def mute_metronome(self,midi):
+        mode_num = midi.note - self.button.PAD_START
+        if self.is_mode_shift_pressed and mode_num == self.button.MUTE_METRONOME:
+            self.METRONOME_MUTE = not self.METRONOME_MUTE
     def exit_program(self,midi):
         if midi.note == self.button.EXIT:
             print("EXITING PROGRAM")

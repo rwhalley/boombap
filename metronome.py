@@ -328,32 +328,34 @@ class Metronome:
 
     def play_sequencer(self, ts):
 
-        # When now = 0, play a note.
-        now = int(round(ts * 1000))%(self.note_length)
+        if not self.controller.METRONOME_MUTE:
 
-        # Is it time to play a sequence note? Or a Grace note?
-        normal = now < self.last_time
-        grace = now > (int(0.50*self.note_length))
+            # When now = 0, play a note.
+            now = int(round(ts * 1000))%(self.note_length)
 
-        self.last_time = now
+            # Is it time to play a sequence note? Or a Grace note?
+            normal = now < self.last_time
+            grace = now > (int(0.50*self.note_length))
 
-        if grace and self.bpm<self.grace_BPM_thresh:
-            if (self.grace_note_active>=0) :
-                self.play_accompaniment("grace")
-                self.grace_note_active = -1
+            self.last_time = now
 
-            if (self.col_grace_seq >=0):
-                self.play_accompaniment("col_grace")
-                self.col_grace_seq = -1
+            if grace and self.bpm<self.grace_BPM_thresh:
+                if (self.grace_note_active>=0) :
+                    self.play_accompaniment("grace")
+                    self.grace_note_active = -1
 
-        if normal:
-            self.play_accompaniment("normal")
+                if (self.col_grace_seq >=0):
+                    self.play_accompaniment("col_grace")
+                    self.col_grace_seq = -1
 
-            if self.metronome_seq[self.current_note]:
-                    self.sound.play(block=False)
+            if normal:
+                self.play_accompaniment("normal")
 
-            self.current_note = ((self.current_note+1)%self.max_notes)
-            self.current_loop_beat = ((self.current_loop_beat+1) %self.get_notes_per_loop())
+                if self.metronome_seq[self.current_note]:
+                        self.sound.play(block=False)
+
+                self.current_note = ((self.current_note+1)%self.max_notes)
+                self.current_loop_beat = ((self.current_loop_beat+1) %self.get_notes_per_loop())
 
 
 
