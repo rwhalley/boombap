@@ -132,6 +132,7 @@ samples/12/
 samples/13/
 samples/14/
 samples/15/
+samples/16/
 
 #Other
 .DS_Store
@@ -139,3 +140,8 @@ samples/15/
 
 #Pickle
 .p
+.pkl
+*.p
+*.pkl
+sound_data.pkl
+the_sounds.pkl

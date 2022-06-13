@@ -4,6 +4,7 @@ import threading
 import midiparse as mp
 import CONFIG as c
 import mido
+from note import Note
 
 
 class MIDIPlayer():
@@ -14,8 +15,10 @@ class MIDIPlayer():
         # self.midiout = None
         # self.available_ports = None
         self.outport = None
+        self.synth_present = False
         for port in ports:
             if c.SYNTH in port:
+                self.synth_present = True
                 self.outport = mido.open_output(c.SYNTH)
                 break
 
@@ -57,14 +60,12 @@ class MIDIPlayer():
             self.play_worker(midis,ports)
 
 
-    def all_notes_off_old(self):
-        midis = []
-        ports = []
-        for i in range(0,128):
-            midis.append([144,i,0])
-            ports.append(c.SYNTH)
+    def all_notes_off(self):
+        if self.synth_present:
+            for i in range(0,128):
+                self.play_note(Note(0,mido.Message('note_off', note=i),0,c.SYNTH,time.time(), -2,0))
 
-        self.play_note(midis,ports)
+
 
     def play_worker_old(self,midis,ports):
         print("YES")

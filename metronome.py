@@ -39,6 +39,7 @@ class Metronome:
         self.col_grace_seq = -1
         self.grace_played = False
         self.grace_BPM_thresh = 160
+
         self.mbungmbung_path = str(Path(__file__).parent / 'accompaniment/')+'/mbalax1/'
         self.mbalax2_path = str(Path(__file__).parent / 'accompaniment/')+'/mbalax2/'
         self.talmbat_path = str(Path(__file__).parent / 'accompaniment/')+'/talmbat/'
@@ -64,7 +65,11 @@ class Metronome:
         self.loop_blacklist = []
         self.last_pos = 0
         self.controller = controller
-
+        self.mbungmbung_path = str(Path(__file__).parent / 'samples/')+'/2/'
+        self.col_path = str(Path(__file__).parent / 'samples/')+'/1/'
+        self.nder_path = str(Path(__file__).parent / 'samples/')+'/0/'
+        self.accompaniment_paths = [self.mbungmbung_path,self.col_path]
+        self.accompaniment_sounds = self._load_sounds()
 
 
 
@@ -352,7 +357,10 @@ class Metronome:
             entry = self.midi_recorder.my_loop[self.midi_recorder.current_loop_index]  # Go through all the notes in loop
             if (current_pos > entry.bar_position) and not (self.midi_recorder.current_loop_index in self.loop_blacklist): # if it's time to play, play the entry, and add it to the blacklist for this measure
                 self.loop_blacklist.append(self.midi_recorder.current_loop_index)
-                notes.append(entry)
+
+                if (entry.loop_id in self.midi_recorder.active_loops):  # if note is in active loops
+                    notes.append(entry)
+
                 self.midi_recorder.current_loop_index+=1
                 self.midi_recorder.current_loop_index = self.midi_recorder.current_loop_index%self.midi_recorder.current_loop_length
 
@@ -389,6 +397,7 @@ class Metronome:
             self.play_accompaniment(1)
 
             if self.metronome_seq[self.current_note]:
+                if not self.controller.METRONOME_MUTE:
                     self.sound.play(block=False)
 
             self.current_note = ((self.current_note+1)%self.max_notes)
