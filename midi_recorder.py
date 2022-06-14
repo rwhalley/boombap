@@ -5,7 +5,7 @@ class MIDIRecorder:
         self.RECORD = False
         self.my_loop = []  # current recording loop
         self.metronome = metronome
-        self.active_loops = []
+        self.active_loops = []  # IDs of active subloops
         self.current_loop_length = 0
         self.current_loop_index = 0
         self.current_loop_id = -1
@@ -29,7 +29,6 @@ class MIDIRecorder:
             self.active_loops.remove(id)
             print(f"adding loop id: {id}")
             print(f"active loops: {self.active_loops}")
-
         elif id not in self.active_loops and id <= self.current_loop_id:
             self.active_loops.append(id)
             print(f"removing loop id: {id}")
@@ -52,8 +51,7 @@ class MIDIRecorder:
                                       when_added,
                                       self.current_loop_id,
                                       self.metronome.controller.current_page))
-
         self.current_loop_length = len(self.my_loop)
-        self.my_loop.sort(key=lambda x: x.bar_position) #resort the list every time a new item added
+        self.my_loop.sort(key=lambda x: x.bar_position)  # re-sort the list every time a new item added
 
 
