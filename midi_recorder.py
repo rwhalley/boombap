@@ -1,3 +1,5 @@
+import pickle as p
+
 import note
 
 class MIDIRecorder:
@@ -9,6 +11,8 @@ class MIDIRecorder:
         self.current_loop_length = 0
         self.current_loop_index = 0
         self.current_loop_id = -1
+        self.my_tracks = {}
+        self.tracks_path = "my_tracks.pkl"
 
     """Switch ON/OFF MIDI Loop Recording and Increment Subloop ID"""
     def switch_record_button(self):
@@ -54,4 +58,18 @@ class MIDIRecorder:
         self.current_loop_length = len(self.my_loop)
         self.my_loop.sort(key=lambda x: x.bar_position)  # re-sort the list every time a new item added
 
+    """Save current track to tracklist and save to pickle file."""
+    def save_track(self,id):
+        self.my_tracks[id] = self.my_loop
+        p.dump((self.my_tracks,self.current_loop_id), open(self.tracks_path,'wb'))
+        print(f"TRACK SAVED TO SLOT: {id}")
 
+    """Load a track from tracklist pickle file"""
+    def load_track(self,id):
+        try:
+            self.my_tracks, self.curent_loop_id = p.load(open(self.tracks_path,'rb'))
+            self.my_loop = self.my_tracks[id]
+            self.active_loops = range(0, self.current_loop_id)
+            print(f"TRACK {id} LOADED")
+        except IndexError:
+            print("TRACK NOT FOUND")
