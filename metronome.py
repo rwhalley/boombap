@@ -60,16 +60,10 @@ class Metronome:
 
         self.midi_player = None
         self.midi_recorder = None
-        self.midi_player = None
-        self.midi_recorder = None
         self.loop_blacklist = []
         self.last_pos = 0
         self.controller = controller
-        self.mbungmbung_path = str(Path(__file__).parent / 'samples/')+'/2/'
-        self.col_path = str(Path(__file__).parent / 'samples/')+'/1/'
-        self.nder_path = str(Path(__file__).parent / 'samples/')+'/0/'
-        self.accompaniment_paths = [self.mbungmbung_path,self.col_path]
-        self.accompaniment_sounds = self._load_sounds()
+
 
 
 
