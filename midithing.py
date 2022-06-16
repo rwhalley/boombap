@@ -50,8 +50,8 @@ class MidiControl:
 
         # --- Shift Button States ---
         self.is_metronome_pressed = False
-        self.is_loop_loader_pressed = False
-        self.is_loop_saver_pressed = False
+        self.track_save_shift_pressed = False
+        self.track_load_shift_pressed = False
         self.is_bank_shift_pressed = False
         self.is_mode_shift_pressed = False
         self.is_page_shift_pressed = False
@@ -386,7 +386,9 @@ class MidiControl:
         #         if self.button_is_shift(midi):
         #             self.metronome_shift(midi)
         #             self.bank_shift(midi)
-        #             self.loop_shift(midi)
+        #             self.track_load_shift(midi)
+        #             self.track_save_shift(midi)
+
         #         if self.button_is_playable(midi):
         #             self.add_to_loop(midi,port,time)
         #         if self.button_is_switch(midi):
@@ -406,7 +408,8 @@ class MidiControl:
                     self.metronome_shift(midi)
                     self.page_shift(midi)
                     self.bank_shift(midi)
-                    self.loop_shift(midi)
+                    self.track_load_shift(midi)
+                    self.track_save_shift(midi)
                     self.mode_shift(midi)
                     self.loop_activator_shift(midi)
                 if self.button_is_playable(midi):
@@ -435,7 +438,8 @@ class MidiControl:
                     self.metronome_shift(midi)
                     self.bank_shift(midi)
                     self.page_shift(midi)
-                    self.loop_shift(midi)
+                    self.track_save_shift(midi)
+                    self.track_load_shift(midi)
                     self.mode_shift(midi)
                     self.loop_activator_shift(midi)
                 if self.button_is_playable(midi):
@@ -455,7 +459,7 @@ class MidiControl:
     # SHIFT FUNCTIONS - held buttons that activate selection modes
 
     def shift_is_active(self):
-        if self.is_metronome_pressed or self.is_loop_loader_pressed or self.is_loop_saver_pressed or self.is_bank_shift_pressed\
+        if self.is_metronome_pressed or self.track_save_shift_pressed or self.track_load_shift_pressed or self.is_bank_shift_pressed\
                 or self.is_mode_shift_pressed or self.is_page_shift_pressed or self.is_loop_activator_shift_pressed:
            print("Shift is active")
            return True
@@ -486,9 +490,13 @@ class MidiControl:
         if midi.note == self.button.METRONOME:
             self.is_metronome_pressed = not self.is_metronome_pressed
 
-    def loop_shift(self,midi):
-        if midi.note == self.button.LOOP_SELECTOR:
-            self.is_loop_loader_pressed = not self.is_loop_loader_pressed
+    def track_save_shift(self,midi):
+        if midi.note == self.button.TRACK_SAVE_SHIFT:
+            self.track_save_shift_pressed = not self.track_save_shift_pressed
+
+    def track_load_shift(self,midi):
+        if midi.note == self.button.TRACK_LOAD_SHIFT:
+            self.track_load_shift_pressed = not self.track_load_shift_pressed
 
     def loop_activator_shift(self,midi):
         if midi.note == self.button.LOOP_ACTIVATOR_SHIFT:
@@ -528,6 +536,10 @@ class MidiControl:
     def record(self,midi):
         if midi.note == self.button.RECORD:
             self.metronome.midi_recorder.switch_record_button()
+    def load_track(self,midi):
+        pass
+    def save_track(self,midi):
+        pass
 
     def switch_loop_length(self,midi):
         mode_num = midi.note - self.button.PAD_START
