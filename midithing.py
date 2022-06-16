@@ -236,8 +236,14 @@ class MidiControl:
         self.all_pages = None
         print("# Sound Data Saved to Pickle")
 
-
-
+    def reload_all_sound_data(self):
+        print("# Clearing all sound data")
+        self.all_sounds = []
+        self.all_pages = []
+        self.all_sound_data = []
+        print("# Reloading all sound data")
+        self.load_all_samples()
+        self.save_all_sound_data()
 
 
     def get_immediate_subdirectories(self,a_dir):
@@ -435,6 +441,7 @@ class MidiControl:
                     self.activate_loop(midi)
                     self.save_track(midi)
                     self.load_track(midi)
+                    self.reload_samples(midi)
             if midi.type == "note_off":
                 if self.button_is_shift(midi):
                     self.metronome_shift(midi)
@@ -561,6 +568,10 @@ class MidiControl:
         mode_num = midi.note - self.button.PAD_START
         if self.is_mode_shift_pressed and mode_num == self.button.VELOCITY_SENSITIVITY:
             self.VOL_SENS = not self.VOL_SENS
+    def reload_samples(self,midi):
+        mode_num = midi.note - self.button.PAD_START
+        if self.is_mode_shift_pressed and mode_num == self.button.RELOAD_ALL_SOUND_DATA:
+            self.reload_all_sound_data()
     def mute_metronome(self,midi):
         mode_num = midi.note - self.button.PAD_START
         if self.is_mode_shift_pressed and mode_num == self.button.MUTE_METRONOME:

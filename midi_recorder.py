@@ -13,6 +13,11 @@ class MIDIRecorder:
         self.current_loop_id = -1
         self.my_tracks = {}
         self.tracks_path = "my_tracks.pkl"
+        try:
+            self.my_tracks, _ = p.load(open(self.tracks_path,'rb'))
+        except:
+            print("Could not load saved tracks, or no saved tracks found.")
+
 
     """Switch ON/OFF MIDI Loop Recording and Increment Subloop ID"""
     def switch_record_button(self):
@@ -68,8 +73,6 @@ class MIDIRecorder:
     def load_track(self,id):
         try:
             self.my_tracks, self.current_loop_id = p.load(open(self.tracks_path,'rb'))
-            print(self.my_tracks)
-            print(f"loop id: {self.current_loop_id}")
             self.my_loop = self.my_tracks[id]
             self.active_loops = list(range(0, self.current_loop_id))
             self.current_loop_length = len(self.my_loop)
