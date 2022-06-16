@@ -433,6 +433,8 @@ class MidiControl:
                     self.switch_bank(midi)
                     self.switch_metronome(midi)
                     self.activate_loop(midi)
+                    self.save_track(midi)
+                    self.load_track(midi)
             if midi.type == "note_off":
                 if self.button_is_shift(midi):
                     self.metronome_shift(midi)
@@ -507,7 +509,9 @@ class MidiControl:
     # SWITCH FUNCTIONS - for changing mode or state settings
 
     def button_is_switch(self,midi):
-        if not self.button_is_playable(midi) and not self.button_is_shift(midi) and (midi.note in QUNEO.PADS or midi.note in QUNEO.SWITCH_BUTTONS):
+        if not self.button_is_playable(midi) \
+                and not self.button_is_shift(midi) \
+                and (midi.note in QUNEO.PADS or midi.note in QUNEO.SWITCH_BUTTONS):
             return True
         else:
             return False
@@ -537,9 +541,14 @@ class MidiControl:
         if midi.note == self.button.RECORD:
             self.metronome.midi_recorder.switch_record_button()
     def load_track(self,midi):
-        pass
+        id = midi.note - self.button.PAD_START
+        if self.track_load_shift_pressed:
+            self.metronome.midi_recorder.load_track(id)
     def save_track(self,midi):
-        pass
+        id = midi.note - self.button.PAD_START
+        if self.track_save_shift_pressed:
+            self.metronome.midi_recorder.save_track(id)
+
 
     def switch_loop_length(self,midi):
         mode_num = midi.note - self.button.PAD_START
