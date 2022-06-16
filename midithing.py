@@ -536,6 +536,10 @@ class MidiControl:
     def record(self,midi):
         if midi.note == self.button.RECORD:
             self.metronome.midi_recorder.switch_record_button()
+    def load_track(self,midi):
+        pass
+    def save_track(self,midi):
+        pass
 
     def switch_loop_length(self,midi):
         mode_num = midi.note - self.button.PAD_START
