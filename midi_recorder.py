@@ -67,9 +67,13 @@ class MIDIRecorder:
     """Load a track from tracklist pickle file"""
     def load_track(self,id):
         try:
-            self.my_tracks, self.curent_loop_id = p.load(open(self.tracks_path,'rb'))
+            self.my_tracks, self.current_loop_id = p.load(open(self.tracks_path,'rb'))
+            print(self.my_tracks)
+            print(f"loop id: {self.current_loop_id}")
             self.my_loop = self.my_tracks[id]
-            self.active_loops = range(0, self.current_loop_id)
+            self.active_loops = list(range(0, self.current_loop_id))
+            self.current_loop_length = len(self.my_loop)
             print(f"TRACK {id} LOADED")
-        except IndexError:
+        except KeyError:
             print("TRACK NOT FOUND")
+            pass
