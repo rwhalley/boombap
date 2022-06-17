@@ -74,7 +74,7 @@ class MIDIRecorder:
         try:
             self.my_tracks, self.current_loop_id = p.load(open(self.tracks_path,'rb'))
             self.my_loop = self.my_tracks[id]
-            self.active_loops = list(range(0, self.current_loop_id))
+            self.active_loops = [] #list(range(0, self.current_loop_id))
             self.current_loop_length = len(self.my_loop)
             print(f"TRACK {id} LOADED")
         except KeyError:
