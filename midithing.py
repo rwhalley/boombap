@@ -232,6 +232,7 @@ class MidiControl:
                     newkit.samples.append(sound.get_original_sound_array())
                 newpage.kits.append(newkit)
             self.all_pages.append(newpage)
+            print(f"SAVING Page {i} of {len(self.all_sounds)}")
         p.dump(self.all_pages, open(self.save_path,'wb'))
         self.all_pages = None
         print("# Sound Data Saved to Pickle")
