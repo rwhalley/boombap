@@ -30,7 +30,7 @@ class MidiControl:
 
         self.basepath = '/mnt/usb/Kits/' #'/Volumes/SQUIRREL/Kits/' # # # str(Path(__file__).parent / 'samples/')+'/'
         self.program_path = c.PROGRAM_PATH
-        self.save_path = self.program_path+'the_sounds.pkl'
+        self.save_path = self.program_path+'/pickle/the_sounds'
         self.current_bank = 0
         self.current_page = 0
         self.max_sample_length_seconds = 3
@@ -67,7 +67,11 @@ class MidiControl:
         print(self.devices)
 
         # LOAD SAMPLES - Try Fast Load
-        if exists(self.save_path):
+        path = self.program_path+"/pickle/"
+        if(not os.path.exists(path)):
+            os.makedirs(path)
+        onlyfiles = [f for f in sorted(listdir(path)) if isfile(join(path, f))]
+        if len(onlyfiles)>0:#exists(self.save_path):
             self.load_all_sound_data()
         else:
             self.load_all_samples()
@@ -205,7 +209,12 @@ class MidiControl:
 
     def load_all_sound_data(self):
         print("# Loading Sound Data from Pickle")
-        self.all_pages = p.load(open(self.save_path,'rb'))
+        path = self.program_path+"/pickle/"
+        onlyfiles = [f for f in sorted(listdir(path)) if isfile(join(path, f))]
+        self.all_pages = []
+
+        for i,file in enumerate(onlyfiles):
+            self.all_pages.append(p.load(open(path+str(i)+".pkl",'rb')))
         self.all_sounds = []
 
         for i, page in enumerate(self.all_pages):
@@ -235,10 +244,10 @@ class MidiControl:
                 newpage.kits.append(newkit)
             self.all_pages.append(newpage)
             print(f"SAVING Page {i+1} of {len(self.all_sounds)}")
-        if exists(self.save_path):
-            print("Removing Old Pickle File")
-            os.remove(self.save_path)
-        p.dump(self.all_pages, open(self.save_path,'wb'))
+            if exists(self.save_path+str(i)+ ".pkl"):
+                print("Removing Old Pickle File")
+                os.remove(self.save_path+str(i) +".pkl")
+            p.dump(self.all_pages, open(self.save_path+str(i)+".pkl",'wb'))
         self.all_pages = None
         print("# Sound Data Saved to Pickle")
 
