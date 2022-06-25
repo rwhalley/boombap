@@ -12,7 +12,7 @@ class MIDIRecorder:
         self.current_loop_index = 0
         self.current_loop_id = -1
         self.my_tracks = {}
-        self.tracks_path = "my_tracks.pkl"
+        self.tracks_path = self.program_path + "my_tracks.pkl"
         try:
             self.my_tracks, _ = p.load(open(self.tracks_path,'rb'))
         except:

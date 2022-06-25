@@ -29,7 +29,8 @@ class MidiControl:
     def __init__(self):
 
         self.basepath = '/mnt/usb/Kits/' #'/Volumes/SQUIRREL/Kits/' # # # str(Path(__file__).parent / 'samples/')+'/'
-        self.save_path = 'the_sounds.pkl'
+        self.program_path = '/home/boombap/boombap/'
+        self.save_path = self.program_path+'the_sounds.pkl'
         self.current_bank = 0
         self.current_page = 0
         self.max_sample_length_seconds = 3
@@ -76,7 +77,7 @@ class MidiControl:
         self.sample_recording_length_in_seconds = 5
 
         # START METRONOME
-        self.metronome_path = Path(__file__).parent.resolve() / 'metronome/metronome.wav'
+        self.metronome_path = self.program_path + 'metronome/metronome.wav'
         self.metronome = Metronome(bpm=120,path=self.metronome_path, controller=self)
 
         self.last_ts = 0
@@ -229,10 +230,14 @@ class MidiControl:
 
                 newkit = Kit("","",[])
                 for sound in kit.samples:
+                    print(sound.path)
                     newkit.samples.append(sound.get_original_sound_array())
                 newpage.kits.append(newkit)
             self.all_pages.append(newpage)
-            print(f"SAVING Page {i} of {len(self.all_sounds)}")
+            print(f"SAVING Page {i+1} of {len(self.all_sounds)}")
+        if exists(self.save_path):
+            print("Removing Old Pickle File")
+            os.remove(self.save_path)
         p.dump(self.all_pages, open(self.save_path,'wb'))
         self.all_pages = None
         print("# Sound Data Saved to Pickle")
