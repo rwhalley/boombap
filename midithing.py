@@ -17,7 +17,7 @@ from metronome import Metronome
 import QUNEO
 from midiout import MIDIPlayer
 from midi_recorder import MIDIRecorder
-from recorder import AudioRecorder
+#from recorder import AudioRecorder
 from slicer import Slicer
 import CONFIG as c
 import note
@@ -28,7 +28,7 @@ class MidiControl:
 
     def __init__(self):
 
-        self.basepath = '/mnt/usb/Kits/' #'/Volumes/SQUIRREL/Kits/' # # # str(Path(__file__).parent / 'samples/')+'/'
+        self.basepath = c.USB  # # # str(Path(__file__).parent / 'samples/')+'/'
         self.program_path = c.PROGRAM_PATH
         self.save_path = self.program_path+'/pickle/the_sounds'
         self.current_bank = 0
@@ -209,12 +209,12 @@ class MidiControl:
 
     def load_all_sound_data(self):
         print("# Loading Sound Data from Pickle")
-        path = self.program_path+"/pickle/"
+        path = self.program_path+"pickle/"
         onlyfiles = [f for f in sorted(listdir(path)) if isfile(join(path, f))]
         self.all_pages = []
 
         for i,file in enumerate(onlyfiles):
-            self.all_pages.append(p.load(open(path+str(i)+".pkl",'rb')))
+            self.all_pages.append(p.load(open(self.save_path+str(i)+".pkl",'rb')))
         self.all_sounds = []
 
         for i, page in enumerate(self.all_pages):
@@ -245,9 +245,9 @@ class MidiControl:
             self.all_pages.append(newpage)
             print(f"SAVING Page {i+1} of {len(self.all_sounds)}")
             if exists(self.save_path+str(i)+ ".pkl"):
-                print("Removing Old Pickle File")
+                print(f"Removed Old Pickle File: {self.save_path+str(i) +'.pkl'} ")
                 os.remove(self.save_path+str(i) +".pkl")
-            p.dump(self.all_pages, open(self.save_path+str(i)+".pkl",'wb'))
+            p.dump(newpage, open(self.save_path+str(i)+".pkl",'wb'))
         self.all_pages = None
         print("# Sound Data Saved to Pickle")
 
@@ -290,7 +290,7 @@ class MidiControl:
                 kits.append(kit)
 
             self.all_sounds.append(Page(page,self.basepath+'/'+page+'/',kits))
-            print(f"Loading page {i} of {len(pages)}")
+            print(f"Loading page {i+1} of {len(pages)}")
         print("SOUNDS LOADED")
             #print(self.all_sounds)
 
@@ -560,7 +560,8 @@ class MidiControl:
     def audio_record(self,midi):
         mode_num = midi.note - self.button.PAD_START
         if self.is_mode_shift_pressed and mode_num == self.button.AUDIO_RECORD_MODE_NUM:
-            self.record_new_samples()
+            pass
+            #self.record_new_samples()
     def record(self,midi):
         if midi.note == self.button.RECORD:
             self.metronome.midi_recorder.switch_record_button()
@@ -767,21 +768,21 @@ class MidiControl:
 
 
     # Record Sound
-    def record_new_samples(self):
-        print("RECORDING NEW SAMPLES")
-        # create recording
-        r = AudioRecorder(self.sample_recording_length_in_seconds)
-        r.start_record()
-        r.stop_record()
-
-        # generate wav file
-        r.create_wav()
-
-        # slice wav and export it to current_bank
-        Slicer(r.WAVE_OUTPUT_FILENAME,[0,r.RECORD_SECONDS],self.current_bank)
-
-        # Reload the samples in current bank
-        self.reload_bank(self.current_bank)
+    # def record_new_samples(self):
+    #     print("RECORDING NEW SAMPLES")
+    #     # create recording
+    #     r = AudioRecorder(self.sample_recording_length_in_seconds)
+    #     r.start_record()
+    #     r.stop_record()
+    #
+    #     # generate wav file
+    #     r.create_wav()
+    #
+    #     # slice wav and export it to current_bank
+    #     Slicer(r.WAVE_OUTPUT_FILENAME,[0,r.RECORD_SECONDS],self.current_bank)
+    #
+    #     # Reload the samples in current bank
+    #     self.reload_bank(self.current_bank)
 
 
 MidiControl()
