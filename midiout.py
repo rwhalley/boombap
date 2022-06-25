@@ -1,5 +1,4 @@
 import time
-import rtmidi
 import threading
 import midiparse as mp
 import CONFIG as c

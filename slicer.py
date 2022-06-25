@@ -1,5 +1,5 @@
-from librosa import load
-from librosa.onset import onset_detect
+#from librosa import load
+#from librosa.onset import onset_detect
 
 import numpy as np
 import soundfile as sf
@@ -27,10 +27,10 @@ class Slicer:
             self.create_new_folder(self.old_files_path)
             self.move_files_to_folder(self.path,self.old_files_path)
 
-        self.input_wav, self.sample_rate = load(self.input_wav_file)
+        self.input_wav, self.sample_rate = None, None #load(self.input_wav_file)
         print(self.input_wav)
         self.max_onsets = 16
-        self.onsets = onset_detect(y=self.input_wav, sr=self.sample_rate, units='samples',wait=1, pre_avg=1, post_avg=1, pre_max=1, post_max=1)
+        self.onsets = [] #onset_detect(y=self.input_wav, sr=self.sample_rate, units='samples',wait=1, pre_avg=1, post_avg=1, pre_max=1, post_max=1)
         self.sliced =[ ]
         self.onsets = self.zero_any_negatives(self.left_shift_onsets(self.remove_close_onsets(self.onsets),0.050))
         start_index = (self.sample_rate*self.pre_slice[0])
