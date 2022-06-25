@@ -29,7 +29,7 @@ class MidiControl:
     def __init__(self):
 
         self.basepath = '/mnt/usb/Kits/' #'/Volumes/SQUIRREL/Kits/' # # # str(Path(__file__).parent / 'samples/')+'/'
-        self.program_path = '/home/boombap/boombap/'
+        self.program_path = c.PROGRAM_PATH
         self.save_path = self.program_path+'the_sounds.pkl'
         self.current_bank = 0
         self.current_page = 0

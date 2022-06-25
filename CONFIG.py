@@ -1,3 +1,4 @@
+PROGRAM_PATH = '/home/boombap/boombap/'
 
 DEBUG_MODE = 1
 
