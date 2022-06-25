@@ -70,7 +70,7 @@ class MidiControl:
             self.load_all_sound_data()
         else:
             self.load_all_samples()
-            #self.save_all_sound_data()
+            self.save_all_sound_data()
 
         # AUDIO RECORDER
         self.sample_recording_length_in_seconds = 5
