@@ -57,7 +57,7 @@ class MidiControl:
         self.is_mode_shift_pressed = False
         self.is_page_shift_pressed = False
         self.is_loop_activator_shift_pressed = False
-        self.on_notes = []
+        self.on_notes = set()
 
         self.devices = [] # QUNEO, Reface CP
         self.messages = []
@@ -439,7 +439,7 @@ class MidiControl:
                     self.play_sound(note.Note(None,midi,self.current_bank,port,time,self.NON_LOOP,self.current_page))  # -2 is non-loop loop id
                     self.add_to_loop(midi,port,time)
                     #self.play_sound([midi],None,[self.current_bank],[port])
-                    self.on_notes.append(midi.note)  # keep list of which pads currently pressed
+                    self.on_notes.add(midi.note)  # keep list of which pads currently pressed
                 if self.button_is_switch(midi):
                     self.bpm_up(midi)
                     self.bpm_down(midi)
