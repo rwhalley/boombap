@@ -27,7 +27,7 @@ from page  import Kit, Page
 class MidiControl:
 
     def __init__(self):
-
+        os.nice(-20)
         self.basepath = c.USB  # # # str(Path(__file__).parent / 'samples/')+'/'
         self.program_path = c.PROGRAM_PATH
         self.save_path = self.program_path+'/pickle/the_sounds'
