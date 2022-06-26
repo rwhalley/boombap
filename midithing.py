@@ -472,7 +472,8 @@ class MidiControl:
                     if self.current_page > 0:
                         self.cutoff_current_sound(note.Note(None,midi,self.current_bank,port,time,self.NON_LOOP,self.current_page))
                     self.add_to_loop(midi,port,time)
-                    self.on_notes.remove(midi.note)  # keep list of which pads currently pressed
+                    if self.on_notes:
+                        self.on_notes.remove(midi.note)  # keep list of which pads currently pressed
             if midi.is_cc():
                 self.update_mbung_vol(midi)
                 self.update_col_vol(midi)
