@@ -392,7 +392,7 @@ class Metronome:
 
             if self.metronome_seq[self.current_note]:
                 if not self.controller.METRONOME_MUTE:
-                    self.sound.set_volume(64)
+                    #self.sound.set_volume(64)
                     self.sound.play(block=False)
 
             self.current_note = ((self.current_note+1)%self.max_notes)
