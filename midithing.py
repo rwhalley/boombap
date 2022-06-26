@@ -691,7 +691,8 @@ class MidiControl:
                 if self.VOL_SENS:  # set volume if volume sensitivity is turned on
                     self.all_sounds[entry.page].kits[entry.bank].samples[i].set_volume(entry.midi.velocity)
                 else:
-                    self.all_sounds[entry.page].kits[entry.bank].samples[i].set_volume(128)
+                    pass # set max volume for all samples when VOL_SENS turned off not every time...
+                    # self.all_sounds[entry.page].kits[entry.bank].samples[i].set_volume(128)
 
                 if entry.page == 0:
                     self.cutoff_all_sounds_in_same_bank(entry) # if any sound in same bank is playing, cut it off (hand drums)
