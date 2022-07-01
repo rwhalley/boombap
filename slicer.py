@@ -6,6 +6,7 @@ import soundfile as sf
 import os
 import glob
 from datetime import datetime as dt
+from onset_detect import get_onsets
 
 class Slicer:
     def __init__(self,input_wav_file, pre_slice,folder_num):
@@ -27,12 +28,17 @@ class Slicer:
             self.create_new_folder(self.old_files_path)
             self.move_files_to_folder(self.path,self.old_files_path)
 
-        self.input_wav, self.sample_rate = None, None #load(self.input_wav_file)
+        self.sample_rate =44100
+        self.input_wav = sf.read(self.input_wav_file)# None, None #load(self.input_wav_file)
         print(self.input_wav)
         self.max_onsets = 16
         self.onsets = [] #onset_detect(y=self.input_wav, sr=self.sample_rate, units='samples',wait=1, pre_avg=1, post_avg=1, pre_max=1, post_max=1)
         self.sliced =[ ]
-        self.onsets = self.zero_any_negatives(self.left_shift_onsets(self.remove_close_onsets(self.onsets),0.050))
+        self.onsets = self.zero_any_negatives(self.left_shift_onsets(self.remove_close_onsets(get_onsets(self.input_wav_file)),0.05))
+
+        print(self.onsets)
+        #self.onsets = self.zero_any_negatives(self.left_shift_onsets(self.remove_close_onsets(self.onsets),0.050))
+
         start_index = (self.sample_rate*self.pre_slice[0])
         end_index =(self.sample_rate*self.pre_slice[1])
         self.input_wav = self.input_wav[start_index:end_index]
@@ -40,19 +46,18 @@ class Slicer:
             if i==16:
                 break
             else:
-                print(onset)
                 data = None
                 if i< (len(self.onsets)-1):
-                    data =(self.input_wav[onset:self.onsets[i+1]])
+                    data =(self.input_wav[0][int(onset*self.sample_rate):int(self.onsets[i+1]*self.sample_rate)])
 
                 elif i == (len(self.onsets)-1):
-                     data = self.input_wav[onset:(len(self.input_wav)-1)]
+                     data = self.input_wav[0][int(onset*self.sample_rate):(len(self.input_wav[0])-1)]
                 if hasattr(data, 'shape'):
                     sf.write(self.path+str(i)+'.wav', data, self.sample_rate, subtype='PCM_16')
-        self.delete_wav(self.input_wav_file)
+
 
     def left_shift_onsets(self,onsets,seconds):
-        return np.subtract(onsets,int(seconds*self.sample_rate))
+        return np.subtract(onsets, seconds)
 
     def zero_any_negatives(self,onsets):
         onsets[onsets<0] = 0
@@ -82,15 +87,21 @@ class Slicer:
         for f in files:
             os.remove(f)
 
+    # NEEDS WORK
     def remove_close_onsets(self,onsets):
-        for i,onset in enumerate(onsets):
-            if i< (len(onsets)-1) and ((onsets[i+1]-onsets[i]) < int(self.sample_rate/5)):
-                print(onset)
-                onsets = np.delete(onsets,i+1)
-        return onsets
+        new_onsets = []
+        for i, onset in enumerate(onsets):
+            if i==0:
+                new_onsets.append(onset)
+            elif onset-new_onsets[-1] < 0.1:
+                pass
+            else:
+                new_onsets.append(onset)
+        return new_onsets
 
     def delete_wav(self,filename):
         os.remove(filename)
 #Slicer("/Users/richwhalley/Samples/sax.wav",[63,70],11)
 # $ youtube-dl --extract-audio --audio-format wav -o [OUTPUT].wav '[URL]'
 #Slicer("file.wav",[0,5],12)
+Slicer("/Users/richwhalley/Music/System Break.wav",[0,5],17)

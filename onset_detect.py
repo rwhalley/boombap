@@ -826,6 +826,49 @@ def parser(lgd=False, threshold=1.1):
     # return args
     return args
 
+def get_onsets(filepath):
+
+    att = None
+    frame_size = 2048
+    bands = 24
+    mul = 1
+    add = 1
+    fmin = 30
+    fmax = 17000
+    equal = False
+    fps = 200
+    online = True
+    threshold = 2.0
+    combine = 0.03
+    pre_avg = 0.15
+    pre_max = 0.01
+    post_avg = 0
+    post_max = 0.05
+    delay = 0
+       # open the wav file
+    w = Wav(filepath)
+    # normalize audio
+    w.normalize()
+    # down-mix to mono
+    if w.num_channels > 1:
+        w.downmix()
+    # attenuate signal
+    #w.attenuate(att)
+    # create filterbank if needed
+    filt = Filter(int(frame_size / 2), w.sample_rate,
+                  bands, fmin, fmax, equal)
+    filterbank = filt.filterbank
+    # spectrogram
+    s = Spectrogram(w)
+    # use the spectrogram to create an SpectralODF object
+    sodf = SpectralODF(s)
+    act = sodf.superflux()
+    o = Onset(act, fps, online)
+    o.detect(threshold, combine, pre_avg, pre_max,
+        post_avg, post_max,delay)
+    return o.detections
+
+
 
 def main(args):
     """
