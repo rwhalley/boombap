@@ -29,12 +29,15 @@ class Slicer:
             self.move_files_to_folder(self.path,self.old_files_path)
 
         self.sample_rate =44100
+        print(self.input_wav_file)
         self.input_wav = sf.read(self.input_wav_file)# None, None #load(self.input_wav_file)
         print(self.input_wav)
         self.max_onsets = 16
         self.onsets = [] #onset_detect(y=self.input_wav, sr=self.sample_rate, units='samples',wait=1, pre_avg=1, post_avg=1, pre_max=1, post_max=1)
         self.sliced =[ ]
-        self.onsets = self.zero_any_negatives(self.left_shift_onsets(self.remove_close_onsets(get_onsets(self.input_wav_file)),0.05))
+        self.onsets = get_onsets(self.input_wav_file)
+        print(self.onsets)
+        self.onsets = self.zero_any_negatives(self.left_shift_onsets(self.remove_close_onsets(self.onsets),0.03))
 
         print(self.onsets)
         #self.onsets = self.zero_any_negatives(self.left_shift_onsets(self.remove_close_onsets(self.onsets),0.050))
@@ -93,7 +96,7 @@ class Slicer:
         for i, onset in enumerate(onsets):
             if i==0:
                 new_onsets.append(onset)
-            elif onset-new_onsets[-1] < 0.1:
+            elif onset-new_onsets[-1] < 0.3:
                 pass
             else:
                 new_onsets.append(onset)
@@ -104,4 +107,6 @@ class Slicer:
 #Slicer("/Users/richwhalley/Samples/sax.wav",[63,70],11)
 # $ youtube-dl --extract-audio --audio-format wav -o [OUTPUT].wav '[URL]'
 #Slicer("file.wav",[0,5],12)
-Slicer("/Users/richwhalley/Music/System Break.wav",[0,5],17)
+Slicer("/Users/richwhalley/Music/dinner.wav",[0,5],17)
+#Slicer("/Users/richwhalley/Music/System Break.wav",[0,5],17)
+#Slicer("/Users/richwhalley/Music/beat.wav",[0,5],17)

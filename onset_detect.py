@@ -607,8 +607,8 @@ class Onset(object):
         post_max = int(round(self.fps * post_max))
         post_avg = int(round(self.fps * post_avg))
         # convert to seconds
-        combine /= 1000.
-        delay /= 1000.
+        #combine /= 1000.
+        #delay /= 1000.
         # init detections
         self.detections = []
         # moving maximum
@@ -624,6 +624,11 @@ class Onset(object):
         # detections are activation equal to the moving maximum
         detections = self.activations * (self.activations == mov_max)
         # detections must be greater or equal than the mov. average + threshold
+        print(detections)
+        for i,det in enumerate(detections):
+            print(f"Det: {det}")
+            print(f"movavg: {mov_avg[i]}")
+        print(mov_avg)
         detections *= (detections >= mov_avg + threshold)
         # convert detected onsets to a list of timestamps
         detections = np.nonzero(detections)[0].astype(np.float) / self.fps
@@ -838,12 +843,12 @@ def get_onsets(filepath):
     equal = False
     fps = 200
     online = True
-    threshold = 2.0
+    threshold = 50.
     combine = 0.03
-    pre_avg = 0.15
-    pre_max = 0.01
-    post_avg = 0
-    post_max = 0.05
+    pre_avg = 0.15#0.15
+    pre_max = 0.15#0.01
+    post_avg = 0.15
+    post_max = 0.15# 0.05
     delay = 0
        # open the wav file
     w = Wav(filepath)
