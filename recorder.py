@@ -4,6 +4,7 @@ from scipy.io.wavfile import read
 
 import pyaudio
 import wave
+import os
 from slicer import Slicer
 import time
 
@@ -50,4 +51,5 @@ class AudioRecorder():
         waveFile.writeframes(b''.join(self.frames))
         waveFile.close()
 
-
+    def delete_wav(self):
+        os.remove(self.WAVE_OUTPUT_FILENAME)

@@ -1,6 +1,7 @@
-PROGRAM_PATH = '/home/boombap/boombap/'#'/Users/richwhalley/Documents/GitHub/boombap/'
+PROGRAM_PATH = '/home/boombap/boombap/'#'/Users/richwhalley/Documents/GitHub/boombap/' #
 USB = '/mnt/usb/Kits/' #'/Volumes/SQUIRREL/Kits/' #
 DEBUG_MODE = 1
+RECORDED_SAMPLES_FOLDER = "10 - Recorded"
 
 
 PORTS = {}

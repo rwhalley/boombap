@@ -8,14 +8,16 @@ import glob
 from datetime import datetime as dt
 from onset_detect import get_onsets
 
+import CONFIG as c
+
 class Slicer:
     def __init__(self,input_wav_file, pre_slice,folder_num):
-        self.path = './samples/'+str(folder_num)+'/'
+        self.path = c.USB + '10 - Recorded/'+str(folder_num)+'/' #'./samples/'+str(folder_num)+'/'
         self.old_files_path = './oldsamples/' + str(dt.now().strftime("%y%m%d%H%M%S"))+"/"
         self.input_wav_file = input_wav_file
         self.pre_slice = pre_slice
-        if int(folder_num)>7:
-            self.slice_samples()
+        #if int(folder_num)>7:
+        self.slice_samples()
         #self.delete_files_in_folder('./samples/'+str(folder_num)+'/*')
 
 
@@ -81,8 +83,9 @@ class Slicer:
             return False
 
     def move_files_to_folder(self,folder_a,folder_b):
-        for f in os.listdir(folder_a):
-            os.rename(folder_a + f, folder_b + f)
+        pass
+        #for f in os.listdir(folder_a):
+        #    os.rename(folder_a + f, folder_b + f)
 
     def delete_files_in_folder(self,folder):
         files = glob.glob(folder)
@@ -107,6 +110,6 @@ class Slicer:
 #Slicer("/Users/richwhalley/Samples/sax.wav",[63,70],11)
 # $ youtube-dl --extract-audio --audio-format wav -o [OUTPUT].wav '[URL]'
 #Slicer("file.wav",[0,5],12)
-Slicer("/Users/richwhalley/Music/dinner.wav",[0,5],17)
+#Slicer("/Users/richwhalley/Music/dinner.wav",[0,5],0)
 #Slicer("/Users/richwhalley/Music/System Break.wav",[0,5],17)
 #Slicer("/Users/richwhalley/Music/beat.wav",[0,5],17)

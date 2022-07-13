@@ -17,7 +17,7 @@ from metronome import Metronome
 import QUNEO
 from midiout import MIDIPlayer
 from midi_recorder import MIDIRecorder
-#from recorder import AudioRecorder
+from recorder import AudioRecorder
 from slicer import Slicer
 import CONFIG as c
 import note
@@ -27,7 +27,7 @@ from page  import Kit, Page
 class MidiControl:
 
     def __init__(self):
-        os.nice(-20)
+        #os.nice(-20)
         self.basepath = c.USB  # # # str(Path(__file__).parent / 'samples/')+'/'
         self.program_path = c.PROGRAM_PATH
         self.save_path = self.program_path+'/pickle/the_sounds'
@@ -46,7 +46,7 @@ class MidiControl:
         self.NON_LOOP = -2
 
         # -- Sound Data ---
-        self.all_sounds = None
+        self.all_sounds = [None] * 16
         self.all_sound_data = None
 
         # --- Shift Button States ---
@@ -191,6 +191,80 @@ class MidiControl:
 
 # SAMPLE LOADING
 
+    def reload_page(self,page_num):
+        newpage = Page("","",[None] * 16)
+        self.all_sounds[page_num] = newpage
+        page = c.RECORDED_SAMPLES_FOLDER
+
+        kits_names = self.get_all_kit_dirs(self.basepath + '/'+page+'/')
+
+        kits = [None] * 16
+        for i, kit_name in enumerate(kits_names[page_num]):
+            kit = Kit(kit_name,self.basepath+'/'+page+'/'+kit_name+'/',[None]*16)
+            samples = [f for f in sorted(listdir(kit.path)) if isfile(join(kit.path, f))]
+            for j, file in enumerate(samples):
+                if file.endswith('.wav'):
+                    if file.startswith('.'):
+                        pass
+                    else:
+                        kit.samples[j] = (Soundy(kit.path+file))
+
+            kits[i] = (kit)
+
+        self.all_sounds[page_num] = (Page(page,self.basepath+'/'+page+'/',kits))
+        self.save_page(page_num)
+
+
+    def reload_kit(self,kit_num,page_num):
+        path = self.basepath+'/'+c.RECORDED_SAMPLES_FOLDER+'/'+str(kit_num)+'/'
+        if not exists(path):
+            os.makedirs(self.basepath+'/'+c.RECORDED_SAMPLES_FOLDER+'/'+str(kit_num)+'/')
+        kit = Kit(str(kit_num),path,[])
+        samples = [f for f in sorted(listdir(kit.path)) if isfile(join(kit.path, f))]
+        for file in samples:
+            if file.endswith('.wav'):
+                if file.startswith('.'):
+                    pass
+                else:
+                    print(f"filename: {file}")
+                    kit.samples.append(Soundy(kit.path+file))
+
+        if self.all_sounds[page_num]:
+            self.all_sounds[page_num].kits[kit_num] = (kit)
+        else:
+            self.reload_page(page_num)
+
+        self.save_page(page_num)
+
+
+    def save_page(self,page_num):
+        i = page_num
+        if exists(self.save_path+str(i)+ ".pkl"):
+            print(f"Removed Old Pickle File: {self.save_path+str(i) +'.pkl'} ")
+            os.remove(self.save_path+str(i) +".pkl")
+        page = self.all_sounds[page_num]
+        newpage = Page("","",[None] * 16)
+
+        for j, kit in enumerate(page.kits):
+            print(f"length: {len(page.kits)}")
+            newkit = Kit("","",[None] * 16)
+            if kit:
+                for k,sound in enumerate(kit.samples):
+                    if sound:
+                        print(f"k: {k}")
+                        print(sound.path)
+                        newkit.samples[k]= sound.get_original_sound_array()
+                print(f"kit len:{len(kit.samples)}")
+                print(f"j {j}")
+                newpage.kits[j] = newkit
+        self.all_pages[i] = (newpage)
+        print(f"SAVING Page {i+1} of {len(self.all_sounds)}")
+
+        p.dump(newpage, open(self.save_path+str(i)+".pkl",'wb'))
+
+
+
+
     def reload_bank(self,bank_num):
         new_bank = []
         path = self.basepath+str(bank_num)+'/'
@@ -211,50 +285,65 @@ class MidiControl:
         print("# Loading Sound Data from Pickle")
         path = self.program_path+"pickle/"
         onlyfiles = [f for f in sorted(listdir(path)) if isfile(join(path, f))]
-        self.all_pages = []
+        self.all_pages = [None] * 16
 
         for i,file in enumerate(onlyfiles):
-            self.all_pages.append(p.load(open(self.save_path+str(i)+".pkl",'rb')))
-        self.all_sounds = []
+            self.all_pages[i] = p.load(open(self.save_path+str(i)+".pkl",'rb'))
+        self.all_sounds = [None] * 16
 
         for i, page in enumerate(self.all_pages):
-
-            newpage = Page("","",[])
-            for j, kit in enumerate(page.kits):
-                newkit = Kit("","",[])
-                for k, sound_arr in enumerate(kit.samples):
-
-                    newkit.samples.append(Soundy(fast_load=True, arr=sound_arr))
-                newpage.kits.append(newkit)
-            self.all_sounds.append(newpage)
+            print(f"page: {page}")
+            if page:
+                newpage = Page("","",[None]*16)
+                for j, kit in enumerate(page.kits):
+                    newkit = Kit("","",[None]*16)
+                    if kit:
+                        print(kit.samples)
+                        for k, sound_arr in enumerate(kit.samples):
+                            print(f"ksoundarr: {k}")
+                            if k <16:
+                                try:
+                                    newkit.samples[k] = Soundy(fast_load=True, arr=sound_arr)
+                                except ValueError:
+                                    print(f"soundarr: {sound_arr}")
+                        newpage.kits[j] = newkit
+                self.all_sounds[i] = newpage
+        for page in self.all_sounds:
+            if page:
+                for kit in page.kits:
+                    if kit:
+                        self.pre_process_sounds(sounds = kit.samples)
         print("# Sound Data Loaded from Pickle")
 
 
     def save_all_sound_data(self):
         print("# Saving Sound Data to Pickle")
-        self.all_pages = []
+        self.all_pages = [None] * 16
         for i, page in enumerate(self.all_sounds):
-            newpage = Page("","",[])
-            for j, kit in enumerate(page.kits):
+            newpage = Page("","",[None] * 16)
+            if page:
+                for j, kit in enumerate(page.kits):
 
-                newkit = Kit("","",[])
-                for sound in kit.samples:
-                    print(sound.path)
-                    newkit.samples.append(sound.get_original_sound_array())
-                newpage.kits.append(newkit)
-            self.all_pages.append(newpage)
-            print(f"SAVING Page {i+1} of {len(self.all_sounds)}")
-            if exists(self.save_path+str(i)+ ".pkl"):
-                print(f"Removed Old Pickle File: {self.save_path+str(i) +'.pkl'} ")
-                os.remove(self.save_path+str(i) +".pkl")
-            p.dump(newpage, open(self.save_path+str(i)+".pkl",'wb'))
-        self.all_pages = None
+                    newkit = Kit("","",[None] * 16)
+                    if kit:
+                        for k,sound in enumerate(kit.samples):
+                            if sound:
+                                print(sound.path)
+                                newkit.samples[k]= sound.get_original_sound_array()
+                        newpage.kits[j] = newkit
+                self.all_pages[i] = (newpage)
+                print(f"SAVING Page {i+1} of {len(self.all_sounds)}")
+                if exists(self.save_path+str(i)+ ".pkl"):
+                    print(f"Removed Old Pickle File: {self.save_path+str(i) +'.pkl'} ")
+                    os.remove(self.save_path+str(i) +".pkl")
+                p.dump(newpage, open(self.save_path+str(i)+".pkl",'wb'))
+        self.all_pages = [None] * 16
         print("# Sound Data Saved to Pickle")
 
     def reload_all_sound_data(self):
         print("# Clearing all sound data")
-        self.all_sounds = []
-        self.all_pages = []
+        self.all_sounds = [None] * 16
+        self.all_pages = [None] * 16
         self.all_sound_data = []
         print("# Reloading all sound data")
         self.load_all_samples()
@@ -274,23 +363,32 @@ class MidiControl:
     def load_all_samples(self):
         pages = (sorted(self.get_immediate_subdirectories(self.basepath)))
         kits_names = self.get_all_kit_dirs(self.basepath)
-        self.all_sounds = []
+        self.all_sounds = [None] * 16
         for i, page in enumerate(pages):
-            kits = []
-            for kit_name in kits_names[i]:
-                kit = Kit(kit_name,self.basepath+'/'+page+'/'+kit_name+'/',[])
+            kits = [None] * 16
+            for j, kit_name in enumerate(kits_names[i]):
+                kit = Kit(kit_name,self.basepath+'/'+page+'/'+kit_name+'/',[None]*16)
                 samples = [f for f in sorted(listdir(kit.path)) if isfile(join(kit.path, f))]
-                for file in samples:
+                sub = 0
+                for k, file in enumerate(samples):
                     if file.endswith('.wav'):
                         if file.startswith('.'):
+                            sub += 1
                             pass
                         else:
-                            kit.samples.append(Soundy(kit.path+file))
+                            if k<(16+sub):
+                                print(file)
 
-                kits.append(kit)
+                                kit.samples[k-sub] = (Soundy(kit.path+file))
+                    else:
+                        sub+=1
 
-            self.all_sounds.append(Page(page,self.basepath+'/'+page+'/',kits))
+                kits[j] = (kit)
+
+            self.all_sounds[i] = (Page(page,self.basepath+'/'+page+'/',kits))
+
             print(f"Loading page {i+1} of {len(pages)}")
+        print(self.all_sounds)
         print("SOUNDS LOADED")
             #print(self.all_sounds)
 
@@ -391,11 +489,12 @@ class MidiControl:
         if not sounds:
             sounds = self.sounds
         for sound in sounds:
-            print(sound.path)
-            sound.restrict_length(self.max_sample_length_seconds)  # Truncate Samples longer than n seconds
-            sound.remove_artifacts()
-            sound.normalize()
-            sound.make_loud()
+            if sound:
+                print(sound.path)
+                sound.restrict_length(self.max_sample_length_seconds)  # Truncate Samples longer than n seconds
+                sound.remove_artifacts()
+                sound.normalize()
+                sound.make_loud()
 
 
 # SOUND PLAYING
@@ -563,8 +662,7 @@ class MidiControl:
     def audio_record(self,midi):
         mode_num = midi.note - self.button.PAD_START
         if self.is_mode_shift_pressed and mode_num == self.button.AUDIO_RECORD_MODE_NUM:
-            pass
-            #self.record_new_samples()
+            self.record_new_samples()
     def record(self,midi):
         if midi.note == self.button.RECORD:
             self.metronome.midi_recorder.switch_record_button()
@@ -621,8 +719,9 @@ class MidiControl:
             #self.current_bank = page_factor
             print(f"Changing Page to {self.current_page}, current bank is {self.current_bank}")
             try:
-                self.sounds = self.all_sounds[self.current_page].kits[0]
-                print(f"current page: {self.current_page}")
+                if self.all_sounds[self.current_page]:
+                    self.sounds = self.all_sounds[self.current_page].kits[0]
+                    print(f"current page: {self.current_page}")
             except IndexError:
                 self.current_bank = old_bank  # Stay on current bank
                 self.current_page = old_page
@@ -704,7 +803,8 @@ class MidiControl:
                     self.cutoff_current_sound(entry)  # if exact same sound is playing, cut it off
 
                 if entry.midi.velocity>0:
-                    self.all_sounds[entry.page].kits[entry.bank].samples[i].play(block=False)  # play sound
+                    if self.all_sounds[entry.page].kits[entry.bank].samples[i]:
+                        self.all_sounds[entry.page].kits[entry.bank].samples[i].play(block=False)  # play sound
 
 
     # def play_sound_old(self,midis,note,banks,ports):
@@ -736,20 +836,22 @@ class MidiControl:
 
     def cutoff_current_sound(self,entry):
         i = entry.midi.note - self.button.PAD_START
-        if entry.bank < len(self.all_sounds[entry.page].kits) and i>=0 and i<len(self.all_sounds[entry.page].kits[entry.bank].samples): # if midi note is in bank
+        if self.all_sounds[entry.page].kits[entry.bank].samples[i] and entry.bank < len(self.all_sounds[entry.page].kits) and i>=0 and i<len(self.all_sounds[entry.page].kits[entry.bank].samples): # if midi note is in bank
             self.all_sounds[entry.page].kits[entry.bank].samples[i].stop() # stop sound
 
     def cutoff_all_sounds_in_same_bank(self,entry):
         i = entry.midi.note - self.button.PAD_START
         if entry.bank < len(self.all_sounds[entry.page].kits) and i>=0 and i<len(self.all_sounds[entry.page].kits[entry.bank].samples): # if midi note is in bank
             for sound in (self.all_sounds[entry.page].kits[entry.bank].samples):
-                sound.stop() # stop sound
+                if sound:
+                    sound.stop() # stop sound
 
     def cutoff_all_sounds(self):
         for page in self.all_sounds:
             for kit in page.kits:
                 for sound in kit.samples:
-                    sound.stop()
+                    if sound:
+                        sound.stop()
 
     def cutoff_sound(self,entry):
         i = entry.midi.note - self.button.PAD_START
@@ -772,21 +874,24 @@ class MidiControl:
 
 
     # Record Sound
-    # def record_new_samples(self):
-    #     print("RECORDING NEW SAMPLES")
-    #     # create recording
-    #     r = AudioRecorder(self.sample_recording_length_in_seconds)
-    #     r.start_record()
-    #     r.stop_record()
-    #
-    #     # generate wav file
-    #     r.create_wav()
-    #
-    #     # slice wav and export it to current_bank
-    #     Slicer(r.WAVE_OUTPUT_FILENAME,[0,r.RECORD_SECONDS],self.current_bank)
-    #
-    #     # Reload the samples in current bank
-    #     self.reload_bank(self.current_bank)
+    def record_new_samples(self):
+        print("RECORDING NEW SAMPLES")
+        # create recording
+        r = AudioRecorder(self.sample_recording_length_in_seconds)
+        r.start_record()
+        r.stop_record()
+
+        # generate wav file
+        r.create_wav()
+
+        # slice wav and export it to current_bank
+
+        Slicer(r.WAVE_OUTPUT_FILENAME,[0,r.RECORD_SECONDS],self.current_bank)
+
+        r.delete_wav()
+
+        # Reload the samples in current bank
+        self.reload_kit(self.current_bank,10)
 
 
 MidiControl()
