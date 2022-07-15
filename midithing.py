@@ -83,7 +83,7 @@ class MidiControl:
             self.save_all_sound_data()
 
         # AUDIO RECORDER
-        self.sample_recording_length_in_seconds = 5
+        self.sample_recording_length_in_seconds = 8
 
         # START METRONOME
         self.metronome_path = self.program_path + 'metronome/metronome.wav'
