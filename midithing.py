@@ -308,11 +308,11 @@ class MidiControl:
                                     print(f"soundarr: {sound_arr}")
                         newpage.kits[j] = newkit
                 self.all_sounds[i] = newpage
-        for page in self.all_sounds:
-            if page:
-                for kit in page.kits:
-                    if kit:
-                        self.pre_process_sounds(sounds = kit.samples)
+        # for page in self.all_sounds:
+        #     if page:
+        #         for kit in page.kits:
+        #             if kit:
+        #                 self.pre_process_sounds(sounds = kit.samples)
         print("# Sound Data Loaded from Pickle")
 
 
@@ -788,7 +788,7 @@ class MidiControl:
         if c.MIDI_CONTROLLER in entry.port:
 
             i = entry.midi.note - self.button.PAD_START  # get the midi note of pad
-            if entry.bank < len(self.all_sounds[entry.page].kits) and i >= 0 and i < len(self.all_sounds[entry.page].kits[entry.bank].samples):  # if sound has an ID
+            if self.all_sounds[entry.page].kits[entry.bank].samples and entry.bank < len(self.all_sounds[entry.page].kits) and i >= 0 and i < len(self.all_sounds[entry.page].kits[entry.bank].samples):  # if sound has an ID
 
                 if self.VOL_SENS:  # set volume if volume sensitivity is turned on
                     self.all_sounds[entry.page].kits[entry.bank].samples[i].set_volume(entry.midi.velocity)
