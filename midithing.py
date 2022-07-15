@@ -465,14 +465,14 @@ class MidiControl:
                     # Run DSP as background process
                     x = Thread(self.all_sounds[self.current_page].kits[self.current_bank].samples[note].change_pitch(factor), daemon=True)
                     x.start()
-                    # x = Thread(self.all_sounds[self.current_page].kits[self.current_bank].samples[note].normalize(), daemon=True)
-                    # x.start()
-                    # x = Thread(self.all_sounds[self.current_page].kits[self.current_bank].samples[note].make_loud(), daemon=True)
-                    # x.start()
+                    x = Thread(self.all_sounds[self.current_page].kits[self.current_bank].samples[note].normalize(), daemon=True)
+                    x.start()
+                    x = Thread(self.all_sounds[self.current_page].kits[self.current_bank].samples[note].make_loud(), daemon=True)
+                    x.start()
                 else:
                     self.all_sounds[self.current_page].kits[self.current_bank].samples[note].change_pitch(factor)
-                    # self.all_sounds[self.current_page].kits[self.current_bank].samples[note].normalize()
-                    # self.all_sounds[self.current_page].kits[self.current_bank].samples[note].make_loud()
+                    self.all_sounds[self.current_page].kits[self.current_bank].samples[note].normalize()
+                    self.all_sounds[self.current_page].kits[self.current_bank].samples[note].make_loud()
 
         else:
 
@@ -483,14 +483,14 @@ class MidiControl:
                     # Run DSP as background process
                     x = Thread(sound.change_pitch(factor), daemon=True)
                     x.start()
-                    # x = Thread(sound.normalize(), daemon=True)
-                    # x.start()
-                    # x = Thread(sound.make_loud(), daemon=True)
-                    # x.start()
+                    x = Thread(sound.normalize(), daemon=True)
+                    x.start()
+                    x = Thread(sound.make_loud(), daemon=True)
+                    x.start()
                 else:
                     sound.change_pitch(factor)
-                    # sound.normalize()
-                    # sound.make_loud()
+                    sound.normalize()
+                    sound.make_loud()
 
     def pre_process_sounds(self, sounds = None):
         if not sounds:
