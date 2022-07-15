@@ -239,6 +239,8 @@ class MidiControl:
         else:
             self.reload_page(page_num)
 
+        self.pre_process_sounds(sounds = self.all_sounds[self.current_page].kits[self.current_bank])
+
         self.save_page(page_num)
 
 
