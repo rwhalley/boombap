@@ -841,7 +841,7 @@ class MidiControl:
     def check_entry(self,entry):
         i = entry.midi.note - self.button.PAD_START
         try:
-            if self.all_sounds[entry.page] and self.all_sounds[entry.page].kits[entry.bank].samples and self.all_sounds[entry.page].kits[entry.bank].samples[i] and entry.bank < len(self.all_sounds[entry.page].kits) and i >= 0 and i < len(self.all_sounds[entry.page].kits[entry.bank].samples):  # if sound has an ID
+            if self.all_sounds[entry.page] and self.all_sounds[entry.page].kits[entry.bank] and self.all_sounds[entry.page].kits[entry.bank].samples and self.all_sounds[entry.page].kits[entry.bank].samples[i] and entry.bank < len(self.all_sounds[entry.page].kits) and i >= 0 and i < len(self.all_sounds[entry.page].kits[entry.bank].samples):  # if sound has an ID
                 return True
             else:
                 return False
