@@ -483,14 +483,14 @@ class MidiControl:
                     # Run DSP as background process
                     x = Thread(sound.change_pitch(factor), daemon=True)
                     x.start()
-                    x = Thread(sound.normalize(), daemon=True)
-                    x.start()
-                    x = Thread(sound.make_loud(), daemon=True)
-                    x.start()
+                    # x = Thread(sound.normalize(), daemon=True)
+                    # x.start()
+                    # x = Thread(sound.make_loud(), daemon=True)
+                    # x.start()
                 else:
                     sound.change_pitch(factor)
-                    sound.normalize()
-                    sound.make_loud()
+                    # sound.normalize()
+                    # sound.make_loud()
 
     def pre_process_sounds(self, sounds = None):
         if not sounds:
