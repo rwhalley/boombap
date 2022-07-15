@@ -26,7 +26,7 @@ class AudioRecorder():
         # start Recording
         print("opening stream...")
         self.stream = self.audio.open(format=self.FORMAT, channels=self.CHANNELS,
-                        rate=self.RATE, input=True,
+                        rate=self.RATE, input=True, input_device_index=1,
                         frames_per_buffer=self.CHUNK)
         print ("recording...")
         self.frames = []
