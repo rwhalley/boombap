@@ -75,6 +75,11 @@ class MidiControl:
             self.load_all_sound_data()
         else:
             self.load_all_samples()
+            for page in self.all_sounds:
+                if page:
+                    for kit in page.kits:
+                        if kit:
+                            self.pre_process_sounds(sounds = kit.samples)
             self.save_all_sound_data()
 
         # AUDIO RECORDER
