@@ -239,7 +239,7 @@ class MidiControl:
         else:
             self.reload_page(page_num)
 
-        self.pre_process_sounds(sounds = self.all_sounds[self.current_page].kits[self.current_bank])
+        self.pre_process_sounds(sounds = self.all_sounds[self.current_page].kits[self.current_bank].samples)
 
         self.save_page(page_num)
 
@@ -286,7 +286,7 @@ class MidiControl:
             self.all_sounds[self.current_page].kits[bank_num] = new_bank
         except IndexError:
             self.all_sounds[self.current_page].append(new_bank)
-        self.pre_process_sounds(sounds = self.all_sounds[self.current_page].kits[bank_num])
+        self.pre_process_sounds(sounds = self.all_sounds[self.current_page].kits[bank_num].samples)
 
     def load_all_sound_data(self):
         print("# Loading Sound Data from Pickle")
