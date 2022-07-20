@@ -10,7 +10,7 @@ import dsp
 
 class Soundy:
 
-    def __init__(self,soundpath = None, fast_load = False, arr = None):
+    def __init__(self,soundpath = None, fast_load = False, arr = None, no_init = False):
         self.sound_name = None
         self.bank_name = None
         self.pgsound = None
@@ -23,15 +23,18 @@ class Soundy:
         self.hit = None
         self.page = None
         self.pitch = 0
+        self.vol = 128
+        self.pgsound = None
         pg.mixer.init(frequency=self.sample_rate, size=-16, channels=2, buffer=128)
         pg.init()
 
-        if fast_load:
-            self.pgsound = pg.sndarray.make_sound(arr)
-            self.original_sound = pg.sndarray.make_sound(arr)
-        else:
-            self.pgsound = pg.mixer.Sound(soundpath)
-            self.original_sound = pg.mixer.Sound(soundpath)
+        if not no_init:
+            if fast_load:
+                self.pgsound = pg.sndarray.make_sound(arr)
+                self.original_sound = pg.sndarray.make_sound(arr)
+            else:
+                self.pgsound = pg.mixer.Sound(soundpath)
+                self.original_sound = pg.mixer.Sound(soundpath)
 
     def restrict_length(self,len_in_seconds):
         self.pgsound = pg.sndarray.make_sound(pg.sndarray.array(self.pgsound)[:int(self.sample_rate*len_in_seconds),:])
@@ -49,7 +52,10 @@ class Soundy:
 
 
     def get_original_sound_array(self):
-        return np.array(pg.sndarray.array(self.pgsound), np.int16)
+        try:
+            return np.array(pg.sndarray.array(self.pgsound), np.int16)
+        except TypeError:
+            pass
 
     def remove_artifacts(self):
 
@@ -105,7 +111,7 @@ class Soundy:
     #     self.pgsound.set_volume(left,right)
 
     def play(self, block = True, lvol = 1.0, rvol = 1.0):
-        self.pgsound.set_volume(lvol)
+        #self.pgsound.set_volume(lvol)
         self.pgsound.play()
         # channel = self.pgsound.play()
         # channel.set_volume(lvol,rvol)
@@ -121,4 +127,8 @@ class Soundy:
 
     def stop(self):
         #self.pgsound.fadeout(25)
-        self.pgsound.stop()
+        try:
+            self.pgsound.stop()
+        except AttributeError:
+            pass
+            #print("empty_sample")

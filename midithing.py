@@ -41,12 +41,15 @@ class MidiControl:
         self.METRONOME_MUTE = False
         self.port_name = None
         self.ports = []
-        self.semitone = .059463094359
+        self.semitone = .059#463094359
         self.last_note = 1101001
         self.NON_LOOP = -2
+        self.active_controllers = {10}
+        self.time_since_last_cc = time.time()
+        self.global_vol = 128
 
         # -- Sound Data ---
-        self.all_sounds = [None] * 16
+        self.all_sounds = [self.get_empty_page()] * 16
         self.all_sound_data = None
 
         # --- Shift Button States ---
@@ -56,6 +59,7 @@ class MidiControl:
         self.is_bank_shift_pressed = False
         self.is_mode_shift_pressed = False
         self.is_page_shift_pressed = False
+        self.is_volume_shift_pressed = False
         self.is_loop_activator_shift_pressed = False
         self.on_notes = set()
 
@@ -185,6 +189,11 @@ class MidiControl:
                 self.sort_midi(midi,c.MIDI_CONTROLLER,now)
             elif midi.channel == c.SYNTH_MIDI_CHANNEL:
                 self.sort_midi(midi,c.SYNTH,now)
+        else:
+            if midi.control in self.active_controllers:
+                print(midi.value)
+                self.set_global_volume(midi)
+
         # elif midi.type == 'control_change':
         #    self.control_msgs.append(midi)
         # if midi.type == 'note_off' and len(self.control_msgs) >1:
@@ -196,16 +205,22 @@ class MidiControl:
 
 # SAMPLE LOADING
 
+    def get_empty_page(self, name="", path=""):
+        return Page(name,path,[Kit(None,None,[Soundy(no_init=True)]*16,[128]*16)]*16)
+
+    def get_empty_kit(self, name=None, path=None):
+        return Kit(name,path,[Soundy(no_init=True)]*16,[128]*16)
+
     def reload_page(self,page_num):
-        newpage = Page("","",[None] * 16)
+        newpage = self.get_empty_page()
         self.all_sounds[page_num] = newpage
         page = c.RECORDED_SAMPLES_FOLDER
 
         kits_names = self.get_all_kit_dirs(self.basepath + '/'+page+'/')
 
-        kits = [None] * 16
+        kits = [self.get_empty_kit()] * 16
         for i, kit_name in enumerate(kits_names[page_num]):
-            kit = Kit(kit_name,self.basepath+'/'+page+'/'+kit_name+'/',[None]*16)
+            kit = self.get_empty_kit(name = kit_name, path =self.basepath+'/'+page+'/'+kit_name+'/')
             samples = [f for f in sorted(listdir(kit.path)) if isfile(join(kit.path, f))]
             for j, file in enumerate(samples):
                 if file.endswith('.wav'):
@@ -224,7 +239,7 @@ class MidiControl:
         path = self.basepath+'/'+c.RECORDED_SAMPLES_FOLDER+'/'+str(kit_num)+'/'
         if not exists(path):
             os.makedirs(self.basepath+'/'+c.RECORDED_SAMPLES_FOLDER+'/'+str(kit_num)+'/')
-        kit = Kit(str(kit_num),path,[])
+        kit = self.get_empty_kit(name=str(kit_num,path = path))
         samples = [f for f in sorted(listdir(kit.path)) if isfile(join(kit.path, f))]
         for file in samples:
             if file.endswith('.wav'):
@@ -250,17 +265,18 @@ class MidiControl:
             print(f"Removed Old Pickle File: {self.save_path+str(i) +'.pkl'} ")
             os.remove(self.save_path+str(i) +".pkl")
         page = self.all_sounds[page_num]
-        newpage = Page("","",[None] * 16)
+        newpage = self.get_empty_page()
 
         for j, kit in enumerate(page.kits):
             print(f"length: {len(page.kits)}")
-            newkit = Kit("","",[None] * 16)
+            newkit = self.get_empty_kit()
             if kit:
                 for k,sound in enumerate(kit.samples):
                     if sound:
                         print(f"k: {k}")
                         print(sound.path)
                         newkit.samples[k]= sound.get_original_sound_array()
+                        newkit.volumes[k] = sound.vol
                 print(f"kit len:{len(kit.samples)}")
                 print(f"j {j}")
                 newpage.kits[j] = newkit
@@ -292,25 +308,26 @@ class MidiControl:
         print("# Loading Sound Data from Pickle")
         path = self.program_path+"pickle/"
         onlyfiles = [f for f in sorted(listdir(path)) if isfile(join(path, f))]
-        self.all_pages = [None] * 16
+        self.all_pages = [self.get_empty_page()] * 16
 
         for i,file in enumerate(onlyfiles):
             self.all_pages[i] = p.load(open(self.save_path+str(i)+".pkl",'rb'))
-        self.all_sounds = [None] * 16
+        self.all_sounds = [self.get_empty_page()] * 16
 
         for i, page in enumerate(self.all_pages):
             print(f"page: {page}")
             if page:
-                newpage = Page("","",[None]*16)
+                newpage = self.get_empty_page()
                 for j, kit in enumerate(page.kits):
-                    newkit = Kit("","",[None]*16)
+                    newkit = self.get_empty_kit()
                     if kit:
                         print(kit.samples)
                         for k, sound_arr in enumerate(kit.samples):
-                            print(f"ksoundarr: {k}")
+                            #print(f"ksoundarr: {k}")
                             if k <16:
                                 try:
                                     newkit.samples[k] = Soundy(fast_load=True, arr=sound_arr)
+                                    newkit.samples[k].set_volume(kit.volumes[k])
                                 except ValueError:
                                     print(f"soundarr: {sound_arr}")
                         newpage.kits[j] = newkit
@@ -320,23 +337,25 @@ class MidiControl:
         #         for kit in page.kits:
         #             if kit:
         #                 self.pre_process_sounds(sounds = kit.samples)
+        #self.load_volume_levels()
         print("# Sound Data Loaded from Pickle")
 
 
     def save_all_sound_data(self):
         print("# Saving Sound Data to Pickle")
-        self.all_pages = [None] * 16
+        self.all_pages = [self.get_empty_page()] * 16
         for i, page in enumerate(self.all_sounds):
-            newpage = Page("","",[None] * 16)
+            newpage = self.get_empty_page()
             if page:
                 for j, kit in enumerate(page.kits):
 
-                    newkit = Kit("","",[None] * 16)
+                    newkit = self.get_empty_kit()
                     if kit:
                         for k,sound in enumerate(kit.samples):
                             if sound:
                                 print(sound.path)
                                 newkit.samples[k]= sound.get_original_sound_array()
+                                newkit.volumes[k] = sound.vol
                         newpage.kits[j] = newkit
                 self.all_pages[i] = (newpage)
                 print(f"SAVING Page {i+1} of {len(self.all_sounds)}")
@@ -344,13 +363,13 @@ class MidiControl:
                     print(f"Removed Old Pickle File: {self.save_path+str(i) +'.pkl'} ")
                     os.remove(self.save_path+str(i) +".pkl")
                 p.dump(newpage, open(self.save_path+str(i)+".pkl",'wb'))
-        self.all_pages = [None] * 16
+        self.all_pages = [self.get_empty_page()] * 16
         print("# Sound Data Saved to Pickle")
 
     def reload_all_sound_data(self):
         print("# Clearing all sound data")
-        self.all_sounds = [None] * 16
-        self.all_pages = [None] * 16
+        self.all_sounds = [self.get_empty_page()] * 16
+        self.all_pages = [self.get_empty_page()] * 16
         self.all_sound_data = []
         print("# Reloading all sound data")
         self.load_all_samples()
@@ -370,11 +389,11 @@ class MidiControl:
     def load_all_samples(self):
         pages = (sorted(self.get_immediate_subdirectories(self.basepath)))
         kits_names = self.get_all_kit_dirs(self.basepath)
-        self.all_sounds = [None] * 16
+        self.all_sounds = [self.get_empty_page()] * 16
         for i, page in enumerate(pages):
-            kits = [None] * 16
+            kits = [self.get_empty_kit()] * 16
             for j, kit_name in enumerate(kits_names[i]):
-                kit = Kit(kit_name,self.basepath+'/'+page+'/'+kit_name+'/',[None]*16)
+                kit = self.get_empty_kit(name=kit_name, path = self.basepath+'/'+page+'/'+kit_name+'/')
                 samples = [f for f in sorted(listdir(kit.path)) if isfile(join(kit.path, f))]
                 sub = 0
                 for k, file in enumerate(samples):
@@ -387,6 +406,7 @@ class MidiControl:
                                 print(file)
 
                                 kit.samples[k-sub] = (Soundy(kit.path+file))
+
                     else:
                         sub+=1
 
@@ -541,6 +561,7 @@ class MidiControl:
                     self.track_save_shift(midi)
                     self.mode_shift(midi)
                     self.loop_activator_shift(midi)
+                    self.volume_shift(midi)
                 if self.button_is_playable(midi):
                     self.play_sound(note.Note(None,midi,self.current_bank,port,time,self.NON_LOOP,self.current_page))  # -2 is non-loop loop id
                     self.add_to_loop(midi,port,time)
@@ -556,6 +577,7 @@ class MidiControl:
                     self.audio_record(midi)
                     self.switch_loop_length(midi)
                     self.mute_metronome(midi)
+                    self.save_state(midi)
                     self.velocity_sensitivity(midi)
                     self.exit_program(midi)
                     self.change_page(midi)
@@ -574,6 +596,7 @@ class MidiControl:
                     self.track_load_shift(midi)
                     self.mode_shift(midi)
                     self.loop_activator_shift(midi)
+                    self.volume_shift(midi)
                 if self.button_is_playable(midi):
                     if self.current_page > 0:
                         self.cutoff_current_sound(note.Note(None,midi,self.current_bank,port,time,self.NON_LOOP,self.current_page))
@@ -595,7 +618,7 @@ class MidiControl:
 
     def shift_is_active(self):
         if self.is_metronome_pressed or self.track_save_shift_pressed or self.track_load_shift_pressed or self.is_bank_shift_pressed\
-                or self.is_mode_shift_pressed or self.is_page_shift_pressed or self.is_loop_activator_shift_pressed:
+                or self.is_mode_shift_pressed or self.is_page_shift_pressed or self.is_loop_activator_shift_pressed or self.is_volume_shift_pressed:
            print("Shift is active")
            return True
         else:
@@ -638,6 +661,10 @@ class MidiControl:
             self.is_loop_activator_shift_pressed = not self.is_loop_activator_shift_pressed
             print(f"Loop activator shift ON? {self.is_loop_activator_shift_pressed}")
 
+    def volume_shift(self,midi):
+        if midi.note == self.button.VOLUME_SHIFT:
+            self.is_volume_shift_pressed = not self.is_volume_shift_pressed
+            print(f"Volume Shift: {self.is_volume_shift_pressed}")
 
     # SWITCH FUNCTIONS - for changing mode or state settings
 
@@ -661,6 +688,47 @@ class MidiControl:
     def pitch_down(self,midi,for_one_sample=False):
         if midi.note == self.button.PITCH_DOWN:
             self.change_pitch(1 + self.semitone)
+    def load_volume_levels(self):
+        for page in self.all_sounds:
+            for kit in page.kits:
+                for sound in kit.samples:
+                    try:
+                        sound.set_volume(sound.vol)
+                    except AttributeError:
+                        pass
+
+    def set_global_volume(self,midi): # vol is 0-127
+        if midi.value<25:
+            midi.value = 25
+        #print(f"midi:{midi.value}")
+        now = time.time()
+
+
+        if self.on_notes: # if there are notes actively pressed
+            for note in self.on_notes:
+                i = note-self.button.PAD_START
+                self.all_sounds[self.current_page].kits[self.current_bank].samples[i].vol = midi.value
+                self.all_sounds[self.current_page].kits[self.current_bank].samples[i].set_volume(midi.value)
+        else:
+            print(f"time: {(now-self.time_since_last_cc)}")
+            if (now-self.time_since_last_cc) >0.5:
+                factor  = (midi.value/self.global_vol)
+
+
+                for page in self.all_sounds:
+                    for kit in page.kits:
+                        for sound in kit.samples:
+                            try:
+                                sound.vol = (sound.vol)*(factor)
+                                sound.set_volume(sound.vol)
+                            except AttributeError:
+                                pass
+                                #print("empty entry")
+                self.global_vol = midi.value
+        self.time_since_last_cc = now
+
+
+
     def clear_loop(self,midi):
         if midi.note == self.button.CLEAR_LOOP:
             print("CLEARING LOOP")
@@ -702,6 +770,12 @@ class MidiControl:
         mode_num = midi.note - self.button.PAD_START
         if self.is_mode_shift_pressed and mode_num == self.button.MUTE_METRONOME:
             self.METRONOME_MUTE = not self.METRONOME_MUTE
+    def save_state(self,midi):
+        mode_num = midi.note = self.button.PAD_START
+        if self.is_mode_shift_pressed and mode_num == self.button.SAVE_STATE:
+            print("SAVING...")
+            self.save_all_sound_data()
+            print("SAVED")
     def exit_program(self,midi):
         if midi.note == self.button.EXIT:
             print("EXITING PROGRAM")
