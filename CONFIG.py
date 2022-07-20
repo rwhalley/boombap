@@ -1,5 +1,16 @@
-PROGRAM_PATH = '/home/boombap/boombap/'#'/Users/richwhalley/Documents/GitHub/boombap/' #
-USB = '/mnt/usb/Kits/' #'/Volumes/SQUIRREL/Kits/' #
+OS = "m" #'m'
+
+
+if OS == "r":
+    PROGRAM_PATH = '/home/boombap/boombap/'
+    USB = '/mnt/usb/Kits/'
+    INPUT_DEVICE = 1
+elif OS == 'm':
+    PROGRAM_PATH = '/Users/richwhalley/Documents/GitHub/boombap/'
+    USB = '/Volumes/SQUIRREL/Kits/'
+    INPUT_DEVICE = 0
+
+
 DEBUG_MODE = 1
 RECORDED_SAMPLES_FOLDER = "10 - Recorded"
 
