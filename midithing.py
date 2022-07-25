@@ -132,6 +132,12 @@ class MidiControl:
         self.metronome.midi_recorder = MIDIRecorder(self.metronome)
 
 
+        # Setup LED control for QUNEO
+        self.LED_out = None
+        if c.MIDI_CONTROLLER == "QUNEO":
+            self.LED_out = MIDIPlayer(None,c.MIDI_CONTROLLER,light=True)
+
+
         print("LOADING COMPLETE - STARTING MAIN LOOP")
 
         # MAIN LOOP FOR PROCESSING MIDI INPUT
@@ -623,6 +629,8 @@ class MidiControl:
                         self.on_notes.remove(midi.note)# keep list of which pads currently pressed
                     except KeyError:
                         self.on_notes = set()
+                if self.button_is_switch(midi) and self.LED_out:
+                    self.record_LED(midi)
             if midi.is_cc():
                 self.update_mbung_vol(midi)
                 self.update_col_vol(midi)
@@ -768,6 +776,16 @@ class MidiControl:
     def record(self,midi):
         if midi.note == self.button.RECORD:
             self.metronome.midi_recorder.switch_record_button()
+    def record_LED(self,midi):
+        if midi.note == self.button.RECORD:
+            if self.metronome.midi_recorder.RECORD:
+                self.LED_out.play_note(note.Note(0,mido.Message('note_on', note=self.button.RECORD_LED),0,c.MIDI_CONTROLLER,time.time(), -2,0), light=True)
+            else:
+                self.LED_out.play_note(note.Note(0,mido.Message('note_off', note=self.button.RECORD_LED),0,c.MIDI_CONTROLLER,time.time(), -2,0), light=True)
+
+
+
+
     def load_track(self,midi):
         id = midi.note - self.button.PAD_START
         if self.track_load_shift_pressed:

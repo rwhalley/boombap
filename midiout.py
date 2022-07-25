@@ -8,18 +8,24 @@ from note import Note
 
 class MIDIPlayer():
 
-    def __init__(self,ports):
+    def __init__(self,ports, dev=c.SYNTH, light=False):
         pass
         # self.triggered = False
         # self.midiout = None
         # self.available_ports = None
         self.outport = None
         self.synth_present = False
+        if light:
+            self.synth_present = False
+            self.outport = mido.open_output(dev)
+            return
         for port in ports:
             if c.SYNTH in port:
                 self.synth_present = True
-                self.outport = mido.open_output(c.SYNTH)
+                self.outport = mido.open_output(dev)
                 break
+
+
 
 
     # ### PLAY MIDI NOTE
@@ -32,9 +38,13 @@ class MIDIPlayer():
     #     else:
     #         self.play_worker(note)
 
-    def play_note(self,note):
+    def play_note(self,note, light=False):
         if c.SYNTH in note.port:
             self.outport.send(note.midi)
+        if light:
+            self.outport.send(note.midi)
+
+
             # with mido.open_output(c.SYNTH) as outport:
             #
             #     outport.send(note.midi)

@@ -17,6 +17,8 @@ PITCH_UP = 22
 PITCH_DOWN = 23
 PAD_START = 52
 
+# LEDS
+RECORD_LED = 34
 
 # Left Triangle Shift Buttons
 BANK_SELECTOR = 11  # Select Drum Kit on Pads - Row 1 Left
