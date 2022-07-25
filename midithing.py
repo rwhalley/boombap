@@ -15,6 +15,7 @@ import mido
 from soundy_pygame import Soundy
 from metronome import Metronome
 import QUNEO
+import REFACE
 from midiout import MIDIPlayer
 from midi_recorder import MIDIRecorder
 from recorder import AudioRecorder
@@ -41,7 +42,7 @@ class MidiControl:
         self.METRONOME_MUTE = False
         self.port_name = None
         self.ports = []
-        self.semitone = .059#463094359
+        self.semitone = c.SEMITONE
         self.last_note = 1101001
         self.NON_LOOP = -2
         self.active_controllers = {10}
@@ -62,6 +63,12 @@ class MidiControl:
         self.is_volume_shift_pressed = False
         self.is_loop_activator_shift_pressed = False
         self.is_reverb_shift_pressed = False
+
+        # --- Switch Button States ---
+        self.is_keyboard_active = False
+
+        self.sample_id = None
+
         self.on_notes = set()
 
         self.devices = [] # QUNEO, Reface CP
@@ -568,7 +575,7 @@ class MidiControl:
         #             self.switch_bank(midi)
         #             self.switch_metronome(midi)
         if midi.channel == c.MIDI_CONTROLLER_CHANNEL:
-            if midi.type == "note_on":
+            if midi.type == "note_on" :
                 if self.button_is_shift(midi):
                     self.metronome_shift(midi)
                     self.page_shift(midi)
@@ -584,6 +591,7 @@ class MidiControl:
                     self.add_to_loop(midi,port,time)
                     #self.play_sound([midi],None,[self.current_bank],[port])
                     self.on_notes.add(midi.note)  # keep list of which pads currently pressed
+                    self.make_keyboard(midi) # Create Keyboard
 
                 if self.button_is_switch(midi):
 
@@ -609,6 +617,9 @@ class MidiControl:
                     self.save_track(midi)
                     self.load_track(midi)
                     self.reload_samples(midi)
+                    self.keyboard(midi)
+
+
 
             if midi.type == "note_off":
                 if self.button_is_shift(midi):
@@ -635,7 +646,15 @@ class MidiControl:
                 self.update_mbung_vol(midi)
                 self.update_col_vol(midi)
         if midi.channel == c.SYNTH_MIDI_CHANNEL:
-            self.add_to_loop(midi,port,time)
+            if self.is_keyboard_active:
+                if midi.velocity > 0:
+                    self.play_keyboard(midi)
+                if midi.velocity == 0:
+                    self.cut_keyboard(midi)
+                #self.add_to_loop(midi,c.MIDI_CONTROLLER,time)
+            else:
+                self.add_to_loop(midi,port,time)
+
 
             #if c.SYNTH_ONLY:
 
@@ -773,6 +792,38 @@ class MidiControl:
         mode_num = midi.note - self.button.PAD_START
         if self.is_mode_shift_pressed and mode_num == self.button.AUDIO_RECORD_MODE_NUM:
             self.record_new_samples()
+    def keyboard(self,midi):
+        if midi.note == self.button.KEYBOARD:
+            self.is_keyboard_active = not self.is_keyboard_active
+            print(f"KEYBOARD MODE: {self.is_keyboard_active}")
+
+
+    def make_keyboard(self, midi):
+        if self.is_keyboard_active:
+
+            self.sample_id = midi.note - self.button.PAD_START
+            if self.all_sounds[self.current_page].kits[self.current_bank].samples[self.sample_id].pgsound:
+                print("--- MAKING KEYBOARD ---")
+
+                self.all_sounds[self.current_page].kits[self.current_bank].samples[self.sample_id].make_keyboard(start_semitone=-12,num_keys=24)  # play sound
+
+    def play_keyboard(self,midi):
+
+        note = midi.note - REFACE.C0_OFFSET
+        if self.is_keyboard_active:
+            try:
+                self.all_sounds[self.current_page].kits[self.current_bank].samples[self.sample_id].play(block=False, key=note)
+            except IndexError:
+                pass
+
+    def cut_keyboard(self,midi):
+        note = midi.note - REFACE.C0_OFFSET
+        if self.is_keyboard_active:
+            try:
+                self.all_sounds[self.current_page].kits[self.current_bank].samples[self.sample_id].stop(key=note)
+            except IndexError:
+                pass
+
     def record(self,midi):
         if midi.note == self.button.RECORD:
             self.metronome.midi_recorder.switch_record_button()

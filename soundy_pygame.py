@@ -4,6 +4,7 @@ import numpy as np
 from samplerate import resample
 from scipy import signal
 from threading import Thread
+import CONFIG as c
 #import resampy
 import time
 
@@ -18,6 +19,7 @@ class Soundy:
         self.original_sound = None
         self.path = soundpath
         self.pitch_factor = 1.0
+        self.semitone = c.SEMITONE
         self.sample_rate = 44100
         self.repeat = False
         self.bank = None
@@ -26,6 +28,8 @@ class Soundy:
         self.pitch = 0
         self.vol = 128
         self.pgsound = None
+        self.keyboard = None
+        self.key_notes = []
         pg.mixer.init(frequency=self.sample_rate, size=-16, channels=2, buffer=128)
         pg.init()
 
@@ -50,6 +54,9 @@ class Soundy:
         #print(dsp.arctan_compressor(dsp.limiter(snd_array[:])))
         self.pgsound = pg.sndarray.make_sound(np.array([dsp.limiter(snd_array[:])], np.int16)[0])
         #print(np.array([dsp.arctan_compressor(dsp.limiter(snd_array[:]))], np.int16)[0])
+
+
+
     def zero_pad(self, n1,n2):
         zeros = np.zeros(n2)
         zeros[:len(n1)] = n1
@@ -174,6 +181,16 @@ class Soundy:
             snd_array[:,i] = signal.filtfilt(B,A,snd_array[:,i])
         self.pgsound = pg.sndarray.make_sound(snd_array)
 
+    # use internally for keyboard creation
+    def make_keyboard(self,start_semitone=0, num_keys=12):
+        self.keyboard = []
+        self.key_notes = []
+        for i in range(0,num_keys):
+            pitch_factor = 1+ (i+start_semitone)*c.SEMITONE
+            self.keyboard.append(pg.sndarray.make_sound(resample(pg.sndarray.array(self.original_sound),pitch_factor,'sinc_fastest').astype(dtype="int16")))
+            self.key_notes.append(i)
+
+
     def change_pitch(self,factor):
         self.pitch_factor = self.pitch_factor*factor
         snd_array = pg.sndarray.array(self.original_sound)  # Change from original reference sound to avoid sample degeneration
@@ -190,9 +207,13 @@ class Soundy:
     # def set_volume_stereo(self,left,right):
     #     self.pgsound.set_volume(left,right)
 
-    def play(self, block = True, lvol = 1.0, rvol = 1.0):
+    def play(self, block = False, lvol = 1.0, rvol = 1.0, key=None):
         #self.pgsound.set_volume(lvol)
-        self.pgsound.play()
+
+        if key:
+            self.keyboard[-key].play()
+        else:
+            self.pgsound.play()
         # channel = self.pgsound.play()
         # channel.set_volume(lvol,rvol)
 
@@ -205,13 +226,16 @@ class Soundy:
         if block:
             sleep(self.nssound.duration())
 
-    def stop(self):
+    def stop(self, key=None):
         #self.pgsound.fadeout(25)
-        try:
-            self.pgsound.stop()
-        except AttributeError:
-            pass
-            #print("empty_sample")
+        if key:
+            self.keyboard[-key].stop()
+        else:
+            try:
+                self.pgsound.stop()
+            except AttributeError:
+                pass
+                #print("empty_sample")
 
 # s = Soundy(soundpath='./samples/2/04_tet_oh.aif_loud.wav')
 # s.apply_reverb()
