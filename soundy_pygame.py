@@ -5,6 +5,7 @@ from samplerate import resample
 from scipy import signal
 from threading import Thread
 #import resampy
+import time
 
 import dsp
 
@@ -49,6 +50,85 @@ class Soundy:
         #print(dsp.arctan_compressor(dsp.limiter(snd_array[:])))
         self.pgsound = pg.sndarray.make_sound(np.array([dsp.limiter(snd_array[:])], np.int16)[0])
         #print(np.array([dsp.arctan_compressor(dsp.limiter(snd_array[:]))], np.int16)[0])
+    def zero_pad(self, n1,n2):
+        zeros = np.zeros(n2)
+        zeros[:len(n1)] = n1
+        return zeros
+
+
+
+    def apply_reverb(self):
+        #3signal_arr = pg.sndarray.array(self.pgsound)
+        signal_arr = pg.sndarray.array(self.pgsound)
+        print(signal_arr)
+
+
+        impulse_arr = pg.sndarray.array(pg.mixer.Sound('./impulse/LoveLibrary.wav'))
+        print(impulse_arr)
+
+
+        print(np.shape(impulse_arr))
+        print(np.zeros((10,2)))
+
+        zeros = np.zeros((10,2))
+        zeros[:2] = [1,2]
+        print(zeros)
+        # Zero Pad
+        if len(signal_arr) > len(impulse_arr):
+            zeros = np.zeros((len(signal_arr),2))
+            zeros[:len(impulse_arr)] = impulse_arr
+            impulse_arr = zeros
+        else:
+            zeros = np.zeros((len(impulse_arr),2))
+            zeros[:len(signal_arr)] = signal_arr
+            signal_arr = zeros
+
+        print(np.shape(signal_arr))
+        print(np.shape(impulse_arr))
+        print(signal_arr)
+        print(impulse_arr)
+
+        amplitudes = np.fft.rfft2(signal_arr)
+        #frequencies = np.fft.rfftfreq(len(signal_arr), 1 / self.sample_rate)
+
+        iamp = np.fft.rfft2(impulse_arr)
+        #ifreq = np.fft.rfftfreq(len(impulse_arr), 1 / self.sample_rate)
+        print(amplitudes)
+        print(iamp)
+
+
+        # convolution
+        convo = (amplitudes * iamp)
+        print(convo)
+        convo = np.fft.irfft2(convo)
+        print("convo")
+        print(convo)
+        # Readjust maxed out amplitudes
+        if np.max(convo) > 1 or np.min(convo) < -1:
+            print(abs(np.min(convo)))
+            print(max(abs(np.max(convo)), abs(np.min(convo))))
+            convo = convo / max(abs(np.max(convo)), abs(np.min(convo)))
+
+        convo= (convo * (32767)).astype(np.int16)
+
+
+        # mix dry/wet
+        convo = ((0.5*convo + 0.5*signal_arr).astype(np.int16))
+
+
+
+
+
+        self.pgsound=pg.sndarray.make_sound(convo)
+        self.normalize()
+
+        #a = (np.array([signal.fftconvolve(signal_arr[:],impulse_arr[:],mode='same')], np.int16)[0])
+
+        #print(np.array([dsp.convolution_reverb(signal_arr[:],impulse_arr[:])], np.int16)[0])
+
+        #self.pgsound = pg.sndarray.make_sound(np.array([signal.fftconvolve(impulse_arr[:],signal_arr[:],mode='same')], np.int16)[0])
+
+        #self.pgsound = pg.sndarray.make_sound(np.array([dsp.convolution_reverb(signal_arr[:],impulse_arr[:])], np.int16)[0])
 
 
     def get_original_sound_array(self):
@@ -132,3 +212,19 @@ class Soundy:
         except AttributeError:
             pass
             #print("empty_sample")
+
+# s = Soundy(soundpath='./samples/2/04_tet_oh.aif_loud.wav')
+# s.apply_reverb()
+# s.play(block=False)
+# time.sleep(10)
+
+
+
+# import matplotlib.pyplot as plt
+# fig, (ax_orig, ax_mag) = plt.subplots(2, 1)
+# ax_orig.plot(sig)
+# ax_orig.set_title('White noise')
+# ax_mag.plot(np.arange(-len(sig)+1,len(sig)), autocorr)
+# ax_mag.set_title('Autocorrelation')
+# fig.tight_layout()
+# fig.show()
