@@ -182,14 +182,31 @@ class Soundy:
         self.pgsound = pg.sndarray.make_sound(snd_array)
 
     # use internally for keyboard creation
-    def make_keyboard(self,start_semitone=0, num_keys=12):
-        self.keyboard = []
-        self.key_notes = []
-        for i in range(0,num_keys):
-            pitch_factor = 1+ (i+start_semitone)*c.SEMITONE
-            self.keyboard.append(pg.sndarray.make_sound(resample(pg.sndarray.array(self.original_sound),pitch_factor,'sinc_fastest').astype(dtype="int16")))
-            self.key_notes.append(i)
+    def make_keyboard(self,start_semitone=0, num_keys=13, reload=False):
+        if self.keyboard and not reload:
+            print("Keyboard already loaded.")
+        else:
+            self.keyboard = [None] * num_keys
+            self.key_notes = []
+            self.pitch_factors = []
+            for i in range(0,num_keys):
+                pitch_in_semitones = (start_semitone-i)
+                print(f"i: {i}")
+                print(f"start_semitone: {start_semitone}")
+                print(f"pitch_in_semitones: {pitch_in_semitones}")
 
+
+                pitch_factor = 2**(pitch_in_semitones/12)#(1 + c.SEMITONE)**pitch_in_semitones
+                #pitch_factor = 2
+
+                    #pitch_factor = 2**(pitch_in_semitones/12)#(1 - c.SEMITONE)**(-pitch_in_semitones)
+                print(f"pitch_factor: {pitch_factor}")
+                self.keyboard[i] = (pg.sndarray.make_sound(resample(pg.sndarray.array(self.original_sound),pitch_factor,'sinc_fastest').astype(dtype="int16")))
+                self.key_notes.append(i)
+                self.pitch_factors.append(pitch_factor)
+            print(self.keyboard)
+            print(self.key_notes)
+            print(self.pitch_factors)
 
     def change_pitch(self,factor):
         self.pitch_factor = self.pitch_factor*factor
@@ -210,8 +227,8 @@ class Soundy:
     def play(self, block = False, lvol = 1.0, rvol = 1.0, key=None):
         #self.pgsound.set_volume(lvol)
 
-        if key:
-            self.keyboard[-key].play()
+        if key or key == 0:
+            self.keyboard[key].play()
         else:
             self.pgsound.play()
         # channel = self.pgsound.play()
@@ -228,8 +245,8 @@ class Soundy:
 
     def stop(self, key=None):
         #self.pgsound.fadeout(25)
-        if key:
-            self.keyboard[-key].stop()
+        if key or key == 0:
+            self.keyboard[key].stop()
         else:
             try:
                 self.pgsound.stop()

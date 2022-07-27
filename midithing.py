@@ -165,7 +165,10 @@ class MidiControl:
                     for note in notes:
                         if (ts-note.when)>0.1: # don't play if note was just recorded
                             if note.port in c.SYNTH:
-                                self.midi_player.play_note(note)
+                                if note.sample_id:
+                                    self.play_sound(note)
+                                else:
+                                    self.midi_player.play_note(note)
                             if note.port in c.MIDI_CONTROLLER:
                                 if note.midi.type == "note_on":
                                     self.play_sound(note)
@@ -651,7 +654,7 @@ class MidiControl:
                     self.play_keyboard(midi)
                 if midi.velocity == 0:
                     self.cut_keyboard(midi)
-                #self.add_to_loop(midi,c.MIDI_CONTROLLER,time)
+                self.add_to_loop(midi,port,time, sample_id=self.sample_id)
             else:
                 self.add_to_loop(midi,port,time)
 
@@ -805,11 +808,12 @@ class MidiControl:
             if self.all_sounds[self.current_page].kits[self.current_bank].samples[self.sample_id].pgsound:
                 print("--- MAKING KEYBOARD ---")
 
-                self.all_sounds[self.current_page].kits[self.current_bank].samples[self.sample_id].make_keyboard(start_semitone=-12,num_keys=24)  # play sound
+                self.all_sounds[self.current_page].kits[self.current_bank].samples[self.sample_id].make_keyboard(start_semitone=12,num_keys=25)  # play sound
 
     def play_keyboard(self,midi):
 
         note = midi.note - REFACE.C0_OFFSET
+        print(f"note {note}")
         if self.is_keyboard_active:
             try:
                 self.all_sounds[self.current_page].kits[self.current_bank].samples[self.sample_id].play(block=False, key=note)
@@ -942,9 +946,9 @@ class MidiControl:
         else:
             return False
 
-    def add_to_loop(self,midi,port,midi_time):
+    def add_to_loop(self,midi,port,midi_time, sample_id = None):
         if self.metronome.midi_recorder.RECORD:
-            self.metronome.midi_recorder.add_entry(midi,port,when_added=midi_time)
+            self.metronome.midi_recorder.add_entry(midi,port,when_added=midi_time, sample_id=sample_id)
 
     # def play_sound_local(self,midi):
     #     try:
@@ -988,6 +992,12 @@ class MidiControl:
                 if entry.midi.velocity>0:
                     if self.all_sounds[entry.page].kits[entry.bank].samples[i].pgsound:
                         self.all_sounds[entry.page].kits[entry.bank].samples[i].play(block=False)  # play sound
+        if c.SYNTH in entry.port:
+
+            self.all_sounds[entry.page].kits[entry.bank].samples[entry.sample_id].stop(key=(entry.midi.note- REFACE.C0_OFFSET))
+
+            if entry.midi.velocity>0:
+                self.all_sounds[entry.page].kits[entry.bank].samples[entry.sample_id].play(block=False, key=(entry.midi.note- REFACE.C0_OFFSET))
 
 
     # def play_sound_old(self,midis,note,banks,ports):
