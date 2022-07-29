@@ -12,7 +12,7 @@ import CONFIG as c
 
 class Slicer:
     def __init__(self,input_wav_file, pre_slice,folder_num):
-        self.path = c.USB + '10 - Recorded/'+str(folder_num)+'/' #'./samples/'+str(folder_num)+'/'
+        self.path = c.USB + '11 - Jungle/'+str(folder_num)+'/' #'./samples/'+str(folder_num)+'/'
         self.old_files_path = './oldsamples/' + str(dt.now().strftime("%y%m%d%H%M%S"))+"/"
         self.input_wav_file = input_wav_file
         self.pre_slice = pre_slice
@@ -111,5 +111,5 @@ class Slicer:
 # $ youtube-dl --extract-audio --audio-format wav -o [OUTPUT].wav '[URL]'
 #Slicer("file.wav",[0,5],12)
 #Slicer("/Users/richwhalley/Music/dinner.wav",[0,5],0)
-#Slicer("/Users/richwhalley/Music/System Break.wav",[0,5],17)
-#Slicer("/Users/richwhalley/Music/beat.wav",[0,5],17)
+#Slicer("/Users/richwhalley/Music/hailu.wav",[0,5],1)
+#Slicer("/Users/richwhalley/Downloads/Pete Cannon SOS free sample pack/3 Drums And Breaks/amen heavy hitter.wav",[0,5],0)

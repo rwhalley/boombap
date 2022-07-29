@@ -7,9 +7,12 @@ import wave
 import os
 from slicer import Slicer
 import time
+import note
+import mido
+import CONFIG as c
 
 class AudioRecorder():
-    def __init__(self,seconds):
+    def __init__(self,seconds, controller=None):
 
         self.FORMAT = pyaudio.paInt16
         self.CHANNELS = 1
@@ -20,6 +23,7 @@ class AudioRecorder():
         self.audio = pyaudio.PyAudio()
         self.stream = None
         self.frames = None
+        self.controller = controller
 
 
     def start_record(self):
@@ -29,6 +33,7 @@ class AudioRecorder():
                         rate=self.RATE, input=True, input_device_index=1,
                         frames_per_buffer=self.CHUNK)
         print ("recording...")
+        self.controller.LED_out.play_note(note.Note(0,mido.Message('note_on', note=self.button.RECORD_LED),0,c.MIDI_CONTROLLER,time.time(), -2,0), light=True)
         self.frames = []
         total = int(self.RATE / self.CHUNK * self.RECORD_SECONDS)
         for i in range(0, int(self.RATE / self.CHUNK * self.RECORD_SECONDS)):
@@ -36,6 +41,8 @@ class AudioRecorder():
             self.frames.append(data)
             print(f"writing chunk {i} of {total}")
         print ("finished recording...")
+        self.controller.LED_out.play_note(note.Note(0,mido.Message('note_off', note=self.button.RECORD_LED),0,c.MIDI_CONTROLLER,time.time(), -2,0), light=True)
+
 
 
     def stop_record(self):

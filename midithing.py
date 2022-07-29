@@ -163,10 +163,13 @@ class MidiControl:
                 notes = self.metronome.get_note(ts)
                 if notes:
                     for note in notes:
+
+
                         if (ts-note.when)>0.1: # don't play if note was just recorded
                             if note.port in c.SYNTH:
-                                if note.sample_id:
+                                if note.sample_id or note.sample_id == 0:
                                     self.play_sound(note)
+
                                 else:
                                     self.midi_player.play_note(note)
                             if note.port in c.MIDI_CONTROLLER:
@@ -345,7 +348,8 @@ class MidiControl:
                                     newkit.samples[k] = Soundy(fast_load=True, arr=sound_arr)
                                     newkit.samples[k].set_volume(kit.volumes[k])
                                 except ValueError:
-                                    print(f"soundarr: {sound_arr}")
+                                    pass
+                                    #print(f"soundarr: {sound_arr}")
                         newpage.kits[j] = newkit
                 self.all_sounds[i] = newpage
         # for page in self.all_sounds:
@@ -645,6 +649,7 @@ class MidiControl:
                         self.on_notes = set()
                 if self.button_is_switch(midi) and self.LED_out:
                     self.record_LED(midi)
+                    self.keyboard_mode_LED(midi)
             if midi.is_cc():
                 self.update_mbung_vol(midi)
                 self.update_col_vol(midi)
@@ -805,6 +810,8 @@ class MidiControl:
         if self.is_keyboard_active:
 
             self.sample_id = midi.note - self.button.PAD_START
+            print(self.sample_id)
+
             if self.all_sounds[self.current_page].kits[self.current_bank].samples[self.sample_id].pgsound:
                 print("--- MAKING KEYBOARD ---")
 
@@ -813,7 +820,7 @@ class MidiControl:
     def play_keyboard(self,midi):
 
         note = midi.note - REFACE.C0_OFFSET
-        print(f"note {note}")
+        #print(f"note {note}")
         if self.is_keyboard_active:
             try:
                 self.all_sounds[self.current_page].kits[self.current_bank].samples[self.sample_id].play(block=False, key=note)
@@ -837,6 +844,19 @@ class MidiControl:
                 self.LED_out.play_note(note.Note(0,mido.Message('note_on', note=self.button.RECORD_LED),0,c.MIDI_CONTROLLER,time.time(), -2,0), light=True)
             else:
                 self.LED_out.play_note(note.Note(0,mido.Message('note_off', note=self.button.RECORD_LED),0,c.MIDI_CONTROLLER,time.time(), -2,0), light=True)
+
+    def keyboard_mode_LED(self,midi):
+        if midi.note == self.button.KEYBOARD:
+            if self.is_keyboard_active:
+                self.LED_out.play_note(note.Note(0,mido.Message('note_on', note=self.button.KEYBOARD_LED),0,c.MIDI_CONTROLLER,time.time(), -2,0), light=True)
+            else:
+                self.LED_out.play_note(note.Note(0,mido.Message('note_off', note=self.button.KEYBOARD_LED),0,c.MIDI_CONTROLLER,time.time(), -2,0), light=True)
+
+    def metronome_LED_on(self):
+        self.LED_out.play_note(note.Note(0,mido.Message('note_on', note=self.button.METRONOME_LED),0,c.MIDI_CONTROLLER,time.time(), -2,0), light=True)
+
+    def metronome_LED_off(self):
+        self.LED_out.play_note(note.Note(0,mido.Message('note_off', note=self.button.METRONOME_LED),0,c.MIDI_CONTROLLER,time.time(), -2,0), light=True)
 
 
 
@@ -941,7 +961,7 @@ class MidiControl:
 
     def button_is_playable(self,midi):
         if midi.note in QUNEO.PADS and not self.shift_is_active():
-            print("button is playable")
+            #print("button is playable")
             return True
         else:
             return False
@@ -1079,7 +1099,7 @@ class MidiControl:
     def record_new_samples(self):
         print("RECORDING NEW SAMPLES")
         # create recording
-        r = AudioRecorder(self.sample_recording_length_in_seconds)
+        r = AudioRecorder(self.sample_recording_length_in_seconds,controller=self)
         r.start_record()
         r.stop_record()
 

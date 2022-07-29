@@ -18,7 +18,9 @@ PITCH_DOWN = 23
 PAD_START = 52
 
 # LEDS
+METRONOME_LED = 38
 RECORD_LED = 34
+KEYBOARD_LED = 43
 
 # Left Triangle Shift Buttons
 BANK_SELECTOR = 11  # Select Drum Kit on Pads - Row 1 Left

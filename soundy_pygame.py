@@ -65,21 +65,16 @@ class Soundy:
 
 
     def apply_reverb(self):
-        #3signal_arr = pg.sndarray.array(self.pgsound)
         signal_arr = pg.sndarray.array(self.pgsound)
-        print(signal_arr)
 
 
         impulse_arr = pg.sndarray.array(pg.mixer.Sound('./impulse/LoveLibrary.wav'))
-        print(impulse_arr)
 
 
-        print(np.shape(impulse_arr))
-        print(np.zeros((10,2)))
+
 
         zeros = np.zeros((10,2))
         zeros[:2] = [1,2]
-        print(zeros)
         # Zero Pad
         if len(signal_arr) > len(impulse_arr):
             zeros = np.zeros((len(signal_arr),2))
@@ -90,30 +85,21 @@ class Soundy:
             zeros[:len(signal_arr)] = signal_arr
             signal_arr = zeros
 
-        print(np.shape(signal_arr))
-        print(np.shape(impulse_arr))
-        print(signal_arr)
-        print(impulse_arr)
 
         amplitudes = np.fft.rfft2(signal_arr)
         #frequencies = np.fft.rfftfreq(len(signal_arr), 1 / self.sample_rate)
 
         iamp = np.fft.rfft2(impulse_arr)
         #ifreq = np.fft.rfftfreq(len(impulse_arr), 1 / self.sample_rate)
-        print(amplitudes)
-        print(iamp)
 
 
         # convolution
         convo = (amplitudes * iamp)
-        print(convo)
         convo = np.fft.irfft2(convo)
-        print("convo")
-        print(convo)
+
         # Readjust maxed out amplitudes
         if np.max(convo) > 1 or np.min(convo) < -1:
-            print(abs(np.min(convo)))
-            print(max(abs(np.max(convo)), abs(np.min(convo))))
+
             convo = convo / max(abs(np.max(convo)), abs(np.min(convo)))
 
         convo= (convo * (32767)).astype(np.int16)
@@ -200,13 +186,14 @@ class Soundy:
                 #pitch_factor = 2
 
                     #pitch_factor = 2**(pitch_in_semitones/12)#(1 - c.SEMITONE)**(-pitch_in_semitones)
-                print(f"pitch_factor: {pitch_factor}")
+                #print(f"pitch_factor: {pitch_factor}")
                 self.keyboard[i] = (pg.sndarray.make_sound(resample(pg.sndarray.array(self.original_sound),pitch_factor,'sinc_fastest').astype(dtype="int16")))
+                self.keyboard[i].set_volume(self.vol/128.)
                 self.key_notes.append(i)
                 self.pitch_factors.append(pitch_factor)
-            print(self.keyboard)
-            print(self.key_notes)
-            print(self.pitch_factors)
+            # print(self.keyboard)
+            # print(self.key_notes)
+            # print(self.pitch_factors)
 
     def change_pitch(self,factor):
         self.pitch_factor = self.pitch_factor*factor
@@ -220,6 +207,9 @@ class Soundy:
     def set_volume(self,midi_vel_in):
         normalized_vel = midi_vel_in/128.
         self.pgsound.set_volume(normalized_vel)
+        if self.keyboard:
+            for key in self.keyboard:
+                key.set_volume(normalized_vel)
 
     # def set_volume_stereo(self,left,right):
     #     self.pgsound.set_volume(left,right)
@@ -227,7 +217,7 @@ class Soundy:
     def play(self, block = False, lvol = 1.0, rvol = 1.0, key=None):
         #self.pgsound.set_volume(lvol)
 
-        if key or key == 0:
+        if self.keyboard and (key or key == 0):
             self.keyboard[key].play()
         else:
             self.pgsound.play()
@@ -245,7 +235,7 @@ class Soundy:
 
     def stop(self, key=None):
         #self.pgsound.fadeout(25)
-        if key or key == 0:
+        if self.keyboard and (key or key == 0):
             self.keyboard[key].stop()
         else:
             try:
