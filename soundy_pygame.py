@@ -19,7 +19,6 @@ class Soundy:
         self.original_sound = None
         self.path = soundpath
         self.pitch_factor = 1.0
-        self.semitone = c.SEMITONE
         self.sample_rate = 44100
         self.repeat = False
         self.bank = None

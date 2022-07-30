@@ -14,13 +14,25 @@ import CONFIG as c
 class AudioRecorder():
     def __init__(self,seconds, controller=None):
 
+
         self.FORMAT = pyaudio.paInt16
-        self.CHANNELS = 1
         self.RATE = 44100
         self.CHUNK = 4096#1024
         self.RECORD_SECONDS = seconds
         self.WAVE_OUTPUT_FILENAME = "file.wav"
         self.audio = pyaudio.PyAudio()
+        self.input_device_index = 0
+
+        self.CHANNELS = 1
+        print(self.audio.get_device_count())
+        for i in range(self.audio.get_device_count()):
+             dev = self.audio.get_device_info_by_index(i)
+             name = dev['name']
+             if name == c.MICROPHONE_NAME:
+                self.CHANNELS = dev['maxInputChannels']
+                self.input_device_index = i
+        #     print(dev['maxInputChannels'])
+
         self.stream = None
         self.frames = None
         self.controller = controller
@@ -30,10 +42,10 @@ class AudioRecorder():
         # start Recording
         print("opening stream...")
         self.stream = self.audio.open(format=self.FORMAT, channels=self.CHANNELS,
-                        rate=self.RATE, input=True, input_device_index=1,
+                        rate=self.RATE, input=True, input_device_index=self.input_device_index,
                         frames_per_buffer=self.CHUNK)
         print ("recording...")
-        self.controller.LED_out.play_note(note.Note(0,mido.Message('note_on', note=self.button.RECORD_LED),0,c.MIDI_CONTROLLER,time.time(), -2,0), light=True)
+        self.controller.LED_out.play_note(note.Note(0,mido.Message('note_on', note=self.controller.button.RECORD_LED),0,c.MIDI_CONTROLLER,time.time(), -2,0), light=True)
         self.frames = []
         total = int(self.RATE / self.CHUNK * self.RECORD_SECONDS)
         for i in range(0, int(self.RATE / self.CHUNK * self.RECORD_SECONDS)):
@@ -41,7 +53,7 @@ class AudioRecorder():
             self.frames.append(data)
             print(f"writing chunk {i} of {total}")
         print ("finished recording...")
-        self.controller.LED_out.play_note(note.Note(0,mido.Message('note_off', note=self.button.RECORD_LED),0,c.MIDI_CONTROLLER,time.time(), -2,0), light=True)
+        self.controller.LED_out.play_note(note.Note(0,mido.Message('note_off', note=self.controller.button.RECORD_LED),0,c.MIDI_CONTROLLER,time.time(), -2,0), light=True)
 
 
 

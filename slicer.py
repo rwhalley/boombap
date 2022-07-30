@@ -12,7 +12,7 @@ import CONFIG as c
 
 class Slicer:
     def __init__(self,input_wav_file, pre_slice,folder_num):
-        self.path = c.USB + '11 - Jungle/'+str(folder_num)+'/' #'./samples/'+str(folder_num)+'/'
+        self.path = c.USB + '10 - Recorded/'+str(folder_num)+'/' #'./samples/'+str(folder_num)+'/'
         self.old_files_path = './oldsamples/' + str(dt.now().strftime("%y%m%d%H%M%S"))+"/"
         self.input_wav_file = input_wav_file
         self.pre_slice = pre_slice

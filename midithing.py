@@ -42,7 +42,6 @@ class MidiControl:
         self.METRONOME_MUTE = False
         self.port_name = None
         self.ports = []
-        self.semitone = c.SEMITONE
         self.last_note = 1101001
         self.NON_LOOP = -2
         self.active_controllers = {10}
@@ -94,7 +93,7 @@ class MidiControl:
             self.save_all_sound_data()
 
         # AUDIO RECORDER
-        self.sample_recording_length_in_seconds = 8
+        self.sample_recording_length_in_seconds = 5
 
         # START METRONOME
         self.metronome_path = self.program_path + 'metronome/metronome.wav'
@@ -258,7 +257,7 @@ class MidiControl:
         path = self.basepath+'/'+c.RECORDED_SAMPLES_FOLDER+'/'+str(kit_num)+'/'
         if not exists(path):
             os.makedirs(self.basepath+'/'+c.RECORDED_SAMPLES_FOLDER+'/'+str(kit_num)+'/')
-        kit = self.get_empty_kit(name=str(kit_num,path = path))
+        kit = self.get_empty_kit(name=str(kit_num),path = path)
         samples = [f for f in sorted(listdir(kit.path)) if isfile(join(kit.path, f))]
         for file in samples:
             if file.endswith('.wav'):
@@ -291,7 +290,7 @@ class MidiControl:
             newkit = self.get_empty_kit()
             if kit:
                 for k,sound in enumerate(kit.samples):
-                    if sound:
+                    if sound and k<16:
                         print(f"k: {k}")
                         print(sound.path)
                         newkit.samples[k]= sound.get_original_sound_array()
@@ -746,10 +745,10 @@ class MidiControl:
             self.metronome.bpm_down()
     def pitch_up(self,midi, for_one_sample=False):
         if midi.note == self.button.PITCH_UP:
-            self.change_pitch(1 - self.semitone)
+            self.change_pitch(1 - c.SEMITONE)
     def pitch_down(self,midi,for_one_sample=False):
         if midi.note == self.button.PITCH_DOWN:
-            self.change_pitch(1 + self.semitone)
+            self.change_pitch(1 + c.SEMITONE)
     def load_volume_levels(self):
         for page in self.all_sounds:
             for kit in page.kits:
