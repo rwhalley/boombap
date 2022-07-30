@@ -46,6 +46,8 @@ AUDIO_RECORD_MODE_NUM = 2 # pad 2
 VELOCITY_SENSITIVITY = 3 # 25 pad 3
 MUTE_METRONOME = 4
 SAVE_STATE = 5 # Example: Saves all volumes # Reexport all pickle files - can save keyboards
+AUDIO_RECORD_MODE_NUM_DULL = 6
+AUDIO_RECORD_NO_SLICE = 7
 
 
 PADS = range(PAD_START,PAD_START+16)

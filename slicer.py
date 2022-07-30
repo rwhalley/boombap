@@ -7,15 +7,18 @@ import os
 import glob
 from datetime import datetime as dt
 from onset_detect import get_onsets
+import time
 
 import CONFIG as c
 
 class Slicer:
-    def __init__(self,input_wav_file, pre_slice,folder_num):
+    def __init__(self,input_wav_file, pre_slice,folder_num, slice_sharpness = 0.3):
         self.path = c.USB + '10 - Recorded/'+str(folder_num)+'/' #'./samples/'+str(folder_num)+'/'
         self.old_files_path = './oldsamples/' + str(dt.now().strftime("%y%m%d%H%M%S"))+"/"
         self.input_wav_file = input_wav_file
         self.pre_slice = pre_slice
+        self.slice_sharpness = slice_sharpness
+        self.move_files = False
         #if int(folder_num)>7:
         self.slice_samples()
         #self.delete_files_in_folder('./samples/'+str(folder_num)+'/*')
@@ -28,7 +31,8 @@ class Slicer:
             self.create_new_folder(self.path)
         else:
             self.create_new_folder(self.old_files_path)
-            self.move_files_to_folder(self.path,self.old_files_path)
+            if self.move_files:
+                self.move_files_to_folder(self.path,self.old_files_path)
 
         self.sample_rate =44100
         print(self.input_wav_file)
@@ -47,18 +51,24 @@ class Slicer:
         start_index = (self.sample_rate*self.pre_slice[0])
         end_index =(self.sample_rate*self.pre_slice[1])
         self.input_wav = self.input_wav[start_index:end_index]
-        for i,onset in enumerate(self.onsets):
-            if i==16:
-                break
-            else:
-                data = None
-                if i< (len(self.onsets)-1):
-                    data =(self.input_wav[0][int(onset*self.sample_rate):int(self.onsets[i+1]*self.sample_rate)])
 
-                elif i == (len(self.onsets)-1):
-                     data = self.input_wav[0][int(onset*self.sample_rate):(len(self.input_wav[0])-1)]
-                if hasattr(data, 'shape'):
-                    sf.write(self.path+str(i)+'.wav', data, self.sample_rate, subtype='PCM_16')
+        if self.slice_sharpness: # if slicing needs to happen
+            for i,onset in enumerate(self.onsets):
+                if i==16:
+                    break
+                else:
+                    data = None
+                    if i< (len(self.onsets)-1):
+                        data =(self.input_wav[0][int(onset*self.sample_rate):int(self.onsets[i+1]*self.sample_rate)])
+
+                    elif i == (len(self.onsets)-1):
+                         data = self.input_wav[0][int(onset*self.sample_rate):(len(self.input_wav[0])-1)]
+                    if hasattr(data, 'shape'):
+                        sf.write(self.path+str(time.time())+'.wav', data, self.sample_rate, subtype='PCM_16')
+        else:
+            data =(self.input_wav[0][int(self.onsets[0]*self.sample_rate):end_index])
+            if hasattr(data, 'shape'):
+                sf.write(self.path+str(time.time())+'.wav', data, self.sample_rate, subtype='PCM_16')
 
 
     def left_shift_onsets(self,onsets,seconds):
@@ -99,7 +109,7 @@ class Slicer:
         for i, onset in enumerate(onsets):
             if i==0:
                 new_onsets.append(onset)
-            elif onset-new_onsets[-1] < 0.3:
+            elif onset-new_onsets[-1] < self.slice_sharpness:
                 pass
             else:
                 new_onsets.append(onset)
