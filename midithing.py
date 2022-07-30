@@ -523,36 +523,37 @@ class MidiControl:
         if self.on_notes: # if there are notes actively pressed
             for note in self.on_notes:
                 note = note-self.button.PAD_START
-                if c.THREADING_ACTIVE:
-                    # Run DSP as background process
-                    x = Thread(self.all_sounds[self.current_page].kits[self.current_bank].samples[note].change_pitch(factor), daemon=True)
-                    x.start()
-                    x = Thread(self.all_sounds[self.current_page].kits[self.current_bank].samples[note].normalize(), daemon=True)
-                    x.start()
-                    x = Thread(self.all_sounds[self.current_page].kits[self.current_bank].samples[note].make_loud(), daemon=True)
-                    x.start()
-                else:
-                    self.all_sounds[self.current_page].kits[self.current_bank].samples[note].change_pitch(factor)
-                    self.all_sounds[self.current_page].kits[self.current_bank].samples[note].normalize()
-                    self.all_sounds[self.current_page].kits[self.current_bank].samples[note].make_loud()
+                if self.all_sounds[self.current_page].kits[self.current_bank].samples[note].pgsound:
+                    if c.THREADING_ACTIVE:
+                        # Run DSP as background process
+                        x = Thread(self.all_sounds[self.current_page].kits[self.current_bank].samples[note].change_pitch(factor), daemon=True)
+                        x.start()
+                        x = Thread(self.all_sounds[self.current_page].kits[self.current_bank].samples[note].normalize(), daemon=True)
+                        x.start()
+                        x = Thread(self.all_sounds[self.current_page].kits[self.current_bank].samples[note].make_loud(), daemon=True)
+                        x.start()
+                    else:
+                        self.all_sounds[self.current_page].kits[self.current_bank].samples[note].change_pitch(factor)
+                        self.all_sounds[self.current_page].kits[self.current_bank].samples[note].normalize()
+                        self.all_sounds[self.current_page].kits[self.current_bank].samples[note].make_loud()
 
         else:
 
 
             for sound in self.all_sounds[self.current_page].kits[self.current_bank].samples:
-
-                if c.THREADING_ACTIVE:
-                    # Run DSP as background process
-                    x = Thread(sound.change_pitch(factor), daemon=True)
-                    x.start()
-                    x = Thread(sound.normalize(), daemon=True)
-                    x.start()
-                    x = Thread(sound.make_loud(), daemon=True)
-                    x.start()
-                else:
-                    sound.change_pitch(factor)
-                    sound.normalize()
-                    sound.make_loud()
+                if sound.pgsound:
+                    if c.THREADING_ACTIVE:
+                        # Run DSP as background process
+                        x = Thread(sound.change_pitch(factor), daemon=True)
+                        x.start()
+                        x = Thread(sound.normalize(), daemon=True)
+                        x.start()
+                        x = Thread(sound.make_loud(), daemon=True)
+                        x.start()
+                    else:
+                        sound.change_pitch(factor)
+                        sound.normalize()
+                        sound.make_loud()
 
     def pre_process_sounds(self, sounds = None):
         if not sounds:
@@ -799,7 +800,17 @@ class MidiControl:
                                 pass
                                 #print("empty entry")
                 self.global_vol = midi.value
+        elif self.is_metronome_pressed: # adjust levels of metronome/accompaniment
+            if (now-self.time_since_last_cc) >0.5:
+                factor  = (midi.value/self.global_vol)
+
+                self.metronome.sound.set_volume(self.metronome.sound.vol*factor)
+                self.metronome.update_volume(self.metronome.sound.vol*factor) # same as metronome for now
+
+
+
         else:  # kit level vol adjustment
+
             if (now-self.time_since_last_cc) >0.5:
                 factor  = (midi.value/self.global_vol)
 
@@ -823,8 +834,16 @@ class MidiControl:
             self.midi_player.all_notes_off()
     def audio_record(self,midi):
         mode_num = midi.note - self.button.PAD_START
-        if self.is_mode_shift_pressed and mode_num == self.button.AUDIO_RECORD_MODE_NUM:
-            self.record_new_samples()
+        if self.is_mode_shift_pressed:
+            if mode_num == self.button.AUDIO_RECORD_MODE_NUM:
+                self.record_new_samples(slice_sharpness = 0.3)
+            if mode_num == self.button.AUDIO_RECORD_MODE_NUM_SHARP:
+                self.record_new_samples(slice_sharpness = 0.1)
+            if mode_num == self.button.AUDIO_RECORD_NO_SLICE:
+                self.record_new_samples(slice_sharpness = None)
+
+
+
     def keyboard(self,midi):
         if midi.note == self.button.KEYBOARD:
             self.is_keyboard_active = not self.is_keyboard_active
@@ -1125,7 +1144,7 @@ class MidiControl:
 
 
     # Record Sound
-    def record_new_samples(self):
+    def record_new_samples(self, slice_sharpness = 0.3):
         print("RECORDING NEW SAMPLES")
         # create recording
         r = AudioRecorder(self.sample_recording_length_in_seconds,controller=self)
@@ -1137,7 +1156,7 @@ class MidiControl:
 
         # slice wav and export it to current_bank
 
-        Slicer(r.WAVE_OUTPUT_FILENAME,[0,r.RECORD_SECONDS],self.current_bank)
+        Slicer(r.WAVE_OUTPUT_FILENAME,[0,r.RECORD_SECONDS],self.current_bank, slice_sharpness = slice_sharpness)
 
         r.delete_wav()
 

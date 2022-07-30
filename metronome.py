@@ -168,9 +168,25 @@ class Metronome:
             self.is_on = False
 
 
-    def update_volume(self,drum,volume):
-        for sound in self.accompaniment_sounds[drum]:
-            sound.set_volume(volume)
+    def update_volume(self,vol, drum_key=None):
+        print(self.accompaniment_sounds)
+
+        if drum_key:
+            for i, (hit_key,hit_value) in enumerate(self.accompaniment_sounds[drum_key].items()):
+                    try:
+                        self.accompaniment_sounds[drum_key][hit_key].set_volume(vol)
+                    except KeyError:
+                        pass
+        else:
+            for i, (drum_key, drum_value) in enumerate(self.accompaniment_sounds.items()):
+                for i, (hit_key,hit_value) in enumerate(self.accompaniment_sounds[drum_key].items()):
+                    try:
+                        self.accompaniment_sounds[drum_key][hit_key].set_volume(vol)
+                    except KeyError:
+                        pass
+
+
+
 
     def set_bpm(self,input):
         new_bpm = 40+input*200
@@ -202,7 +218,7 @@ class Metronome:
                         for j, (shit_key, shit_value) in enumerate (drum_value.drum.items()): # iterate through hits and
                                 if shit_value:
                                     self.accompaniment_sounds[drum_key][shit_key].stop() # stop any other sounds playing
-                        self.accompaniment_sounds[drum_key][hit_key].play(block=False, lvol= drum_value.lvol, rvol = drum_value.rvol)
+                        self.accompaniment_sounds[drum_key][hit_key].play(block=False)
                         #self.accompaniment_sounds[drum_key][hit_key].play(block=False)
 
 
