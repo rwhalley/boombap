@@ -20,6 +20,7 @@ PAD_START = 52
 # LEDS
 METRONOME_LED = 38
 RECORD_LED = 34
+ON_LED = 35
 KEYBOARD_LED = 43
 
 # Left Triangle Shift Buttons

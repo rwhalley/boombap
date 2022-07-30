@@ -21,7 +21,7 @@ from midi_recorder import MIDIRecorder
 from recorder import AudioRecorder
 from slicer import Slicer
 import CONFIG as c
-import note
+import note_class
 from page  import Kit, Page
 
 
@@ -142,6 +142,19 @@ class MidiControl:
         self.LED_out = None
         if c.MIDI_CONTROLLER == "QUNEO":
             self.LED_out = MIDIPlayer(None,c.MIDI_CONTROLLER,light=True)
+
+            for i in range(0,60):
+                self.LED_out.play_note(note_class.Note(0,mido.Message('note_on', note=i),0,c.MIDI_CONTROLLER,time.time(), -2,0), light=True)
+                time.sleep(0.005)
+
+            for i in range(0,60):
+                self.LED_out.play_note(note_class.Note(0,mido.Message('note_off', note=i),0,c.MIDI_CONTROLLER,time.time(), -2,0), light=True)
+                time.sleep(0.005)
+
+            self.LED_out.play_note(note_class.Note(0,mido.Message('note_on', note=self.button.ON_LED),0,c.MIDI_CONTROLLER,time.time(), -2,0), light=True)
+
+
+
 
 
         print("LOADING COMPLETE - STARTING MAIN LOOP")
@@ -286,17 +299,17 @@ class MidiControl:
         newpage = self.get_empty_page()
 
         for j, kit in enumerate(page.kits):
-            print(f"length: {len(page.kits)}")
+            #print(f"length: {len(page.kits)}")
             newkit = self.get_empty_kit()
             if kit:
                 for k,sound in enumerate(kit.samples):
                     if sound and k<16:
-                        print(f"k: {k}")
-                        print(sound.path)
+                        #print(f"k: {k}")
+                        #print(sound.path)
                         newkit.samples[k]= sound.get_original_sound_array()
                         newkit.volumes[k] = sound.vol
-                print(f"kit len:{len(kit.samples)}")
-                print(f"j {j}")
+                #print(f"kit len:{len(kit.samples)}")
+                #print(f"j {j}")
                 newpage.kits[j] = newkit
         self.all_pages[i] = (newpage)
         print(f"SAVING Page {i+1} of {len(self.all_sounds)}")
@@ -333,7 +346,7 @@ class MidiControl:
         self.all_sounds = [self.get_empty_page()] * 16
 
         for i, page in enumerate(self.all_pages):
-            print(f"page: {page}")
+            #print(f"page: {page}")
             if page:
                 newpage = self.get_empty_page()
                 for j, kit in enumerate(page.kits):
@@ -372,7 +385,7 @@ class MidiControl:
                     if kit:
                         for k,sound in enumerate(kit.samples):
                             if sound:
-                                print(sound.path)
+                                #print(sound.path)
                                 newkit.samples[k]= sound.get_original_sound_array()
                                 newkit.volumes[k] = sound.vol
                         newpage.kits[j] = newkit
@@ -434,7 +447,7 @@ class MidiControl:
             self.all_sounds[i] = (Page(page,self.basepath+'/'+page+'/',kits))
 
             print(f"Loading page {i+1} of {len(pages)}")
-        print(self.all_sounds)
+        #print(self.all_sounds)
         print("SOUNDS LOADED")
             #print(self.all_sounds)
 
@@ -593,7 +606,7 @@ class MidiControl:
                     self.volume_shift(midi)
                     self.reverb_shift(midi)
                 if self.button_is_playable(midi):
-                    self.play_sound(note.Note(None,midi,self.current_bank,port,time,self.NON_LOOP,self.current_page))  # -2 is non-loop loop id
+                    self.play_sound(note_class.Note(None, midi, self.current_bank, port, time, self.NON_LOOP, self.current_page))  # -2 is non-loop loop id
                     self.add_to_loop(midi,port,time)
                     #self.play_sound([midi],None,[self.current_bank],[port])
                     self.on_notes.add(midi.note)  # keep list of which pads currently pressed
@@ -640,7 +653,7 @@ class MidiControl:
                     self.reverb_shift(midi)
                 if self.button_is_playable(midi):
                     if self.current_page > 0:
-                        self.cutoff_current_sound(note.Note(None,midi,self.current_bank,port,time,self.NON_LOOP,self.current_page))
+                        self.cutoff_current_sound(note_class.Note(None, midi, self.current_bank, port, time, self.NON_LOOP, self.current_page))
                     self.add_to_loop(midi,port,time)
                     try:
                         self.on_notes.remove(midi.note)# keep list of which pads currently pressed
@@ -840,22 +853,22 @@ class MidiControl:
     def record_LED(self,midi):
         if midi.note == self.button.RECORD:
             if self.metronome.midi_recorder.RECORD:
-                self.LED_out.play_note(note.Note(0,mido.Message('note_on', note=self.button.RECORD_LED),0,c.MIDI_CONTROLLER,time.time(), -2,0), light=True)
+                self.LED_out.play_note(note_class.Note(0, mido.Message('note_on', note=self.button.RECORD_LED), 0, c.MIDI_CONTROLLER, time.time(), -2, 0), light=True)
             else:
-                self.LED_out.play_note(note.Note(0,mido.Message('note_off', note=self.button.RECORD_LED),0,c.MIDI_CONTROLLER,time.time(), -2,0), light=True)
+                self.LED_out.play_note(note_class.Note(0, mido.Message('note_off', note=self.button.RECORD_LED), 0, c.MIDI_CONTROLLER, time.time(), -2, 0), light=True)
 
     def keyboard_mode_LED(self,midi):
         if midi.note == self.button.KEYBOARD:
             if self.is_keyboard_active:
-                self.LED_out.play_note(note.Note(0,mido.Message('note_on', note=self.button.KEYBOARD_LED),0,c.MIDI_CONTROLLER,time.time(), -2,0), light=True)
+                self.LED_out.play_note(note_class.Note(0, mido.Message('note_on', note=self.button.KEYBOARD_LED), 0, c.MIDI_CONTROLLER, time.time(), -2, 0), light=True)
             else:
-                self.LED_out.play_note(note.Note(0,mido.Message('note_off', note=self.button.KEYBOARD_LED),0,c.MIDI_CONTROLLER,time.time(), -2,0), light=True)
+                self.LED_out.play_note(note_class.Note(0, mido.Message('note_off', note=self.button.KEYBOARD_LED), 0, c.MIDI_CONTROLLER, time.time(), -2, 0), light=True)
 
     def metronome_LED_on(self):
-        self.LED_out.play_note(note.Note(0,mido.Message('note_on', note=self.button.METRONOME_LED),0,c.MIDI_CONTROLLER,time.time(), -2,0), light=True)
+        self.LED_out.play_note(note_class.Note(0, mido.Message('note_on', note=self.button.METRONOME_LED), 0, c.MIDI_CONTROLLER, time.time(), -2, 0), light=True)
 
     def metronome_LED_off(self):
-        self.LED_out.play_note(note.Note(0,mido.Message('note_off', note=self.button.METRONOME_LED),0,c.MIDI_CONTROLLER,time.time(), -2,0), light=True)
+        self.LED_out.play_note(note_class.Note(0, mido.Message('note_off', note=self.button.METRONOME_LED), 0, c.MIDI_CONTROLLER, time.time(), -2, 0), light=True)
 
 
 
@@ -898,6 +911,10 @@ class MidiControl:
     def exit_program(self,midi):
         if midi.note == self.button.EXIT:
             print("EXITING PROGRAM")
+            if c.MIDI_CONTROLLER == 'QUNEO':
+                for i in range(0,60):
+                    self.LED_out.play_note(note_class.Note(0,mido.Message('note_off', note=i),0,c.MIDI_CONTROLLER,time.time(), -2,0), light=True)
+
             sys.exit()
     def switch_metronome(self,midi):
         if self.is_metronome_pressed and midi.note in self.button.PADS:

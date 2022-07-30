@@ -3,7 +3,7 @@ import threading
 import midiparse as mp
 import CONFIG as c
 import mido
-from note import Note
+from note_class import Note
 
 
 class MIDIPlayer():

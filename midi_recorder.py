@@ -1,7 +1,7 @@
 import pickle as p
 import CONFIG as c
 
-import note
+import note_class
 
 class MIDIRecorder:
     def __init__(self,metronome):
@@ -54,14 +54,14 @@ class MIDIRecorder:
 
     """Add midi data point and loop ID to the current loop"""
     def add_entry(self,midi,port,when_added, sample_id = None):
-        self.my_loop.append(note.Note(self.metronome.get_position(timestamp=when_added),
-                                      midi,
-                                      self.metronome.controller.current_bank,
-                                      port,
-                                      when_added,
-                                      self.current_loop_id,
-                                      self.metronome.controller.current_page,
-                                      sample_id=sample_id))
+        self.my_loop.append(note_class.Note(self.metronome.get_position(timestamp=when_added),
+                                            midi,
+                                            self.metronome.controller.current_bank,
+                                            port,
+                                            when_added,
+                                            self.current_loop_id,
+                                            self.metronome.controller.current_page,
+                                            sample_id=sample_id))
         self.current_loop_length = len(self.my_loop)
         self.my_loop.sort(key=lambda x: x.bar_position)  # re-sort the list every time a new item added
 

@@ -7,7 +7,7 @@ import wave
 import os
 from slicer import Slicer
 import time
-import note
+import note_class
 import mido
 import CONFIG as c
 
@@ -45,7 +45,7 @@ class AudioRecorder():
                         rate=self.RATE, input=True, input_device_index=self.input_device_index,
                         frames_per_buffer=self.CHUNK)
         print ("recording...")
-        self.controller.LED_out.play_note(note.Note(0,mido.Message('note_on', note=self.controller.button.RECORD_LED),0,c.MIDI_CONTROLLER,time.time(), -2,0), light=True)
+        self.controller.LED_out.play_note(note_class.Note(0, mido.Message('note_on', note=self.controller.button.RECORD_LED), 0, c.MIDI_CONTROLLER, time.time(), -2, 0), light=True)
         self.frames = []
         total = int(self.RATE / self.CHUNK * self.RECORD_SECONDS)
         for i in range(0, int(self.RATE / self.CHUNK * self.RECORD_SECONDS)):
@@ -53,7 +53,7 @@ class AudioRecorder():
             self.frames.append(data)
             print(f"writing chunk {i} of {total}")
         print ("finished recording...")
-        self.controller.LED_out.play_note(note.Note(0,mido.Message('note_off', note=self.controller.button.RECORD_LED),0,c.MIDI_CONTROLLER,time.time(), -2,0), light=True)
+        self.controller.LED_out.play_note(note_class.Note(0, mido.Message('note_off', note=self.controller.button.RECORD_LED), 0, c.MIDI_CONTROLLER, time.time(), -2, 0), light=True)
 
 
 
