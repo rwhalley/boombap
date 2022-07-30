@@ -2,6 +2,7 @@
 
 import time
 import os
+import glob
 from os import listdir
 from os.path import isfile, join, exists
 import sys
@@ -9,6 +10,7 @@ from pathlib import Path
 from threading import Thread
 import pickle as p
 from dataclasses import dataclass
+from datetime import datetime as dt
 
 import mido
 
@@ -272,15 +274,21 @@ class MidiControl:
             os.makedirs(self.basepath+'/'+c.RECORDED_SAMPLES_FOLDER+'/'+str(kit_num)+'/')
         kit = self.get_empty_kit(name=str(kit_num),path = path)
         samples = [f for f in sorted(listdir(kit.path)) if isfile(join(kit.path, f))]
-        for file in samples:
+        print("RELOAD KIT")
+        print(f"PAGE NUM {page_num}")
+        print(f"KIT NUM {kit_num}")
+        for i, file in enumerate(samples):
+
+            print(file)
             if file.endswith('.wav'):
                 if file.startswith('.'):
                     pass
                 else:
                     #print(f"filename: {file}")
-                    kit.samples.append(Soundy(kit.path+file))
+                    kit.samples[i] = (Soundy(kit.path+file))
 
-        if self.all_sounds[page_num]:
+        if self.all_sounds[page_num].kits:
+            print("MAKING KIT")
             self.all_sounds[page_num].kits[kit_num] = (kit)
         else:
             self.reload_page(page_num)
@@ -353,6 +361,7 @@ class MidiControl:
                     newkit = self.get_empty_kit()
                     if kit:
                         #print(kit.samples)
+                        newkit.path = kit.path
                         for k, sound_arr in enumerate(kit.samples):
                             #print(f"ksoundarr: {k}")
                             if k <16:
@@ -382,7 +391,9 @@ class MidiControl:
                 for j, kit in enumerate(page.kits):
 
                     newkit = self.get_empty_kit()
+
                     if kit:
+                        newkit.path = kit.path
                         for k,sound in enumerate(kit.samples):
                             if sound:
                                 #print(sound.path)
@@ -828,21 +839,47 @@ class MidiControl:
 
 
     def clear_loop(self,midi):
+
         if midi.note == self.button.CLEAR_LOOP:
-            print("CLEARING LOOP")
-            self.metronome.midi_recorder.clear_all_loops()
-            self.midi_player.all_notes_off()
+            if self.is_bank_shift_pressed:
+                self.delete_samples(midi)
+            else:
+                print("CLEARING LOOP")
+                self.metronome.midi_recorder.clear_all_loops()
+                self.midi_player.all_notes_off()
     def audio_record(self,midi):
         mode_num = midi.note - self.button.PAD_START
         if self.is_mode_shift_pressed:
             if mode_num == self.button.AUDIO_RECORD_MODE_NUM:
+                print("LEAST SLICE")
                 self.record_new_samples(slice_sharpness = 0.3)
             if mode_num == self.button.AUDIO_RECORD_MODE_NUM_SHARP:
+                print("MOST SLICE")
                 self.record_new_samples(slice_sharpness = 0.1)
             if mode_num == self.button.AUDIO_RECORD_NO_SLICE:
+                print("NO SLICE")
                 self.record_new_samples(slice_sharpness = None)
 
+    def delete_samples(self,midi, archive=True):
+        archive_folder = c.ARCHIVE + str(dt.now().strftime("%y%m%d%H%M%S"))+"/"
+        if not os.path.exists(archive_folder):
+            os.makedirs(archive_folder)
+        current_folder = self.all_sounds[self.current_page].kits[self.current_bank].path
+        if '10' in current_folder:
+            if archive:
+                for f in os.listdir(current_folder):
+                    os.rename(current_folder + f, archive_folder + f)
+        self.all_sounds[self.current_page].kits[self.current_bank] = self.get_empty_kit(path = current_folder)
+        print(f"CLEARED KIT: {current_folder}")
+        self.save_page(self.current_page)
 
+
+            # else:  # delete
+            #     files = glob.glob(folder)
+            #     print(files)
+            #     for f in files:
+            #         os.remove(f)
+            #     pass
 
     def keyboard(self,midi):
         if midi.note == self.button.KEYBOARD:
@@ -1161,7 +1198,7 @@ class MidiControl:
         r.delete_wav()
 
         # Reload the samples in current bank
-        self.reload_kit(self.current_bank,10)
+        self.reload_kit(self.current_bank,self.current_page)
 
 
 MidiControl()

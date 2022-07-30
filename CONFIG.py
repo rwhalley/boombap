@@ -4,10 +4,12 @@ OS = "m" #'m'
 if OS == "r":
     PROGRAM_PATH = '/home/boombap/boombap/'
     USB = '/mnt/usb/Kits/'
+    ARCHIVE = '/mnt/usb/ArchivedSamples/'
     INPUT_DEVICE = 1
 elif OS == 'm':
     PROGRAM_PATH = '/Users/richwhalley/Documents/GitHub/boombap/'
     USB = '/Volumes/SQUIRREL/Kits/'
+    ARCHIVE = '/Volumes/SQUIRREL/ArchivedSamples/'
     INPUT_DEVICE = 0
 
 

@@ -42,11 +42,12 @@ MODE_SHIFT = 26
 #Mode nums - hold down MODE_SHIFT and press pads 1-16
 RELOAD_ALL_SOUND_DATA = 0
 SWITCH_LOOP_LENGTH = 1
-AUDIO_RECORD_MODE_NUM = 2 # pad 2
-VELOCITY_SENSITIVITY = 3 # 25 pad 3
+SAVE_STATE = 2  # Example: Saves all volumes # Reexport all pickle files - can save keyboards
+VELOCITY_SENSITIVITY = 3
+
 MUTE_METRONOME = 4
-SAVE_STATE = 5 # Example: Saves all volumes # Reexport all pickle files - can save keyboards
-AUDIO_RECORD_MODE_NUM_DULL = 6
+AUDIO_RECORD_MODE_NUM = 5
+AUDIO_RECORD_MODE_NUM_SHARP = 6
 AUDIO_RECORD_NO_SLICE = 7
 
 

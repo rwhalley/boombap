@@ -43,7 +43,8 @@ class Slicer:
         self.sliced =[ ]
         self.onsets = get_onsets(self.input_wav_file)
         print(self.onsets)
-        self.onsets = self.zero_any_negatives(self.left_shift_onsets(self.remove_close_onsets(self.onsets),0.03))
+        if self.slice_sharpness:
+            self.onsets = self.zero_any_negatives(self.left_shift_onsets(self.remove_close_onsets(self.onsets),0.03))
 
         print(self.onsets)
         #self.onsets = self.zero_any_negatives(self.left_shift_onsets(self.remove_close_onsets(self.onsets),0.050))
@@ -64,11 +65,11 @@ class Slicer:
                     elif i == (len(self.onsets)-1):
                          data = self.input_wav[0][int(onset*self.sample_rate):(len(self.input_wav[0])-1)]
                     if hasattr(data, 'shape'):
-                        sf.write(self.path+str(time.time())+'.wav', data, self.sample_rate, subtype='PCM_16')
+                        sf.write(self.path+str(dt.now().strftime("%y%m%d%H%M%S"))+str(i)+'.wav', data, self.sample_rate, subtype='PCM_16')
         else:
-            data =(self.input_wav[0][int(self.onsets[0]*self.sample_rate):end_index])
+            data =(self.input_wav[0][int(self.onsets[1]*self.sample_rate):end_index])
             if hasattr(data, 'shape'):
-                sf.write(self.path+str(time.time())+'.wav', data, self.sample_rate, subtype='PCM_16')
+                sf.write(self.path+str(dt.now().strftime("%y%m%d%H%M%S"))+str(0)+'.wav', data, self.sample_rate, subtype='PCM_16')
 
 
     def left_shift_onsets(self,onsets,seconds):
