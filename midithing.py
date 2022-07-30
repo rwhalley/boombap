@@ -277,7 +277,7 @@ class MidiControl:
                 if file.startswith('.'):
                     pass
                 else:
-                    print(f"filename: {file}")
+                    #print(f"filename: {file}")
                     kit.samples.append(Soundy(kit.path+file))
 
         if self.all_sounds[page_num]:
@@ -352,7 +352,7 @@ class MidiControl:
                 for j, kit in enumerate(page.kits):
                     newkit = self.get_empty_kit()
                     if kit:
-                        print(kit.samples)
+                        #print(kit.samples)
                         for k, sound_arr in enumerate(kit.samples):
                             #print(f"ksoundarr: {k}")
                             if k <16:
@@ -435,7 +435,7 @@ class MidiControl:
                             pass
                         else:
                             if k<(16+sub):
-                                print(file)
+                                #print(file)
 
                                 kit.samples[k-sub] = (Soundy(kit.path+file))
 
@@ -446,7 +446,7 @@ class MidiControl:
 
             self.all_sounds[i] = (Page(page,self.basepath+'/'+page+'/',kits))
 
-            print(f"Loading page {i+1} of {len(pages)}")
+            print(f"Loading page '{page}' - {i+1} of {len(pages)}")
         #print(self.all_sounds)
         print("SOUNDS LOADED")
             #print(self.all_sounds)
@@ -559,7 +559,7 @@ class MidiControl:
             sounds = self.sounds
         for sound in sounds:
             if sound.path:
-                print(sound.path)
+                #print(sound.path)
                 sound.restrict_length(self.max_sample_length_seconds)  # Truncate Samples longer than n seconds
                 sound.remove_artifacts()
                 sound.normalize()
@@ -822,7 +822,7 @@ class MidiControl:
         if self.is_keyboard_active:
 
             self.sample_id = midi.note - self.button.PAD_START
-            print(self.sample_id)
+            #print(self.sample_id)
 
             if self.all_sounds[self.current_page].kits[self.current_bank].samples[self.sample_id].pgsound:
                 print("--- MAKING KEYBOARD ---")
@@ -947,9 +947,9 @@ class MidiControl:
         if self.is_bank_shift_pressed and midi.note in self.button.PADS:
             old_bank = self.current_bank
             #page_factor = self.current_page*self.max_page_size  # Zero indexed
-            print(midi.note)
+            #print(midi.note)
             self.current_bank = midi.note-self.button.PAD_START #page_factor + midi.note-self.button.PAD_START
-            print(self.current_bank)
+            #print(self.current_bank)
             try:
                 self.sounds = self.all_sounds[self.current_page].kits[self.current_bank]
                 print(f"Changing kit to {self.current_bank}")

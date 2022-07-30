@@ -176,9 +176,9 @@ class Soundy:
             self.pitch_factors = []
             for i in range(0,num_keys):
                 pitch_in_semitones = (start_semitone-i)
-                print(f"i: {i}")
-                print(f"start_semitone: {start_semitone}")
-                print(f"pitch_in_semitones: {pitch_in_semitones}")
+                #print(f"i: {i}")
+                #print(f"start_semitone: {start_semitone}")
+                #print(f"pitch_in_semitones: {pitch_in_semitones}")
 
 
                 pitch_factor = 2**(pitch_in_semitones/12)#(1 + c.SEMITONE)**pitch_in_semitones
