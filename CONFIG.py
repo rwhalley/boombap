@@ -38,7 +38,9 @@ MAX_SABAR_BANK_INDEX = 3
 # Constants
 
 SEMITONE = .059#463094359
+BPM_CHANGE_FACTOR = 0.05
 KEYBOARD_RANGE = 24
+NUM_PADS = 16  # the number of pads on the midi controller
 
 
 # OLD

@@ -1,12 +1,14 @@
 import time
-from soundy_pygame import Soundy
 from pathlib import Path
 from os import listdir
 from os.path import isfile, join
 import threading
+
+from soundy_pygame import Soundy
 from midiout import MIDIPlayer
 from midi_recorder import MIDIRecorder
 import sabar_rhythms as sr
+import CONFIG as c
 
 
 class Metronome:
@@ -177,12 +179,12 @@ class Metronome:
         self._update_interval(new_bpm)
 
     def bpm_up(self):
-        self.bpm = self.bpm + 10
+        self.bpm = self.bpm + (self.bpm * c.BPM_CHANGE_FACTOR)
         self._update_interval(self.bpm)
 
     def bpm_down(self):
         if self.bpm > 10:
-            self.bpm = self.bpm - 10
+            self.bpm = self.bpm - (self.bpm * c.BPM_CHANGE_FACTOR)
             self._update_interval(self.bpm)
 
 
