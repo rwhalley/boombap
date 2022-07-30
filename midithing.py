@@ -778,13 +778,13 @@ class MidiControl:
         now = time.time()
 
 
-        if self.on_notes: # if there are notes actively pressed
+        if self.on_notes: # if there are notes actively pressed, sample level volume adjustment
             for note in self.on_notes:
                 i = note-self.button.PAD_START
                 self.all_sounds[self.current_page].kits[self.current_bank].samples[i].vol = midi.value
                 self.all_sounds[self.current_page].kits[self.current_bank].samples[i].set_volume(midi.value)
-        else:
-            print(f"time: {(now-self.time_since_last_cc)}")
+        elif self.is_mode_shift_pressed:  # global volume level adjustment
+            #print(f"time: {(now-self.time_since_last_cc)}")
             if (now-self.time_since_last_cc) >0.5:
                 factor  = (midi.value/self.global_vol)
 
@@ -799,6 +799,19 @@ class MidiControl:
                                 pass
                                 #print("empty entry")
                 self.global_vol = midi.value
+        else:  # kit level vol adjustment
+            if (now-self.time_since_last_cc) >0.5:
+                factor  = (midi.value/self.global_vol)
+
+                for sound in self.all_sounds[self.current_page].kits[self.current_bank].samples:
+                    try:
+                        sound.vol = (sound.vol)*(factor)
+                        sound.set_volume(sound.vol)
+                    except AttributeError:
+                        pass
+                        #print("empty entry")
+                self.global_vol = midi.value
+
         self.time_since_last_cc = now
 
 

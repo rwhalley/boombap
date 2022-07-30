@@ -21,7 +21,7 @@ class AudioRecorder():
         self.RECORD_SECONDS = seconds
         self.WAVE_OUTPUT_FILENAME = "file.wav"
         self.audio = pyaudio.PyAudio()
-        self.input_device_index = 0
+        self.input_device_index = 1
 
         self.CHANNELS = 1
         print(self.audio.get_device_count())
