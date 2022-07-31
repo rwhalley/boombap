@@ -129,6 +129,9 @@ class Soundy:
         except TypeError:
             pass
 
+    def make_sound(self,arr):
+        self.pgsound = pg.sndarray.make_sound(arr)
+
     def remove_artifacts(self):
 
         snd_array = pg.sndarray.array(self.pgsound)

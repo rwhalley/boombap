@@ -13,6 +13,7 @@ from dataclasses import dataclass
 from datetime import datetime as dt
 
 import mido
+import numpy as np
 
 from soundy_pygame import Soundy
 from metronome import Metronome
@@ -70,7 +71,7 @@ class MidiControl:
 
         self.sample_id = None
 
-        self.on_notes = set()
+        self.on_notes = list()#set()
 
         self.devices = [] # QUNEO, Reface CP
         self.messages = []
@@ -280,7 +281,7 @@ class MidiControl:
         for i, file in enumerate(samples):
 
             print(file)
-            if file.endswith('.wav'):
+            if file.endswith('.wav') and i<c.NUM_PADS:
                 if file.startswith('.'):
                     pass
                 else:
@@ -621,7 +622,7 @@ class MidiControl:
                     self.play_sound(note_class.Note(None, midi, self.current_bank, port, time, self.NON_LOOP, self.current_page))  # -2 is non-loop loop id
                     self.add_to_loop(midi,port,time)
                     #self.play_sound([midi],None,[self.current_bank],[port])
-                    self.on_notes.add(midi.note)  # keep list of which pads currently pressed
+                    self.on_notes.append(midi.note)  # keep list of which pads currently pressed
                     self.make_keyboard(midi) # Create Keyboard
 
                 if self.button_is_switch(midi):
@@ -652,6 +653,7 @@ class MidiControl:
 
 
 
+
             if midi.type == "note_off":
                 if self.button_is_shift(midi):
                     self.metronome_shift(midi)
@@ -668,9 +670,12 @@ class MidiControl:
                         self.cutoff_current_sound(note_class.Note(None, midi, self.current_bank, port, time, self.NON_LOOP, self.current_page))
                     self.add_to_loop(midi,port,time)
                     try:
-                        self.on_notes.remove(midi.note)# keep list of which pads currently pressed
+                        print(self.on_notes)
+                        self.on_notes.remove(midi.note) # keep list of which pads currently pressed
                     except KeyError:
-                        self.on_notes = set()
+                        self.on_notes = list() #set()
+                    except ValueError:
+                        self.on_notes = list()
                 if self.button_is_switch(midi) and self.LED_out:
                     self.record_LED(midi)
                     self.keyboard_mode_LED(midi)
@@ -718,10 +723,36 @@ class MidiControl:
             self.is_bank_shift_pressed = not self.is_bank_shift_pressed
             print(f"Kit shift: {self.is_bank_shift_pressed}")
 
+            # SWAP SAMPLES FUNCTION
+            if len(self.on_notes) == 2 and  self.is_bank_shift_pressed:
+                l = self.on_notes
+                one = l[0]-self.button.PAD_START
+                two = l[1]-self.button.PAD_START
+
+                temp = self.all_sounds[self.current_page].kits[self.current_bank].samples[one]
+                self.all_sounds[self.current_page].kits[self.current_bank].samples[one] = self.all_sounds[self.current_page].kits[self.current_bank].samples[two]
+                self.all_sounds[self.current_page].kits[self.current_bank].samples[two] = temp
+                print(f"SWAPPING SOUNDS: {one} and {two}")
+
+
     def page_shift(self,midi):
         if midi.note == self.button.PAGE_SELECTOR:
             self.is_page_shift_pressed = not self.is_page_shift_pressed
             print(f"Page shift: {self.is_page_shift_pressed}")
+
+
+            if len(self.on_notes) == 2 and self.is_page_shift_pressed:
+                l = self.on_notes
+                one = l[0] - self.button.PAD_START
+                two = l[1] - self.button.PAD_START
+
+                # merge second sample onto first sample
+                print("MERGING SAMPLES")
+                new = np.concatenate((self.all_sounds[self.current_page].kits[self.current_bank].samples[one].get_original_sound_array(),self.all_sounds[self.current_page].kits[self.current_bank].samples[two].get_original_sound_array()),axis=0)
+                self.all_sounds[self.current_page].kits[self.current_bank].samples[one].make_sound(new)
+
+                # keep second sample for now
+
 
     def metronome_shift(self,midi):
         if midi.note == self.button.METRONOME:
@@ -844,9 +875,13 @@ class MidiControl:
             if self.is_bank_shift_pressed:
                 self.delete_samples(midi)
             else:
-                print("CLEARING LOOP")
-                self.metronome.midi_recorder.clear_all_loops()
-                self.midi_player.all_notes_off()
+                if self.metronome.is_on:
+                    print("CLEARING LOOP")
+
+                    self.metronome.midi_recorder.clear_all_loops()
+                    self.midi_player.all_notes_off()
+                else:
+                    self.delete_sample()
     def audio_record(self,midi):
         mode_num = midi.note - self.button.PAD_START
         if self.is_mode_shift_pressed:
@@ -859,6 +894,40 @@ class MidiControl:
             if mode_num == self.button.AUDIO_RECORD_NO_SLICE:
                 print("NO SLICE")
                 self.record_new_samples(slice_sharpness = None)
+
+
+
+
+
+
+    def delete_sample(self, archive = True):
+        archive_folder = c.ARCHIVE + str(dt.now().strftime("%y%m%d%H%M%S"))+"/"
+        current_folder = self.all_sounds[self.current_page].kits[self.current_bank].path
+        listdir = os.listdir(current_folder)
+
+        if not os.path.exists(archive_folder):
+            os.makedirs(archive_folder)
+
+        for note in self.on_notes:
+            note = note - self.button.PAD_START
+
+
+            # archive the file
+            if '10' in current_folder:
+                if archive:
+                    for i,f in enumerate(listdir):
+                        if i == note:
+                            os.rename(current_folder + f, archive_folder + f) # move file
+
+            # reset the sound
+            self.all_sounds[self.current_page].kits[self.current_bank].samples[note] = Soundy(no_init=True)
+
+            print(f"DELETING SAMPLE: {note}")
+
+            #  resave the page
+            self.save_page(self.current_page)
+
+
 
     def delete_samples(self,midi, archive=True):
         archive_folder = c.ARCHIVE + str(dt.now().strftime("%y%m%d%H%M%S"))+"/"

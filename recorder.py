@@ -27,6 +27,7 @@ class AudioRecorder():
         print(self.audio.get_device_count())
         for i in range(self.audio.get_device_count()):
              dev = self.audio.get_device_info_by_index(i)
+             print(dev)
              name = dev['name']
              if name == c.MICROPHONE_NAME:
                 self.CHANNELS = dev['maxInputChannels']
