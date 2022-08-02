@@ -38,8 +38,12 @@ class Soundy:
                 self.pgsound = pg.sndarray.make_sound(arr)
                 self.original_sound = pg.sndarray.make_sound(arr)
             else:
-                self.pgsound = pg.mixer.Sound(soundpath)
-                self.original_sound = pg.mixer.Sound(soundpath)
+                try:
+                    self.pgsound = pg.mixer.Sound(soundpath)
+
+                    self.original_sound = pg.mixer.Sound(soundpath)
+                except pg.error:
+                    print(f"could not load file {soundpath}")
 
     def restrict_length(self,len_in_seconds):
         self.pgsound = pg.sndarray.make_sound(pg.sndarray.array(self.pgsound)[:int(self.sample_rate*len_in_seconds),:])
