@@ -72,6 +72,7 @@ class MidiControl:
         self.sample_id = None
 
         self.on_notes = list()#set()
+        self.cut_group = list()
 
         self.devices = [] # QUNEO, Reface CP
         self.messages = []
@@ -191,7 +192,8 @@ class MidiControl:
                                 if note.midi.type == "note_on":
                                     self.play_sound(note)
                                 if note.midi.type == "note_off":
-                                    if note.page > 0:
+                                    if note.page > 0 and not ([note.page,note.bank, note.midi.note-self.button.PAD_START]) in self.cut_group:
+
                                         self.cutoff_current_sound(note)
 
                 # RUN ACCOMPANIMENT
@@ -666,7 +668,7 @@ class MidiControl:
                     self.volume_shift(midi)
                     self.reverb_shift(midi)
                 if self.button_is_playable(midi):
-                    if self.current_page > 0:
+                    if self.current_page > 0 and not ([self.current_page,self.current_bank,(midi.note-self.button.PAD_START)] in self.cut_group):
                         self.cutoff_current_sound(note_class.Note(None, midi, self.current_bank, port, time, self.NON_LOOP, self.current_page))
                     self.add_to_loop(midi,port,time)
                     try:
@@ -762,9 +764,31 @@ class MidiControl:
         if midi.note == self.button.TRACK_SAVE_SHIFT:
             self.track_save_shift_pressed = not self.track_save_shift_pressed
 
+            if self.track_save_shift_pressed:
+
+                print(f"cut group members: {self.cut_group}")
+                for note in  self.on_notes:
+                    if [self.current_page,self.current_bank,note - self.button.PAD_START] in self.cut_group:
+                        print(f"removing from cut group: {note}")
+                        self.cut_group.remove([self.current_page,self.current_bank,note - self.button.PAD_START])
+                        self.all_sounds[self.current_page].kits[self.current_bank].samples[note - self.button.PAD_START].cut_group = None
+
+                    else:
+                        print(f"adding to cut group: {note}")
+                        self.cut_group.append([self.current_page,self.current_bank,note - self.button.PAD_START])
+                        self.all_sounds[self.current_page].kits[self.current_bank].samples[note - self.button.PAD_START].cut_group = 1
+
     def track_load_shift(self,midi):
         if midi.note == self.button.TRACK_LOAD_SHIFT:
             self.track_load_shift_pressed = not self.track_load_shift_pressed
+
+
+            # # COPY SAMPLE TO KIT ROUTINE
+            # if self.track_load_shift_pressed:
+            #
+            #     for note in  self.on_notes:
+
+
 
     def loop_activator_shift(self,midi):
         if midi.note == self.button.LOOP_ACTIVATOR_SHIFT:
@@ -1157,6 +1181,11 @@ class MidiControl:
                     pass # set max volume for all samples when VOL_SENS turned off not every time...
                     # self.all_sounds[entry.page].kits[entry.bank].samples[i].set_volume(128)
 
+                if [self.current_page,self.current_bank,i] in self.cut_group:
+                    for j in self.cut_group:
+                        self.cutoff_current_sound(None,i=j)
+
+
                 if entry.page == 0:
                     self.cutoff_all_sounds_in_same_bank(entry) # if any sound in same bank is playing, cut it off (hand drums)
 
@@ -1210,10 +1239,13 @@ class MidiControl:
         except IndexError:
             return False
 
-    def cutoff_current_sound(self,entry):
-        i = entry.midi.note - self.button.PAD_START
-        if self.check_entry(entry):
-            self.all_sounds[entry.page].kits[entry.bank].samples[i].stop() # stop sound
+    def cutoff_current_sound(self,entry, i = None):
+        if not i:
+            i = entry.midi.note - self.button.PAD_START
+            if self.check_entry(entry):
+                self.all_sounds[entry.page].kits[entry.bank].samples[i].stop() # stop sound
+        else:
+            self.all_sounds[i[0]].kits[i[1]].samples[i[2]].stop() # stop sound
 
     def cutoff_all_sounds_in_same_bank(self,entry):
         i = entry.midi.note - self.button.PAD_START
@@ -1230,10 +1262,10 @@ class MidiControl:
                         sound.stop()
 
     def cutoff_sound(self,entry):
-        i = entry.midi.note - self.button.PAD_START
-        if (entry.bank > 3) and self.check_entry(entry):
-            #self.sounds[i].stop()
-            self.all_sounds[entry.page].kits[entry.bank].samples[i].stop()
+         i = entry.midi.note - self.button.PAD_START
+         if (entry.bank > 3) and self.check_entry(entry):
+             #self.sounds[i].stop()
+             self.all_sounds[entry.page].kits[entry.bank].samples[i].stop()
 
 
     # CHANGE CONTROL FUNCTIONS

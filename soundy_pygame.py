@@ -29,6 +29,7 @@ class Soundy:
         self.pgsound = None
         self.keyboard = None
         self.key_notes = []
+        self.cut_group = None
         pg.mixer.init(frequency=self.sample_rate, size=-16, channels=2, buffer=128)
         pg.init()
 

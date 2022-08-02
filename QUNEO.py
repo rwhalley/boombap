@@ -28,10 +28,10 @@ BANK_SELECTOR = 11  # Select Drum Kit on Pads - Row 1 Left
 PAGE_SELECTOR = 12  # Select Bank of Drums on Pads - Row 1 Right
 METRONOME = 13  # Select Metronome on Pads - Row 2 Left
 LOOP_ACTIVATOR_SHIFT = 14  # Activate and Deactivate Loops on Pads - Row 1 Right
-TRACK_SAVE_SHIFT = 15
+TRACK_SAVE_SHIFT = 15 # also used for  cut group
 TRACK_LOAD_SHIFT = 16
 REVERB = 17  # While pressed, other pressed notes will get reverb
-KEYBOARD = 18 # Not Used
+KEYBOARD = 18 #
 
 VOLUME_SHIFT = 10
 
