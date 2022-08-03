@@ -37,6 +37,8 @@ class Metronome:
         self.offset = 0
         self.current_beat = 0
         self.sound = Soundy(path)
+        self.tada_path = c.PROGRAM_PATH + 'metronome/tada.wav'
+        self.tada = Soundy(self.tada_path)
         self.grace_note_active = -1
         self.col_grace_seq = -1
         self.grace_played = False
