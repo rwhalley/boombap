@@ -462,7 +462,7 @@ class MidiControl:
 
             print(f"Loading page '{page}' - {i+1} of {len(pages)}")
         #print(self.all_sounds)
-        print("SOUNDS LOADED")
+        print("--- Raw Sounds Loaded into Memory ---")
             #print(self.all_sounds)
 
 
@@ -572,13 +572,16 @@ class MidiControl:
     def pre_process_sounds(self, sounds = None):
         if not sounds:
             sounds = self.sounds
-        for sound in sounds:
+        num_sounds = len(sounds)
+        for i, sound in enumerate(sounds):
             if sound.pgsound:
                 #print(sound.path)
+                print(f"Processing Sound {i+1} of {len}")
                 sound.restrict_length(self.max_sample_length_seconds)  # Truncate Samples longer than n seconds
                 sound.remove_artifacts()
                 sound.normalize()
                 sound.make_loud()
+        print(f"Sound Processing Complete")
 
 
 # SOUND PLAYING

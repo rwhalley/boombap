@@ -17,8 +17,11 @@ class MIDIPlayer():
         self.synth_present = False
         if light:
             self.synth_present = False
-            self.outport = mido.open_output(dev)
-            return
+            devs = mido.get_output_names()
+            for d in devs:
+                if dev in d:
+                    self.outport = mido.open_output(d)
+                    return
         for port in ports:
             if c.SYNTH in port:
                 self.synth_present = True
