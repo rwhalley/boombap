@@ -82,19 +82,21 @@ class MidiControl:
         print(self.devices)
 
         # LOAD SAMPLES - Try Fast Load
-        path = self.program_path+"/pickle/"
-        if(not os.path.exists(path)):
-            os.makedirs(path)
-        onlyfiles = [f for f in sorted(listdir(path)) if isfile(join(path, f))]
-        if len(onlyfiles)>0:#exists(self.save_path):
-            self.load_all_sound_data()
-        else:
-            self.load_all_samples()
-            for page in self.all_sounds:
-                if page:
-                    for kit in page.kits:
-                        self.pre_process_sounds(sounds = kit.samples)
-            self.save_all_sound_data()
+
+
+        # path = self.program_path+"/pickle/"
+        # if(not os.path.exists(path)):
+        #     os.makedirs(path)
+        # onlyfiles = [f for f in sorted(listdir(path)) if isfile(join(path, f))]
+        # if len(onlyfiles)>0:#exists(self.save_path):
+        #     self.load_all_sound_data()
+        # else:
+        #     self.load_all_samples()
+        #     for page in self.all_sounds:
+        #         if page:
+        #             for kit in page.kits:
+        #                 self.pre_process_sounds(sounds = kit.samples)
+        #     self.save_all_sound_data()
 
         # AUDIO RECORDER
         self.sample_recording_length_in_seconds = 5
