@@ -29,7 +29,7 @@ class AudioRecorder():
              dev = self.audio.get_device_info_by_index(i)
              print(dev)
              name = dev['name']
-             if name == c.MICROPHONE_NAME:
+             if c.MICROPHONE_NAME in name:
                 self.CHANNELS = dev['maxInputChannels']
                 self.input_device_index = i
         #     print(dev['maxInputChannels'])
