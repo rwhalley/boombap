@@ -144,7 +144,7 @@ class MidiControl:
 
         # Setup LED control for QUNEO
         self.LED_out = None
-        if c.MIDI_CONTROLLER == "QUNEO":
+        if c.MIDI_CONTROLLER == 'QUNEO':
             self.LED_out = MIDIPlayer(None,c.MIDI_CONTROLLER,light=True)
 
             for i in range(0,60):
