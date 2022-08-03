@@ -15,6 +15,7 @@ if light:
         if dev in d:
             print("Opening")
             outport = mido.open_output(d)
+            break
 
 for i in range(0,60):
     outport.send(note_class.Note(0,mido.Message('note_on', note=i),0,c.MIDI_CONTROLLER,time.time(), -2,0).midi)
