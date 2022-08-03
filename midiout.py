@@ -14,12 +14,13 @@ class MIDIPlayer():
         # self.available_ports = None
         self.outport = None
         self.synth_present = False
+
+        devs = mido.get_output_names()
+        print(devs)
+
         if light:
             self.synth_present = False
-            print(dev)
             dev = c.MIDI_CONTROLLER
-            devs = mido.get_output_names()
-            print(devs)
             for d in devs:
                 if dev in d:
                     print(d)
@@ -28,9 +29,11 @@ class MIDIPlayer():
         else:
             for port in ports:
                 if c.SYNTH in port:
-                    self.synth_present = True
-                    self.outport = mido.open_output(dev)
-                    break
+                    for d in devs:
+                        if dev in d:
+                            self.synth_present = True
+                            self.outport = mido.open_output(d)
+                            break
 
 
 

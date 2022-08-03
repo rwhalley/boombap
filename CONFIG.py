@@ -14,6 +14,7 @@ elif OS == 'm':
 
 
 DEBUG_MODE = 1
+DEBUG = True
 RECORDED_SAMPLES_FOLDER = "10 - Recorded"
 
 
