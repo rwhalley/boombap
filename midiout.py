@@ -9,7 +9,6 @@ from note_class import Note
 class MIDIPlayer():
 
     def __init__(self,ports, dev=c.SYNTH, light=False):
-        pass
         # self.triggered = False
         # self.midiout = None
         # self.available_ports = None
@@ -17,17 +16,21 @@ class MIDIPlayer():
         self.synth_present = False
         if light:
             self.synth_present = False
+            print(dev)
             dev = c.MIDI_CONTROLLER
             devs = mido.get_output_names()
+            print(devs)
             for d in devs:
                 if dev in d:
+                    print(d)
                     self.outport = mido.open_output(d)
-                    return
-        for port in ports:
-            if c.SYNTH in port:
-                self.synth_present = True
-                self.outport = mido.open_output(dev)
-                break
+                    break
+        else:
+            for port in ports:
+                if c.SYNTH in port:
+                    self.synth_present = True
+                    self.outport = mido.open_output(dev)
+                    break
 
 
 
