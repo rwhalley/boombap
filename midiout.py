@@ -16,14 +16,14 @@ class MIDIPlayer():
         self.synth_present = False
 
         devs = mido.get_output_names()
-        print(devs)
+        print(f"Output Devices: {devs}")
 
         if light:
             self.synth_present = False
             dev = c.MIDI_CONTROLLER
             for d in devs:
                 if dev in d:
-                    print(d)
+                    print(f"Opening LED Output Device: {d}")
                     self.outport = mido.open_output(d)
                     break
         else:
@@ -32,6 +32,7 @@ class MIDIPlayer():
                     for d in devs:
                         if dev in d:
                             self.synth_present = True
+                            print(f"Opening Synth Output Device: {d}")
                             self.outport = mido.open_output(d)
                             break
 

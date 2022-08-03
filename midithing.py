@@ -154,12 +154,10 @@ class MidiControl:
         self.LED_out = MIDIPlayer(None,c.MIDI_CONTROLLER,light=True)
 
         for i in range(0,60):
-            print("turning LED ON")
             self.LED_out.play_note(note_class.Note(0,mido.Message('note_on', note=i),0,c.MIDI_CONTROLLER,time.time(), -2,0), light=True)
             time.sleep(0.005)
 
         for i in range(0,60):
-            print("turning LED OFF")
             self.LED_out.play_note(note_class.Note(0,mido.Message('note_off', note=i),0,c.MIDI_CONTROLLER,time.time(), -2,0), light=True)
             time.sleep(0.005)
 
