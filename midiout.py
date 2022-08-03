@@ -17,6 +17,7 @@ class MIDIPlayer():
         self.synth_present = False
         if light:
             self.synth_present = False
+            dev = c.MIDI_CONTROLLER
             devs = mido.get_output_names()
             for d in devs:
                 if dev in d:
