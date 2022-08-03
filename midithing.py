@@ -146,22 +146,22 @@ class MidiControl:
 
         # Setup LED control for QUNEO
         self.LED_out = None
-        print("HEY THERE")
-        if c.MIDI_CONTROLLER in c.POSSIBLE_MIDI_CONTROLLERS:
-            print("Creating LED OUT")
-            self.LED_out = MIDIPlayer(None,c.MIDI_CONTROLLER,light=True)
+        print("INITIALIZING LED OUT")
+        # if c.MIDI_CONTROLLER in c.POSSIBLE_MIDI_CONTROLLERS:
+        #     print("Creating LED OUT")
+        self.LED_out = MIDIPlayer(None,c.MIDI_CONTROLLER,light=True)
 
-            for i in range(0,60):
-                print("turning LED ON")
-                self.LED_out.play_note(note_class.Note(0,mido.Message('note_on', note=i),0,c.MIDI_CONTROLLER,time.time(), -2,0), light=True)
-                time.sleep(0.005)
+        for i in range(0,60):
+            print("turning LED ON")
+            self.LED_out.play_note(note_class.Note(0,mido.Message('note_on', note=i),0,c.MIDI_CONTROLLER,time.time(), -2,0), light=True)
+            time.sleep(0.005)
 
-            for i in range(0,60):
-                print("turning LED OFF")
-                self.LED_out.play_note(note_class.Note(0,mido.Message('note_off', note=i),0,c.MIDI_CONTROLLER,time.time(), -2,0), light=True)
-                time.sleep(0.005)
+        for i in range(0,60):
+            print("turning LED OFF")
+            self.LED_out.play_note(note_class.Note(0,mido.Message('note_off', note=i),0,c.MIDI_CONTROLLER,time.time(), -2,0), light=True)
+            time.sleep(0.005)
 
-            self.LED_out.play_note(note_class.Note(0,mido.Message('note_on', note=self.button.ON_LED),0,c.MIDI_CONTROLLER,time.time(), -2,0), light=True)
+        self.LED_out.play_note(note_class.Note(0,mido.Message('note_on', note=self.button.ON_LED),0,c.MIDI_CONTROLLER,time.time(), -2,0), light=True)
 
 
 
