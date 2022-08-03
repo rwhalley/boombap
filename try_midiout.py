@@ -17,11 +17,11 @@ if light:
             outport = mido.open_output(d)
 
 for i in range(0,60):
-    outport.send(note_class.Note(0,mido.Message('note_on', note=i),0,c.MIDI_CONTROLLER,time.time(), -2,0), light=True)
+    outport.send(note_class.Note(0,mido.Message('note_on', note=i),0,c.MIDI_CONTROLLER,time.time(), -2,0))
     time.sleep(0.005)
 
 for i in range(0,60):
-    outport.send(note_class.Note(0,mido.Message('note_off', note=i),0,c.MIDI_CONTROLLER,time.time(), -2,0), light=True)
+    outport.send(note_class.Note(0,mido.Message('note_off', note=i),0,c.MIDI_CONTROLLER,time.time(), -2,0))
     time.sleep(0.005)
 
 
