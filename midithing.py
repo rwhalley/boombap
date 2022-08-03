@@ -147,7 +147,7 @@ class MidiControl:
         # Setup LED control for QUNEO
         self.LED_out = None
         print("INITIALIZING LED OUT")
-        # if c.MIDI_CONTROLLER in c.POSSIBLE_MIDI_CONTROLLERS:
+        print(c.MIDI_CONTROLLER in c.POSSIBLE_MIDI_CONTROLLERS)
         #     print("Creating LED OUT")
         self.LED_out = MIDIPlayer(None,c.MIDI_CONTROLLER,light=True)
 
