@@ -1,6 +1,5 @@
 import time
 import threading
-import midiparse as mp
 import CONFIG as c
 import mido
 from note_class import Note

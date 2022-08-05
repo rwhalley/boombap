@@ -3,10 +3,6 @@ from time       import sleep
 import numpy as np
 from samplerate import resample
 from scipy import signal
-from threading import Thread
-import CONFIG as c
-#import resampy
-import time
 
 import dsp
 
