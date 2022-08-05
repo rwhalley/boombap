@@ -17,6 +17,16 @@ DEBUG_MODE = 1
 DEBUG = False
 RECORDED_SAMPLES_FOLDER = "10 - Recorded"
 
+SIMPLE_MODE = True
+
+if SIMPLE_MODE:
+    RECORDED_SAMPLES_FOLDER = "03 - Recorded"
+    if OS == "r":
+        USB = '/mnt/usb/Simple/'
+
+
+
+
 
 PORTS = {}
 
