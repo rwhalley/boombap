@@ -90,7 +90,7 @@ class MidiControl:
             if(not os.path.exists(path)):
                 os.makedirs(path)
             onlyfiles = [f for f in sorted(listdir(path)) if isfile(join(path, f))]
-            if len(onlyfiles)>0:#exists(self.save_path):
+            if len(onlyfiles)>0 and not c.SIMPLE_MODE:#exists(self.save_path):
                 self.load_all_sound_data()
             else:
                 self.load_all_samples()
