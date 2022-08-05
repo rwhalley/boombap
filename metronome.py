@@ -12,7 +12,7 @@ import CONFIG as c
 
 
 class Metronome:
-    def __init__(self,bpm=100, path=None, controller=None):
+    def __init__(self,bpm=120, path=None, controller=None):
         self.is_on = False
         self.bpm = bpm
         self.beat_length = int(60 / self.bpm * 1000)

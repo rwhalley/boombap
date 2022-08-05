@@ -585,7 +585,7 @@ class MidiControl:
         for i, sound in enumerate(sounds):
             if sound.pgsound:
                 #print(sound.path)
-                print(f"Processing Sound {i+1} of {len}")
+                print(f"Processing Sound {i+1} of {len(sounds)}")
                 sound.restrict_length(self.max_sample_length_seconds)  # Truncate Samples longer than n seconds
                 sound.remove_artifacts()
                 sound.normalize()
