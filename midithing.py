@@ -949,7 +949,7 @@ class MidiControl:
 
 
             # archive the file
-            if '10' in current_folder:
+            if c.RECORDED_SAMPLES_FOLDER in current_folder:
                 if archive:
                     for i,f in enumerate(listdir):
                         if i == note:
