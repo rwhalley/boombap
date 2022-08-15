@@ -54,7 +54,7 @@ class MIDIRecorder:
 
     """Add midi data point and loop ID to the current loop"""
     def add_entry(self,midi,port,when_added, sample_id = None):
-        self.my_loop.append(note_class.Note(self.metronome.get_position(timestamp=when_added),
+        self.my_loop.append(note_class.Note(self.metronome.get_position(ts=when_added),
                                             midi,
                                             self.metronome.controller.current_bank,
                                             port,

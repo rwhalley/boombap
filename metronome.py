@@ -303,11 +303,11 @@ class Metronome:
     #                     #print("PLAY COL GRACE")
 
 
-    def get_position(self,timestamp=None):
+    def get_position(self,ts=None):
         "Get float 0 to 1 that represents current position in bar."
         ts=None
-        if timestamp:
-            ts = timestamp
+        if ts:
+            pass
         else:
             ts = time.time()
         pos = 0
@@ -358,30 +358,31 @@ class Metronome:
 
     def get_note(self,ts):
 
+        if (ts-self.last_ts)>0.001:
+            current_pos = self.get_position(ts=ts)
 
-        current_pos = self.get_position(timestamp=ts)
+            notes=[]
 
-        notes=[]
+            if (self.midi_recorder.my_loop):
 
-        if (self.midi_recorder.my_loop):
+                entry = self.midi_recorder.my_loop[self.midi_recorder.current_loop_index]  # Go through all the notes in loop
+                if (current_pos > entry.bar_position) and not (self.midi_recorder.current_loop_index in self.loop_blacklist): # if it's time to play, play the entry, and add it to the blacklist for this measure
+                    self.loop_blacklist.append(self.midi_recorder.current_loop_index)
 
-            entry = self.midi_recorder.my_loop[self.midi_recorder.current_loop_index]  # Go through all the notes in loop
-            if (current_pos > entry.bar_position) and not (self.midi_recorder.current_loop_index in self.loop_blacklist): # if it's time to play, play the entry, and add it to the blacklist for this measure
-                self.loop_blacklist.append(self.midi_recorder.current_loop_index)
+                    if (entry.loop_id in self.midi_recorder.active_loops):  # if note is in active loops
+                        notes.append(entry)
 
-                if (entry.loop_id in self.midi_recorder.active_loops):  # if note is in active loops
-                    notes.append(entry)
-
-                self.midi_recorder.current_loop_index+=1
-                self.midi_recorder.current_loop_index = self.midi_recorder.current_loop_index%self.midi_recorder.current_loop_length
+                    self.midi_recorder.current_loop_index+=1
+                    self.midi_recorder.current_loop_index = self.midi_recorder.current_loop_index%self.midi_recorder.current_loop_length
 
 
-        if self.last_pos > 0.9 and current_pos < 0.1:  # loop has ended
-            self.loop_blacklist = []  # clear loop blacklist
+            if self.last_pos > 0.9 and current_pos < 0.1:  # loop has ended
+                self.loop_blacklist = []  # clear loop blacklist
 
-        self.last_pos = current_pos
+            self.last_pos = current_pos
+            self.last_ts = ts
 
-        return notes
+            return notes
 
 
     def play_sequencer(self, ts):

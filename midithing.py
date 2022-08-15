@@ -11,6 +11,7 @@ from threading import Thread
 import pickle as p
 from dataclasses import dataclass
 from datetime import datetime as dt
+import profile
 
 import mido
 import numpy as np
@@ -110,6 +111,7 @@ class MidiControl:
         self.metronome = Metronome(bpm=120,path=self.metronome_path, controller=self)
 
         self.last_ts = 0
+        self.last_ts_mido = 0
 
         ## LOAD MIDI THREADS FOR TWO DEVICES
 
@@ -175,44 +177,50 @@ class MidiControl:
         # MAIN LOOP FOR PROCESSING MIDI INPUT
         while True:
 
-            #time.sleep(0.0002) # Reduce number of unnecessary cycles
 
-            for port in self.midoports:
-                self.add_message(port.poll())
+            time.sleep(0.001) # Reduce number of unnecessary cycles
+            ts = time.time()
 
-            # IF METRONOME BUTTON TURNED ON
-            if self.metronome.is_on:
+            if (ts-self.last_ts_mido) > 0.001:
 
-                ts = time.time()
-                # RUN LOOPER
-                notes = self.metronome.get_note(ts)
-                if notes:
-                    for note in notes:
+                for port in self.midoports:
+                    self.add_message(port.poll())
+                    self.last_ts_mido = ts
+
+                # IF METRONOME BUTTON TURNED ON
+                if self.metronome.is_on:
+
+                    # RUN LOOPER
+                    notes = self.metronome.get_note(ts)
+                    if notes:
+                        for note in notes:
 
 
-                        if (ts-note.when)>0.1: # don't play if note was just recorded
-                            if note.port in c.SYNTH:
-                                if note.sample_id or note.sample_id == 0:
-                                    self.play_sound(note)
+                            if (ts-note.when)>0.1: # don't play if note was just recorded
+                                if note.port in c.SYNTH:
+                                    if note.sample_id or note.sample_id == 0:
+                                        self.play_sound(note)
 
-                                else:
-                                    self.midi_player.play_note(note)
-                            if note.port in c.MIDI_CONTROLLER:
-                                if note.midi.type == "note_on":
-                                    self.play_sound(note)
-                                if note.midi.type == "note_off":
-                                    if note.page > 0 and not ([note.page,note.bank, note.midi.note-self.button.PAD_START]) in self.cut_group:
+                                    else:
+                                        self.midi_player.play_note(note)
+                                if note.port in c.MIDI_CONTROLLER:
+                                    if note.midi.type == "note_on":
+                                        self.play_sound(note)
+                                    if note.midi.type == "note_off":
+                                        if note.page > 0 and not ([note.page,note.bank, note.midi.note-self.button.PAD_START]) in self.cut_group:
 
-                                        self.cutoff_current_sound(note)
+                                            self.cutoff_current_sound(note)
 
-                # RUN ACCOMPANIMENT
+                    # RUN ACCOMPANIMENT
 
-                self.metronome.play_sequencer(ts)
+                    if (ts-self.last_ts) > 0.001:
+                        self.metronome.play_sequencer(ts)
+                        self.last_ts = ts
 
-            # PROCESS INPUT MIDI
+                # PROCESS INPUT MIDI
 
-            if self.messages:
-                self.print_general_message(self.messages.pop(0))
+                if self.messages:
+                    self.print_general_message(self.messages.pop(0))
 
 
 
@@ -973,7 +981,7 @@ class MidiControl:
         if not os.path.exists(archive_folder):
             os.makedirs(archive_folder)
         current_folder = self.all_sounds[self.current_page].kits[self.current_bank].path
-        if '10' in current_folder:
+        if c.RECORDED_SAMPLES_FOLDER in current_folder:
             if archive:
                 for f in os.listdir(current_folder):
                     os.rename(current_folder + f, archive_folder + f)

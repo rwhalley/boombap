@@ -1,16 +1,21 @@
 OS = "r" #'m'
 
 
+
+MICROPHONE_NAME = None
+
 if OS == "r":
     PROGRAM_PATH = '/home/boombap/boombap/'
     USB = '/mnt/usb/Kits/'
     ARCHIVE = '/mnt/usb/ArchivedSamples/'
     INPUT_DEVICE = 1
+    MICROPHONE_NAME = 'USB PnP Sound Device'
 elif OS == 'm':
     PROGRAM_PATH = '/Users/richwhalley/Documents/GitHub/boombap/'
     USB = '/Volumes/SQUIRREL/Kits/'
     ARCHIVE = '/Volumes/SQUIRREL/ArchivedSamples/'
     INPUT_DEVICE = 0
+    MICROPHONE_NAME = 'MacBook Pro Microphone'
 
 
 DEBUG_MODE = 1
@@ -23,6 +28,8 @@ if SIMPLE_MODE:
     RECORDED_SAMPLES_FOLDER = "03 - Recorded"
     if OS == "r":
         USB = '/mnt/usb/Simple/'
+    if OS == "m":
+        USB = '/Volumes/SQUIRREL/Simple/'
 
 
 
@@ -40,7 +47,7 @@ QUNEO = 'QUNEO'
 MIDI_CONTROLLER = QUNEO
 POSSIBLE_MIDI_CONTROLLERS = [QUNEO]
 SYNTH = 'reface CP' #'minilogue KBD/KNOB'#"minilogue MIDI IN" #c.SYNTH
-MICROPHONE_NAME = 'USB PnP Sound Device' #'MacBook Pro Microphone'
+
 MY_DEVICES = [MIDI_CONTROLLER,SYNTH]
 SYNTH_MIDI_CHANNEL = 0
 MIDI_CONTROLLER_CHANNEL = 1
