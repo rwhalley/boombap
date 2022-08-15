@@ -178,7 +178,7 @@ class MidiControl:
         while True:
 
 
-            time.sleep(0.001) # Reduce number of unnecessary cycles
+            #time.sleep(0.001) # Reduce number of unnecessary cycles
             ts = time.time()
 
             if (ts-self.last_ts_mido) > 0.001:
