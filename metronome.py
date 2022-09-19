@@ -158,6 +158,8 @@ class Metronome:
             self.current_grace_note = 0
             self.offset = 0
             self.current_beat = 0
+            self.current_loop_beat = 0
+
 
 
             self.is_on = True

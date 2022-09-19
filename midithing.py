@@ -27,6 +27,9 @@ from slicer import Slicer
 import CONFIG as c
 import note_class
 from page  import Kit, Page
+from video import Video
+from audio_render import AudioRender
+from video_slicer import vSlicer
 
 
 class MidiControl:
@@ -149,6 +152,14 @@ class MidiControl:
         # START MIDI RECORDER
         self.metronome.midi_recorder = MIDIRecorder(self.metronome)
 
+        # START VIDEO SEQUENCER
+        self.videoseq = Video()
+
+        self.vSlicer = vSlicer()
+
+        # START AUDIO EXPORT CLASS
+        self.audio_render = AudioRender()
+
 
         # Setup LED control for QUNEO
         self.LED_out = None
@@ -170,7 +181,7 @@ class MidiControl:
 
 
 
-        self.metronome.tada.play(block=False)
+        #self.metronome.tada.play(block=False)
 
         print("LOADING COMPLETE - STARTING MAIN LOOP")
 
@@ -288,7 +299,7 @@ class MidiControl:
         self.save_page(page_num)
 
 
-    def reload_kit(self,kit_num,page_num):
+    def reload_kit(self,kit_num,page_num, include_videos = False):
         path = self.basepath+'/'+c.RECORDED_SAMPLES_FOLDER+'/'+str(kit_num)+'/'
         if not exists(path):
             os.makedirs(self.basepath+'/'+c.RECORDED_SAMPLES_FOLDER+'/'+str(kit_num)+'/')
@@ -305,7 +316,7 @@ class MidiControl:
                     pass
                 else:
                     #print(f"filename: {file}")
-                    kit.samples[i] = (Soundy(kit.path+file))
+                    kit.samples[i] = (Soundy(kit.path+file, has_video=include_videos))
 
         if self.all_sounds[page_num].kits:
             print("MAKING KIT")
@@ -316,7 +327,7 @@ class MidiControl:
         self.pre_process_sounds(sounds = self.all_sounds[self.current_page].kits[self.current_bank].samples)
 
         self.save_page(page_num)
-        self.metronome.tada.play(block=False)
+        #self.metronome.tada.play(block=False)
 
 
 
@@ -649,6 +660,7 @@ class MidiControl:
                     #self.play_sound([midi],None,[self.current_bank],[port])
                     self.on_notes.append(midi.note)  # keep list of which pads currently pressed
                     self.make_keyboard(midi) # Create Keyboard
+                    self.slice_video(midi)
 
                 if self.button_is_switch(midi):
 
@@ -659,6 +671,9 @@ class MidiControl:
                     self.clear_loop(midi)
                     self.record(midi)
                     self.audio_record(midi)
+                    self.sequence_video(midi)
+                    self.slice_video(midi)
+                    self.export_audio(midi)
                     self.switch_loop_length(midi)
                     self.mute_metronome(midi)
 
@@ -929,6 +944,41 @@ class MidiControl:
                     self.midi_player.all_notes_off()
                 else:
                     self.delete_sample()
+
+    def slice_video(self,midi):
+        if self.is_mode_shift_pressed:
+            mode_num = midi.note - self.button.PAD_START
+            if mode_num == self.button.VIDEO_SLICER:
+                if not self.vSlicer.is_playing:
+                    self.vSlicer.load_audio()
+                    self.vSlicer.start_play()
+                else:
+                    self.vSlicer.add_slicepoint()
+        elif self.vSlicer.is_playing:  # When user releases the mode shift button and presses button one final time it will export the samples
+            self.vSlicer.process_slicepoints()
+            self.vSlicer.slice_audio()
+            self.vSlicer.slice_video()
+            self.vSlicer.export_audio(self.current_bank)
+            self.vSlicer.export_video()
+            self.vSlicer.end_play()
+            self.vSlicer.cleanup()
+            self.reload_kit(self.current_bank,self.current_page, include_videos = True)
+
+
+    def sequence_video(self,midi):
+        if self.is_mode_shift_pressed:
+            mode_num = midi.note - self.button.PAD_START
+            if mode_num == self.button.VIDEO_SEQ:
+                self.videoseq.assemble_sequence(self.metronome.midi_recorder.my_loop,self.metronome.bpm, all_sounds=self.all_sounds, vdimen=self.vSlicer.dimensions, framerate=self.vSlicer.vframerate, framerate_str=self.vSlicer.vframerate_str)
+                self.videoseq.export_video_with_audio(self.audio_render.last_output_filename)
+
+    """Export Current Sample Loop to Audio File"""
+    def export_audio(self,midi):
+        mode_num = midi.note - self.button.PAD_START
+        if self.is_mode_shift_pressed:
+            if mode_num == self.button.AUDIO_EXPORT:
+                self.audio_render.export_audio(self.all_sounds,str(dt.now().strftime("%y%m%d%H%M%S"))+".wav",self.metronome.midi_recorder.my_loop,self.metronome.bpm)
+
     def audio_record(self,midi):
         mode_num = midi.note - self.button.PAD_START
         if self.is_mode_shift_pressed:

@@ -176,7 +176,7 @@ class Wav(object):
     Wav Class is a simple wrapper around scipy.io.wavfile.
 
     """
-    def __init__(self, filename):
+    def __init__(self, filename, data=None, samplerate=None):
         """
         Creates a new Wav object instance of the given file.
 
@@ -184,7 +184,12 @@ class Wav(object):
 
         """
         # read in the audio
-        self.sample_rate, self.audio = wavfile.read(filename)
+        print(data)
+        if samplerate:
+            self.sample_rate=samplerate
+            self.audio = data
+        else:
+            self.sample_rate, self.audio = wavfile.read(filename)
         # set the length
         self.num_samples = np.shape(self.audio)[0]
         self.length = float(self.num_samples) / self.sample_rate
@@ -831,7 +836,7 @@ def parser(lgd=False, threshold=1.1):
     # return args
     return args
 
-def get_onsets(filepath):
+def get_onsets(filepath, w=None,sr=None):
 
     att = None
     frame_size = 2048
@@ -851,7 +856,11 @@ def get_onsets(filepath):
     post_max = 0.15# 0.05
     delay = 0
        # open the wav file
-    w = Wav(filepath)
+    if filepath:
+        w = Wav(filepath)
+    else:
+        print(w)
+        w= Wav(None,data=w,samplerate=sr)
     # normalize audio
     w.normalize()
     # down-mix to mono

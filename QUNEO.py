@@ -51,6 +51,12 @@ AUDIO_RECORD_MODE_NUM_SHARP = 6
 AUDIO_RECORD_NO_SLICE = 7
 
 SAVE_PAGE = 8 # save positions and settings on  current page - not yet implemented
+VIDEO_SEQ = 9 # Send Items recorded on video page to "My_Loop" to Video Sequencer
+AUDIO_EXPORT = 10 # Export current loop to audio
+VIDEO_SLICER = 11 # Slice a video and send it to sample banks
+
+
+VIDEO_PAGE = 15 # Last Page is video page
 
 
 PADS = range(PAD_START,PAD_START+16)

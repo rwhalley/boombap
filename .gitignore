@@ -147,3 +147,9 @@ samples/17/
 *.pkl
 sound_data.pkl
 the_sounds.pkl
+
+# output files
+*.mp4
+*.mp3
+*.wav
+*.mov

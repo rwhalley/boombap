@@ -1,4 +1,4 @@
-OS = "r" #'m'
+OS = 'm'#"r" #
 
 
 
@@ -16,6 +16,15 @@ elif OS == 'm':
     ARCHIVE = '/Volumes/SQUIRREL/ArchivedSamples/'
     INPUT_DEVICE = 0
     MICROPHONE_NAME = 'MacBook Pro Microphone'
+
+
+"""VIDEO SETTINGS"""
+VIDEO_INPUT_PATH = '/Volumes/SQUIRREL/Videos/Input/'
+VIDEO_OUTPUT_PATH = '/Volumes/SQUIRREL/Videos/Output/'
+VIDEO_FINAL_OUTPUT_PATH = '/Volumes/SQUIRREL/Videos/FinalOutputs/'
+VIDEO_TEMP_PATH = '/Volumes/SQUIRREL/Videos/Temp/'
+VIDEO_START_OFFSET_SECONDS = -0.5
+SLICE_LENGTH = 2.5  # length of video slices in seconds
 
 
 DEBUG_MODE = 1

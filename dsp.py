@@ -35,3 +35,7 @@ def arctan_compressor(x, factor=5):
     transfer /= np.abs(transfer).max()
     #print(transfer)
     return apply_transfer(x, transfer*32767)
+
+
+def normalize(x):
+    return np.array([(x / np.max(np.abs(x))) * 32767], np.int16)

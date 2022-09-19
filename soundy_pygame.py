@@ -8,7 +8,7 @@ import dsp
 
 class Soundy:
 
-    def __init__(self,soundpath = None, fast_load = False, arr = None, no_init = False):
+    def __init__(self,soundpath = None, fast_load = False, arr = None, no_init = False, has_video = False):
         self.sound_name = None
         self.bank_name = None
         self.pgsound = None
@@ -26,6 +26,7 @@ class Soundy:
         self.keyboard = None
         self.key_notes = []
         self.cut_group = None
+        self.has_video = has_video
         pg.mixer.init(frequency=self.sample_rate, size=-16, channels=2, buffer=128)
         pg.init()
 
