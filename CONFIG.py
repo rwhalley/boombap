@@ -23,7 +23,10 @@ VIDEO_INPUT_PATH = '/Volumes/SQUIRREL/Videos/Input/'
 VIDEO_OUTPUT_PATH = '/Volumes/SQUIRREL/Videos/Output/'
 VIDEO_FINAL_OUTPUT_PATH = '/Volumes/SQUIRREL/Videos/FinalOutputs/'
 VIDEO_TEMP_PATH = '/Volumes/SQUIRREL/Videos/Temp/'
-VIDEO_START_OFFSET_SECONDS = -0.5
+AUDIO_FINAL_OUTPUT_PATH = '/Volumes/SQUIRREL/Videos/FinalOutputs/'
+APPLY_START_OFFSET = False
+START_OFFSET_F = -6 # frames
+START_OFFSET_S = -0.25 #seconds
 SLICE_LENGTH = 2.5  # length of video slices in seconds
 
 

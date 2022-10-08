@@ -2,15 +2,15 @@
 from moviepy.editor import *
 import CONFIG as c
 
-f1 = c.VIDEO_FINAL_OUTPUT_PATH + "goatmodern.mp4"# "../wendys2.mp4"
+f1 = c.VIDEO_FINAL_OUTPUT_PATH + "teletubby.mp4"# "../wendys2.mp4"
 t0 = 0
 t1 = 5
 
-f2 = c.VIDEO_FINAL_OUTPUT_PATH + "goatmodern.mp4" #"../wendys3.mp4"
+f2 = c.VIDEO_FINAL_OUTPUT_PATH + "weirdteletoub.mp4" #"../wendys3.mp4"
 t3 = 0
 t4 = 10
 
-o = c.VIDEO_FINAL_OUTPUT_PATH + "goatconcat.mp4" #"../superwendeees2.mp4"
+o = c.VIDEO_FINAL_OUTPUT_PATH + "teletubz.mp4" #"../superwendeees2.mp4"
 
 
 c1 = VideoFileClip(f1)#.subclip(t0, t1)

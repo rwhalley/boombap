@@ -114,11 +114,20 @@ class vSlicer:
 
         for si in vsliceindices:  # for each end index
             print(f"si {si}")
+            if (c.APPLY_START_OFFSET):
+                offset = int(c.START_OFFSET_S * self.vframerate)
+            else:
+                offset = 0
 
             ei = int(si + c.SLICE_LENGTH*self.vframerate) # end index is 1 second post start index
             print(f"ei  {ei}")
-            print(self.vdata[si:ei])
-            self.voutputs.append(self.vdata[si:ei])
+            start = 0
+            if (si+offset) < 0:
+                start = 0
+            else: start = si+offset
+            print(self.vdata[(si+offset):ei])
+
+            self.voutputs.append(self.vdata[start:ei])
 
     def slice_audio(self):
         # slice audio

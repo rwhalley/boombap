@@ -3,6 +3,7 @@ import numpy as np
 import QUNEO as c
 from scipy.io.wavfile import write
 import dsp
+import CONFIG as config
 
 
 class AudioRender:
@@ -34,7 +35,7 @@ class AudioRender:
           #return  np.reshape(np.arange(n*2,dtype='int32'),(n,2))
 
      """Export output audio loop to WAV"""
-     def export_audio(self,arr,filename,loop,bpm):
+     def export_audio(self,arr,filename,loop,bpm,on_loops=None):
           self.bpm = bpm
           self.loop = loop
           self.all_sounds = arr
@@ -49,58 +50,59 @@ class AudioRender:
           # at each time point in  loop, mix in the sounds
           print("Rendering Audio Output from Sample Loop...")
           for entry in self.loop:
-               if entry.midi.type == "note_on":
+               if entry.loop_id in on_loops:
+                    if entry.midi.type == "note_on" :
 
-                    # Retrieve the sample wav data
-                    note = (entry.midi.note - c.PAD_START)
-                    page = entry.page
-                    kit = entry.bank
-                    print(f"note: {note}")
-                    print(f"kit: {kit}")
-                    print(f"page: {page}")
-                    sound = self.all_sounds[page].kits[kit].samples[note].get_original_sound_array()
-                    samplelen = len(sound)
-
-
-                    # Calculate the start and end index for output
-                    ts = ((entry.bar_position * self.bar_length)/self.bpm)*self.spm*self.bpl  ## 1.34 measures * 4 beats per measure * / 120 beats per minute * 60 seconds per minute bpm 120 / 4 beats   ((1.34 * 4)/120)*60 = seconds
-                    start= int(ts*self.sample_rate)
-                    end = int(start+samplelen)
+                         # Retrieve the sample wav data
+                         note = (entry.midi.note - c.PAD_START)
+                         page = entry.page
+                         kit = entry.bank
+                         print(f"note: {note}")
+                         print(f"kit: {kit}")
+                         print(f"page: {page}")
+                         sound = self.all_sounds[page].kits[kit].samples[note].get_original_sound_array()
+                         samplelen = len(sound)
 
 
+                         # Calculate the start and end index for output
+                         ts = ((entry.bar_position * self.bar_length)/self.bpm)*self.spm*self.bpl  ## 1.34 measures * 4 beats per measure * / 120 beats per minute * 60 seconds per minute bpm 120 / 4 beats   ((1.34 * 4)/120)*60 = seconds
+                         start= int(ts*self.sample_rate)
+                         end = int(start+samplelen)
 
 
-                    #find "note_off" index and update end index if note off's before sample's done
-                    for entry in self.loop:
-                         if entry.midi.type == "note_off":
-                              if entry.page == page and entry.bank == kit and (entry.midi.note - c.PAD_START) == note:
-                                   ts = ((entry.bar_position * self.bar_length)/self.bpm)*self.spm*self.bpl  ## 1.34 measures * 4 beats per measure * / 120 beats per minute * 60 seconds per minute bpm 120 / 4 beats   ((1.34 * 4)/120)*60 = seconds
-                                   note_off = int(ts*self.sample_rate)
-                                   if (note_off < end) and (note_off > start):
-                                        end = note_off
 
 
-                    print(f"start: {start}")
-                    print(f"end: {end}")
+                         #find "note_off" index and update end index if note off's before sample's done
+                         for entry in self.loop:
+                              if entry.midi.type == "note_off":
+                                   if entry.page == page and entry.bank == kit and (entry.midi.note - c.PAD_START) == note:
+                                        ts = ((entry.bar_position * self.bar_length)/self.bpm)*self.spm*self.bpl  ## 1.34 measures * 4 beats per measure * / 120 beats per minute * 60 seconds per minute bpm 120 / 4 beats   ((1.34 * 4)/120)*60 = seconds
+                                        note_off = int(ts*self.sample_rate)
+                                        if (note_off < end) and (note_off > start):
+                                             end = note_off
 
 
-                    if end> len(self.output):
-                         end = len(self.output)
+                         print(f"start: {start}")
+                         print(f"end: {end}")
 
-                    # Mix in the wav sample into the appropriate indices of output
-                    self.output[start:end] = self.mix_sounds(self.output[start:end],sound[:(end-start)])
 
-                    print(entry.bar_position)
-                    print(ts)
+                         if end> len(self.output):
+                              end = len(self.output)
+
+                         # Mix in the wav sample into the appropriate indices of output
+                         self.output[start:end] = self.mix_sounds(self.output[start:end],sound[:(end-start)])
+
+                         print(entry.bar_position)
+                         print(ts)
 
           # Export Audio to File
           print(f"Exporting audio to wav: {filename}")
-          self.last_output_filename = filename
+          self.last_output_filename = config.AUDIO_FINAL_OUTPUT_PATH + filename
           print(self.output)
           # double length of audio
           self.output = np.concatenate((self.output,self.output), axis=0)
 
-          write(filename, self.sample_rate, self.output)
+          write(config.AUDIO_FINAL_OUTPUT_PATH+filename, self.sample_rate, self.output)
 
 
 

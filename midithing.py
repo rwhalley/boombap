@@ -965,19 +965,21 @@ class MidiControl:
             self.reload_kit(self.current_bank,self.current_page, include_videos = True)
 
 
+    """Export Current Loop as Video"""
     def sequence_video(self,midi):
         if self.is_mode_shift_pressed:
             mode_num = midi.note - self.button.PAD_START
             if mode_num == self.button.VIDEO_SEQ:
-                self.videoseq.assemble_sequence(self.metronome.midi_recorder.my_loop,self.metronome.bpm, all_sounds=self.all_sounds, vdimen=self.vSlicer.dimensions, framerate=self.vSlicer.vframerate, framerate_str=self.vSlicer.vframerate_str)
+                self.videoseq.assemble_sequence(self.metronome.midi_recorder.my_loop,self.metronome.bpm, all_sounds=self.all_sounds, vdimen=self.vSlicer.dimensions, framerate=self.vSlicer.vframerate, framerate_str=self.vSlicer.vframerate_str,on_loops=self.metronome.midi_recorder.active_loops)
                 self.videoseq.export_video_with_audio(self.audio_render.last_output_filename)
+                self.videoseq.concatenate_videos()
 
     """Export Current Sample Loop to Audio File"""
     def export_audio(self,midi):
         mode_num = midi.note - self.button.PAD_START
         if self.is_mode_shift_pressed:
             if mode_num == self.button.AUDIO_EXPORT:
-                self.audio_render.export_audio(self.all_sounds,str(dt.now().strftime("%y%m%d%H%M%S"))+".wav",self.metronome.midi_recorder.my_loop,self.metronome.bpm)
+                self.audio_render.export_audio(self.all_sounds,str(dt.now().strftime("%y%m%d%H%M%S"))+".wav",self.metronome.midi_recorder.my_loop,self.metronome.bpm,on_loops=self.metronome.midi_recorder.active_loops)
 
     def audio_record(self,midi):
         mode_num = midi.note - self.button.PAD_START

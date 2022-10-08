@@ -41,10 +41,13 @@ class Video:
 
         self.s = [(1,1.0),(2,2.0),(3,3.0)] # sequence
         self.m = [1.0,1.5,2.0] # moments in the video
+        self.exported_videos = []  # List of filenames that are exported in a session
 
+    """Convert int video width and height to ffmpeg string format"""
     def get_dimen(self,w,h):
         return str(w)+"x"+ str(h)
 
+    """Get minimum metadata value. For example - width height and duration..."""
     def  get_min(self,metadata, param):  # params = '@width', '@height', '@duration'
          min = 9999999999
          io = None
@@ -84,7 +87,8 @@ class Video:
 
     """Clip Zoom"""
 
-    """Assemble videos based on time sequence"""
+    """Assemble video clips based on timestamps with associated clip IDs. 
+    This is where the output video actually gets assembled."""
     def assemble(self,videos,sequence,x=None,y=None,tframes=1,framerate=30, vdimen = None):
          self.dimensions = vdimen
          nv = self.create_empty_video(x,y,tframes*2) #+int(framerate)) # New video of length total frames
@@ -131,14 +135,14 @@ class Video:
 
 
     #@jit
-    def resize_video(self,vdata,vmeta,w,h): # resize all the images in  one video
+    """Resize the video by cropping"""
+    def resize_video(self,vdata,w,h, hshift=0,wshift=0): # resize all the images in  one video
          # for i in range(len(vdata)):
          #      print(w)
          #      print(h)
          #      vdata[i] = resize(vdata[i],(1920,1080),anti_aliasing=True)
          #
-         hshift = 0
-         wshift = 0
+
          h1=vdata.shape[2]#int(vmeta['video']['@height'])
          w1=vdata.shape[1]#int(vmeta['video']['@width'])
          if h1>h:
@@ -178,7 +182,7 @@ class Video:
 
          # resize data
          for i in range(len(vfilenames)):
-              vdata[i] = self.resize_video(vdata[i],vmeta[i],mw,mh)
+              vdata[i] = self.resize_video(vdata[i],mw,mh)
 
          output = self.assemble(vdata,self.s,x=mw,y=mh,tframes=mlen)
          skvideo.io.vwrite("sequence.mp4",output)
@@ -213,7 +217,7 @@ class Video:
 
          # resize data
          for i in range(len(vfilenames)):
-              vdata[i] = self.resize_video(vdata[i],vmeta[i],mw,mh)
+              vdata[i] = self.resize_video(vdata[i],mw,mh)
 
          # make all videos the same length of frames
          for i in range(len(vfilenames)):
@@ -266,41 +270,94 @@ class Video:
          print("Writing video to disk")
          skvideo.io.vwrite("allie.mp4",new)
 
+    def pad_video(self,input,n,w,h, x=0, y=0):
+        mn,mx,my = input.shape[0], input.shape[1], input.shape[2]
+        output = self.create_empty_video(w,h,n)
+        output[:,x:w+x,y:h+y,:] = input
+        return output
 
-    def apply_mask(self,video,mask,greenscreenvalue = [0,0,0]):  # default greenscreen value is black 0,0,0
-         output = video
+    """Overlays a 'mask' video onto an input video, excluding the greenscreen color"""
+    def apply_mask(self,input,mask,greenscreenvalue = [0,0,0]):  # default greenscreen value is black 0,0,0
+         output = input
+
+         mn,mx,my = mask.shape[0], mask.shape[1], mask.shape[2]
+         inn,inx,iny = input.shape[0], input.shape[1], input.shape[2]
+
+         # make mask same size as input video
+         if mx<inx and my<iny:
+             mask = self.pad_video(mask,inn,inx,iny)
+
          print("Getting mask")
-         mask = np.logical_not(ma.masked_equal(video[2][:,:,:], [0,0,0]).mask)
+         mask = np.logical_not(ma.masked_equal(mask[:,:,:], greenscreenvalue).mask)
          # print(mask)
-         #
+
          print("Applying Floor Division")
          newt = output // 2
 
          print("Applying Floor Division 2")
-         video[2] = video[2] // 2
+         input = input // 2
 
          print("Applying mask")
-         output = np.where(mask,(newt + video[2]),output)
+         return(np.where(mask,(newt + input),output))
 
 
+
+
+    """Export the video clip with associated audio data."""
     def export_video_with_audio(self,audiopath):
         print(self.videopath)
         print(audiopath)
         print("trying.mp4")
         filename = input()
-        mp.VideoFileClip(self.videopath).set_audio(mp.AudioFileClip(audiopath)).write_videofile(filename,
+        self.exported_videos.append(filename)
+        mp.VideoFileClip(self.videopath).set_audio(mp.AudioFileClip(audiopath)).write_videofile(c.VIDEO_FINAL_OUTPUT_PATH+filename,
                                                                                                 codec='libx264',
                                                                                                  audio_codec='aac',
                                                                                                  temp_audiofile='temp-audio.m4a',
                                                                                                  remove_temp=True)
 
+    """String the videos together exported videos """
+    def concatenate_videos(self):
+        if (len(self.exported_videos) == 2):
+            for i in range((len(self.exported_videos)-1)):
 
+                f1 = c.VIDEO_FINAL_OUTPUT_PATH + self.exported_videos[i]# "../wendys2.mp4"
+
+                f2 = c.VIDEO_FINAL_OUTPUT_PATH + self.exported_videos[i+1] #"../wendys3.mp4"
+                t3 = 0
+                t4 = 10
+                fn_out = os.path.splitext(self.exported_videos[i])[0]+"o" + ".mp4"
+
+
+                o = c.VIDEO_FINAL_OUTPUT_PATH + fn_out #"../superwendeees2.mp4"
+
+
+                c1 = mp.VideoFileClip(f1)#.subclip(t0, t1)
+                c2 = mp.VideoFileClip(f2)#.subclip(t3,t4)
+
+                final = mp.concatenate_videoclips([c1, c2])
+
+                final.write_videofile(o,codec='libx264',
+                                         audio_codec='aac',
+                                         temp_audiofile='temp-audio.m4a',
+                                         remove_temp=True)
+                try:
+                    for video in self.exported_videos:
+                        os.remove(c.VIDEO_FINAL_OUTPUT_PATH + video)
+                except FileNotFoundError:
+                    print("FILE NOT FOUDN")
+                self.exported_videos = list()
+                self.exported_videos.append(fn_out)
+
+    """Get video metadata for a list of video filenames. 
+    Needed for figuring out compatible lengths and sizes for video processing."""
     def get_metadata(self,vfilenames):
          vmeta = []
          for i,fn in enumerate(vfilenames):
               vmeta.append(skvideo.io.ffprobe(fn))
          return vmeta
 
+    """Get the raw video data for a list of filenames. This is the raw data for preprocessing."""
     def get_vdata(self,vfilenames):
          vdata = []  # video data as numpy array
          for fn in vfilenames:
@@ -309,7 +366,7 @@ class Video:
               print(f"vdata output: {output}")
          return vdata
 
-
+    """Delete any video data stored in memory in case it takes up all the RAM."""
     def cleanup(self):
         del self.voutputs
         self.voutputs = None
@@ -321,7 +378,9 @@ class Video:
         self.aoutputs = None
 
 
-    def assemble_sequence(self, loop, bpm, bar_length = 4, default_vid = 0, vname= "testoutput.mp4", all_sounds = None, vdimen=None, framerate=None, framerate_str=None):
+    """Main function for assembling a musical video sequence from a MIDI loop. MIDI loop is parsed for video entries.
+    Timestamps and video clip IDs are compiled and sent to a function where the actual video data is assembled into an output. """
+    def assemble_sequence(self, loop, bpm, bar_length = 4, default_vid = 0, vname= "testoutput.mp4", all_sounds = None, vdimen=None, framerate=None, framerate_str=None, on_loops=None):
 
           self.framerate_str = framerate_str
 
@@ -340,21 +399,25 @@ class Video:
 
 
           for entry in loop:
-               # If the clip is to be automatically generated, i.e. sample has associated video
-               if all_sounds[entry.page].kits[entry.bank].samples[entry.midi.note - q.PAD_START].has_video and entry.midi.type == "note_on":  # if the sample has a video clip
-                   vid = (entry.midi.note - q.PAD_START)
-                   vt = ((entry.bar_position * bar_length)/bpm)*spm*4 # + c.VIDEO_START_OFFSET_SECONDS  ## 1.34 measures * 4 beats per measure * / 120 beats per minute * 60 seconds per minute bpm 120 / 4 beats   ((1.34 * 4)/120)*60 = seconds
-                   print(entry.bar_position)
-                   print(vt)
-                   input.append((vid,vt))
+               if entry.loop_id in on_loops:
+                   # If the clip is to be automatically generated, i.e. sample has associated video
+                   if all_sounds[entry.page].kits[entry.bank].samples[entry.midi.note - q.PAD_START].has_video and entry.midi.type == "note_on":  # if the sample has a video clip
+                       vid = (entry.midi.note - q.PAD_START)
+                       if c.APPLY_START_OFFSET:
+                           offset= c.START_OFFSET_S
+                       else: offset = 0
+                       vt = ((entry.bar_position * bar_length)/bpm)*spm*4 + offset# + c.VIDEO_START_OFFSET_SECONDS  ## 1.34 measures * 4 beats per measure * / 120 beats per minute * 60 seconds per minute bpm 120 / 4 beats   ((1.34 * 4)/120)*60 = seconds
+                       print(entry.bar_position)
+                       print(vt)
+                       input.append((vid,vt))
 
-               # If the video clip is manually sequenced from the video page
-               elif entry.page == q.VIDEO_PAGE and entry.midi.type == "note_on":  # if the videos are hand sequenced in page 15
-                    vid = (entry.midi.note - q.PAD_START)
-                    vt = ((entry.bar_position * bar_length)/bpm)*spm*4  ## 1.34 measures * 4 beats per measure * / 120 beats per minute * 60 seconds per minute bpm 120 / 4 beats   ((1.34 * 4)/120)*60 = seconds
-                    print(entry.bar_position)
-                    print(vt)
-                    input.append((vid,vt))
+                   # If the video clip is manually sequenced from the video page
+                   elif entry.page == q.VIDEO_PAGE and entry.midi.type == "note_on":  # if the videos are hand sequenced in page 15
+                        vid = (entry.midi.note - q.PAD_START)
+                        vt = ((entry.bar_position * bar_length)/bpm)*spm*4  ## 1.34 measures * 4 beats per measure * / 120 beats per minute * 60 seconds per minute bpm 120 / 4 beats   ((1.34 * 4)/120)*60 = seconds
+                        print(entry.bar_position)
+                        print(vt)
+                        input.append((vid,vt))
 
           print(input)
           print("Retrieving Metadata")
