@@ -1,6 +1,7 @@
 import moviepy.editor as mp
 import os
 import skvideo.io
+
 from scipy.io.wavfile import read, write
 import pygame
 from soundy_pygame import Soundy

@@ -2,6 +2,7 @@
 import os
 import skvideo.io
 import skvideo.datasets
+
 import numpy as np
 import numpy.ma as ma
 from skimage.transform import resize
@@ -38,6 +39,7 @@ class Video:
         self.w = 1080
         self.h = 1920
         self.dimensions = str(self.w)+"x"+ str(self.h)
+        self.loop_cancellist = []
 
         self.s = [(1,1.0),(2,2.0),(3,3.0)] # sequence
         self.m = [1.0,1.5,2.0] # moments in the video
@@ -91,7 +93,9 @@ class Video:
     This is where the output video actually gets assembled."""
     def assemble(self,videos,sequence,x=None,y=None,tframes=1,framerate=30, vdimen = None):
          self.dimensions = vdimen
-         nv = self.create_empty_video(x,y,tframes*2) #+int(framerate)) # New video of length total frames
+         if c.DOUBLE:
+             tframes = tframes*2
+         nv = self.create_empty_video(x,y,tframes) #+int(framerate)) # New video of length total frames
          print(self.dimensions)
          print(f"NEW VIDEO SHAPE: {nv.shape}")
          start = 0
@@ -129,9 +133,12 @@ class Video:
               #videos[vid] = 0
 
          print(f"NEW VIDEO: {nv}")
-         # double the video output
-         nv[int(len(nv)/2):(len(nv))] = nv[0:int(len(nv)/2)]
-         return nv[0:len(nv)]
+         if c.DOUBLE:
+             # double the video output
+             nv[int(len(nv)/2):(len(nv))] = nv[0:int(len(nv)/2)]
+             return nv[0:len(nv)]
+         else:
+             return nv
 
 
     #@jit
@@ -399,7 +406,7 @@ class Video:
 
 
           for entry in loop:
-               if entry.loop_id in on_loops:
+               if entry.loop_id in on_loops and entry.loop_id not in self.loop_cancellist:
                    # If the clip is to be automatically generated, i.e. sample has associated video
                    if all_sounds[entry.page].kits[entry.bank].samples[entry.midi.note - q.PAD_START].has_video and entry.midi.type == "note_on":  # if the sample has a video clip
                        vid = (entry.midi.note - q.PAD_START)
@@ -419,6 +426,7 @@ class Video:
                         print(vt)
                         input.append((vid,vt))
 
+          self.loop_cancellist += on_loops  # add current on loops to cancel list
           print(input)
           print("Retrieving Metadata")
 

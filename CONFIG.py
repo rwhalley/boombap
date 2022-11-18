@@ -32,6 +32,7 @@ SLICE_LENGTH = 2.5  # length of video slices in seconds
 
 DEBUG_MODE = 1
 DEBUG = False
+DOUBLE = 0  # Double Length of Video Output
 RECORDED_SAMPLES_FOLDER = "10 - Recorded"
 
 SIMPLE_MODE = True

@@ -1359,6 +1359,10 @@ class MidiControl:
     # Record Sound
     def record_new_samples(self, slice_sharpness = 0.3):
         print("RECORDING NEW SAMPLES")
+        # turn off all sounds
+        self.cutoff_all_sounds()
+
+
         # create recording
         r = AudioRecorder(self.sample_recording_length_in_seconds,controller=self)
         r.start_record()
