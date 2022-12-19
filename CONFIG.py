@@ -30,6 +30,8 @@ START_OFFSET_S = -0.25 #seconds
 SLICE_LENGTH = 2.5  # length of video slices in seconds
 
 
+# Preferences
+BOOTUP_SOUND = 0
 DEBUG_MODE = 1
 DEBUG = False
 DOUBLE = 0  # Double Length of Video Output

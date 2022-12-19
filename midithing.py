@@ -180,8 +180,8 @@ class MidiControl:
 
 
 
-
-        #self.metronome.tada.play(block=False)
+        if c.BOOTUP_SOUND:
+            self.metronome.tada.play(block=False)
 
         print("LOADING COMPLETE - STARTING MAIN LOOP")
 
@@ -327,7 +327,8 @@ class MidiControl:
         self.pre_process_sounds(sounds = self.all_sounds[self.current_page].kits[self.current_bank].samples)
 
         self.save_page(page_num)
-        #self.metronome.tada.play(block=False)
+        if c.BOOTUP_SOUND:
+            self.metronome.tada.play(block=False)
 
 
 
