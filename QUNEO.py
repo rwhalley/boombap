@@ -35,7 +35,7 @@ KEYBOARD = 18 #
 
 VOLUME_SHIFT = 10
 
-
+VIDEO_OVERRIDE = "xx"  # Not implemented yet: Will allow video assembly to ignore audio that has associated video
 
 MODE_SHIFT = 26
 

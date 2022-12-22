@@ -19,8 +19,9 @@ elif OS == 'm':
 
 
 """VIDEO SETTINGS"""
+VIDEO_RECORDING_FOLDER = "04 - Video Recording"
 VIDEO_INPUT_PATH = '/Volumes/SQUIRREL/Videos/Input/'
-VIDEO_OUTPUT_PATH = '/Volumes/SQUIRREL/Videos/Output/'
+VIDEO_OUTPUT_PATH = '/Volumes/SQUIRREL/Simple/'+VIDEO_RECORDING_FOLDER+'/'
 VIDEO_FINAL_OUTPUT_PATH = '/Volumes/SQUIRREL/Videos/FinalOutputs/'
 VIDEO_TEMP_PATH = '/Volumes/SQUIRREL/Videos/Temp/'
 AUDIO_FINAL_OUTPUT_PATH = '/Volumes/SQUIRREL/Videos/FinalOutputs/'
@@ -29,13 +30,17 @@ START_OFFSET_F = -6 # frames
 START_OFFSET_S = -0.25 #seconds
 SLICE_LENGTH = 2.5  # length of video slices in seconds
 
+#State
+CURRENT_BANK = 0
+
 
 # Preferences
 BOOTUP_SOUND = 0
 DEBUG_MODE = 1
 DEBUG = False
-DOUBLE = 0  # Double Length of Video Output
+DOUBLE = 1  # Double Length of Video Output
 RECORDED_SAMPLES_FOLDER = "10 - Recorded"
+VIDEO_RECORDING_FOLDER = "04 - Video Recording"
 
 SIMPLE_MODE = True
 

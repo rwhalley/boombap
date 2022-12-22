@@ -36,13 +36,14 @@ class Video:
         self.videopath = None
         self.outputpath = None
         self.framerate_str = None
+        self.framerate = 30
         self.w = 1080
         self.h = 1920
         self.dimensions = str(self.w)+"x"+ str(self.h)
         self.loop_cancellist = []
 
-        self.s = [(1,1.0),(2,2.0),(3,3.0)] # sequence
-        self.m = [1.0,1.5,2.0] # moments in the video
+        self.s = [(1,0.0,0),(2,1.0,1),(3,2.0,1)] # sequence
+        self.m = [0.0,1.0] # moments in the video
         self.exported_videos = []  # List of filenames that are exported in a session
 
     """Convert int video width and height to ffmpeg string format"""
@@ -91,17 +92,27 @@ class Video:
 
     """Assemble video clips based on timestamps with associated clip IDs. 
     This is where the output video actually gets assembled."""
-    def assemble(self,videos,sequence,x=None,y=None,tframes=1,framerate=30, vdimen = None):
+    def assemble(self,videos,sequence,x=None,y=None,tframes=1,framerate=30, vdimen = None, vindex = None):
          self.dimensions = vdimen
+
+         # Make room for the assembled video to repeat twice
          if c.DOUBLE:
              tframes = tframes*2
+
+
+         # Create an empty numpy array to hold the video data with the correct length
          nv = self.create_empty_video(x,y,tframes) #+int(framerate)) # New video of length total frames
          print(self.dimensions)
          print(f"NEW VIDEO SHAPE: {nv.shape}")
+
+
+         #Iterate through the MIDI loop events
          start = 0
          for event in sequence:
-              vid = event[0]
-              vt = event[1]
+
+              vid = event[0] # What number PAD was pressed
+              vt = event[1]  # what is the timepoint of the event in seconds
+              vbank = event[2]
               start=int(framerate*vt)
               if start<0:
                   start = 0
@@ -115,24 +126,39 @@ class Video:
                    end = tframes
                    end2 = (tframes-start)
 
-              print("START")
-              print(vid)
-              print(len(nv))
-              print(len(videos))
+              # print("START")
+              # print(vid)
+              # print(len(nv))
+              # print(len(videos))
+              #
+              # print(start)
+              # print(end)
+              # print(end2)
+              print(f"VIDEOSHAPE {len(videos)}")
+              print(f"VINDEX {vindex}")
+              result = 0
+              i=0
+              while i<vbank:
+                  result += (vindex[i]) + 1  # 1 is added for each 0 index
+                  i+=1
+              result = result + vid
+              # for ind in vindex:
+              #     if ind[0] == vid and ind[2] == vbank:
+              #         result = ind[2]
+              print(f"result: {result}")
 
-              print(start)
-              print(end)
-              print(end2)
-              if len(videos[vid])<end2:
-                  while len(videos[vid])<end2:
-                      videos[vid] = np.concatenate((videos[vid],videos[vid]), axis=0  )
-              nv[start:end] = videos[vid][0:end2]
-              print(f"VIDEO shape: {videos[vid].shape}")
-              print(f"VIDEO: {vid}")
-              print(videos[vid][0:end2])
+              myvid = videos[result]
+              print(f"MYVID + {myvid}")
+              if len(videos[result])<end2:
+                  while len(videos[result])<end2:
+                      videos[result] = np.concatenate((videos[result],videos[result]), axis=0  )
+              nv[start:end] = videos[result][0:end2]
+              # print(f"VIDEO shape: {myvid.shape}")
+              # print(f"VIDEO: {vid}")
+              # print(myvid[0:end2])
               #videos[vid] = 0
 
-         print(f"NEW VIDEO: {nv}")
+         #print(f"NEW VIDEO: {nv}")
          if c.DOUBLE:
              # double the video output
              nv[int(len(nv)/2):(len(nv))] = nv[0:int(len(nv)/2)]
@@ -174,25 +200,6 @@ class Video:
 
 
 
-    def test_vid_assembly(self,vfilenames):
-         #get metadata
-         vmeta = self.get_metadata(vfilenames)
-
-
-         # find min width, height, and length of all videos
-         mw = self.get_min(vmeta,"@width")  # min width
-         mh = self.get_min(vmeta,"@height")   # min height
-         mlen = self.get_min(vmeta,"@nb_frames")  # min length
-
-         # get raw data as 4D numpy arrays
-         vdata = self.get_vdata(vfilenames)
-
-         # resize data
-         for i in range(len(vfilenames)):
-              vdata[i] = self.resize_video(vdata[i],mw,mh)
-
-         output = self.assemble(vdata,self.s,x=mw,y=mh,tframes=mlen)
-         skvideo.io.vwrite("sequence.mp4",output)
 
 
     def preprocess_videos(self,vfilenames): # list of videos as input
@@ -352,7 +359,7 @@ class Video:
                     for video in self.exported_videos:
                         os.remove(c.VIDEO_FINAL_OUTPUT_PATH + video)
                 except FileNotFoundError:
-                    print("FILE NOT FOUDN")
+                    print("FILE NOT FOUND")
                 self.exported_videos = list()
                 self.exported_videos.append(fn_out)
 
@@ -360,17 +367,21 @@ class Video:
     Needed for figuring out compatible lengths and sizes for video processing."""
     def get_metadata(self,vfilenames):
          vmeta = []
+
          for i,fn in enumerate(vfilenames):
               vmeta.append(skvideo.io.ffprobe(fn))
+         vmeta.append(vfilenames)
          return vmeta
 
     """Get the raw video data for a list of filenames. This is the raw data for preprocessing."""
     def get_vdata(self,vfilenames):
          vdata = []  # video data as numpy array
+
          for fn in vfilenames:
-              output = skvideo.io.vread((c.VIDEO_OUTPUT_PATH+fn), inputdict={'-r' : str(int(self.framerate))})
+              output = skvideo.io.vread((fn), inputdict={'-r' : str(int(self.framerate))})
               vdata.append(output)
-              print(f"vdata output: {output}")
+              #print(f"vdata output: {output}")
+
          return vdata
 
     """Delete any video data stored in memory in case it takes up all the RAM."""
@@ -391,9 +402,7 @@ class Video:
 
           self.framerate_str = framerate_str
 
-          # Locate video filenames in video folder
-          vfilenames = [f for f in os.listdir(c.VIDEO_OUTPUT_PATH) if (not f.startswith('.'))  and (f.endswith('.MOV') or f.endswith('.mp4'))]
-          print(f"vfilenames {vfilenames}")
+
           #["goat.mov","chicken.mov"]#,"square.mp4", "allie.mov"]
 
 
@@ -402,13 +411,20 @@ class Video:
          # Create Video Sequence from MIDI Loop
           spm = 60  # seconds per minute
           input = []
+          banks = []
+          vindex = []
           #input.append((default_vid,0.0))\
 
 
           for entry in loop:
                if entry.loop_id in on_loops and entry.loop_id not in self.loop_cancellist:
                    # If the clip is to be automatically generated, i.e. sample has associated video
-                   if all_sounds[entry.page].kits[entry.bank].samples[entry.midi.note - q.PAD_START].has_video and entry.midi.type == "note_on":  # if the sample has a video clip
+                   #if all_sounds[entry.page].kits[entry.bank].samples[entry.midi.note - q.PAD_START].has_video and entry.midi.type == "note_on":  # if the sample has a video clip
+                   vbank = entry.bank
+                   if not vbank in banks:
+                       banks.append(vbank)
+                   if entry.midi.type == "note_on":  # if the sample has a video clip
+
                        vid = (entry.midi.note - q.PAD_START)
                        if c.APPLY_START_OFFSET:
                            offset= c.START_OFFSET_S
@@ -416,7 +432,7 @@ class Video:
                        vt = ((entry.bar_position * bar_length)/bpm)*spm*4 + offset# + c.VIDEO_START_OFFSET_SECONDS  ## 1.34 measures * 4 beats per measure * / 120 beats per minute * 60 seconds per minute bpm 120 / 4 beats   ((1.34 * 4)/120)*60 = seconds
                        print(entry.bar_position)
                        print(vt)
-                       input.append((vid,vt))
+                       input.append((vid,vt,vbank))
 
                    # If the video clip is manually sequenced from the video page
                    elif entry.page == q.VIDEO_PAGE and entry.midi.type == "note_on":  # if the videos are hand sequenced in page 15
@@ -424,10 +440,30 @@ class Video:
                         vt = ((entry.bar_position * bar_length)/bpm)*spm*4  ## 1.34 measures * 4 beats per measure * / 120 beats per minute * 60 seconds per minute bpm 120 / 4 beats   ((1.34 * 4)/120)*60 = seconds
                         print(entry.bar_position)
                         print(vt)
-                        input.append((vid,vt))
+                        input.append((vid,vt,vbank))
 
           self.loop_cancellist += on_loops  # add current on loops to cancel list
           print(input)
+
+          # Locate video filenames in video folder
+          print("Retrieving filenames")
+          vfilenames = []
+          folder_sizes = []
+          starti = 0
+          print(banks)
+          banks.sort()
+          for bank in banks:
+                vfilenamestemp = [(c.VIDEO_OUTPUT_PATH+f"{bank:02d}"+"/"+f) for f in os.listdir(c.VIDEO_OUTPUT_PATH+f"{bank:02d}"+"/") if (not f.startswith('.'))  and (f.endswith('.MOV') or f.endswith('.mp4'))]
+                tempi = 0
+                for i, f in enumerate(vfilenamestemp):
+                    vindex.append((i,i+starti,bank))
+                    tempi = i
+                folder_sizes.append(tempi)
+                starti = starti + tempi
+                vfilenames.append(vfilenamestemp)
+          vfilenames = [item for sublist in vfilenames for item in sublist]
+          print(f"vfilenames {vfilenames}")
+
           print("Retrieving Metadata")
 
           self.vmeta = self.get_metadata(vfilenames)
@@ -452,7 +488,7 @@ class Video:
           mw = min([v.shape[1] for v in vdata])
           mh = min([v.shape[2] for v in vdata])
           mlen = min([v.shape[0] for v in vdata])
-
+          #
           mlen = int(((bar_length)/bpm)*spm*4 * self.framerate)
           print(f"MLEN: {mlen}")
 
@@ -469,8 +505,9 @@ class Video:
 
           #
           print("Assembling Video Data")
-          new = self.assemble(vdata,input,x=self.w,y=self.h,tframes=mlen,framerate=self.framerate, vdimen=self.dimensions)
-          print(f"NEW {new}")
+          print(input)
+          new = self.assemble(vdata,input,x=self.w,y=self.h,tframes=mlen,framerate=self.framerate, vdimen=self.dimensions, vindex=folder_sizes)
+          #print(f"NEW {new}")
 
           print("Writing video to disk")
           self.videopath = vname
@@ -478,7 +515,60 @@ class Video:
 
           skvideo.io.vwrite(vname,new, inputdict={'-r' : self.framerate_str})#str(int(self.framerate))})#, outputdict={'-s' : self.dimensions})
 
-vfilenames = ["goat.mov","chicken.mov","square.mp4", "allie.mov"]
 
-#v = Video()
-#v.test_vid_assembly(vfilenames)
+    def test_vfilenames(self):
+        banks = [0,1]
+        vfilenames = []
+        starti = 0
+        vindex = []
+        folder_sizes = []
+        for bank in banks:
+            vfilenamestemp = [(c.VIDEO_OUTPUT_PATH+f"{bank:02d}"+"/"+f) for f in os.listdir(c.VIDEO_OUTPUT_PATH+f"{bank:02d}"+"/") if (not f.startswith('.'))  and (f.endswith('.MOV') or f.endswith('.mp4'))]
+            tempi = 0
+            for i, f in enumerate(vfilenamestemp):
+                vindex.append((i,i+starti,bank))
+                tempi = i
+            folder_sizes.append(tempi)
+            starti = starti + tempi
+            vfilenames.append(vfilenamestemp)
+        vfilenames = [item for sublist in vfilenames for item in sublist]
+        print(f"vfilenames {vfilenames}")
+        return vfilenames,folder_sizes
+
+    def test_vid_assembly(self,vfilenames,folder_sizes):
+         #get metadata
+         vmeta = self.get_metadata(vfilenames)
+         # get raw data as 4D numpy arrays
+         vdata = self.get_vdata(vfilenames)
+         print(vdata)
+         print(vmeta)
+
+
+         # find min width, height, and length of all videos
+         # mw = self.get_min(vmeta,"@width")  # min width
+         # mh = self.get_min(vmeta,"@height")   # min height
+         # mlen = self.get_min(vmeta,"@nb_frames")  # min length
+
+
+         mw = min([v.shape[1] for v in vdata])
+         mh = min([v.shape[2] for v in vdata])
+         mlen = min([v.shape[0] for v in vdata])
+
+         #mlen = int(((bar_length)/bpm)*spm*4 * self.framerate)
+         print(f"MLEN: {mlen}")
+
+
+
+         # resize data
+         # for i in range(len(vfilenames)):
+         #      vdata[i] = self.resize_video(vdata[i],mw,mh)
+         #
+         output = self.assemble(vdata,self.s,x=mw,y=mh,tframes=mlen,vindex=folder_sizes)
+         skvideo.io.vwrite("sequence.mp4",output)
+
+
+# vfilenames = ["goat.mov","chicken.mov", "allie.mov"]
+#
+# v = Video()
+# output = v.test_vfilenames()
+# v.test_vid_assembly(output[0],output[1])
