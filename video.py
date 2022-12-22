@@ -42,7 +42,7 @@ class Video:
         self.dimensions = str(self.w)+"x"+ str(self.h)
         self.loop_cancellist = []
 
-        self.s = [(1,0.0,0),(2,1.0,1),(3,2.0,1)] # sequence
+        self.s = [(1,0.5,0),(2,1.5,1),(3,2.5,1)] # sequence
         self.m = [0.0,1.0] # moments in the video
         self.exported_videos = []  # List of filenames that are exported in a session
 
@@ -509,12 +509,25 @@ class Video:
           new = self.assemble(vdata,input,x=self.w,y=self.h,tframes=mlen,framerate=self.framerate, vdimen=self.dimensions, vindex=folder_sizes)
           #print(f"NEW {new}")
 
+          """fill in the empty frames at the beginning of the video with the first non-empty frame"""
+          new = self.adjust_start_of_video(new)
+
           print("Writing video to disk")
           self.videopath = vname
           self.outputpath = vname
 
           skvideo.io.vwrite(vname,new, inputdict={'-r' : self.framerate_str})#str(int(self.framerate))})#, outputdict={'-s' : self.dimensions})
 
+    """Fill in the first blank frames of the video with the first frame that contains data"""
+    def adjust_start_of_video(self, video):
+        i=0
+        while i<len(video):
+            if video[i].any():  # when you hit the first frame that isn't all 0's
+                for j in range(0,i):
+                    video[j] = video[i]
+                break
+            i+=1
+        return video
 
     def test_vfilenames(self):
         banks = [0,1]
@@ -564,11 +577,12 @@ class Video:
          #      vdata[i] = self.resize_video(vdata[i],mw,mh)
          #
          output = self.assemble(vdata,self.s,x=mw,y=mh,tframes=mlen,vindex=folder_sizes)
+         output = self.adjust_start_of_video(output)
          skvideo.io.vwrite("sequence.mp4",output)
 
 
 # vfilenames = ["goat.mov","chicken.mov", "allie.mov"]
-#
-# v = Video()
-# output = v.test_vfilenames()
-# v.test_vid_assembly(output[0],output[1])
+
+v = Video()
+output = v.test_vfilenames()
+v.test_vid_assembly(output[0],output[1])
