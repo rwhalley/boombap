@@ -41,6 +41,7 @@ DEBUG = False
 DOUBLE = 1  # Double Length of Video Output
 RECORDED_SAMPLES_FOLDER = "10 - Recorded"
 VIDEO_RECORDING_FOLDER = "04 - Video Recording"
+VIDEO_PAGE = 4
 
 SIMPLE_MODE = True
 

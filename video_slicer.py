@@ -29,6 +29,7 @@ class vSlicer:
 
 
     def load_audio(self):
+        self.vfilename = c.VIDEO_INPUT_PATH+ os.listdir(c.VIDEO_INPUT_PATH)[0]
         audioclip = mp.AudioFileClip(self.vfilename)
         audioclip.write_audiofile(self.afilename)
 
@@ -152,6 +153,7 @@ class vSlicer:
         print(f"writing new audio samples to file")
         print(f"aoutputs {len(self.aoutputs)}")
         for i,sound in enumerate(self.aoutputs):
+            #TODO: Make dir if not exist
             write(afolder+"{:02d}".format(i)+".wav",self.samplerate,sound)
 
 

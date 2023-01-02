@@ -92,7 +92,7 @@ class Video:
 
     """Assemble video clips based on timestamps with associated clip IDs. 
     This is where the output video actually gets assembled."""
-    def assemble(self,videos,sequence,x=None,y=None,tframes=1,framerate=30, vdimen = None, vindex = None):
+    def assemble(self,videos,sequence,x=None,y=None,tframes=1,framerate=30, vdimen = None, vindex = None, vbanks = None):
          self.dimensions = vdimen
 
          # Make room for the assembled video to repeat twice
@@ -138,7 +138,7 @@ class Video:
               print(f"VINDEX {vindex}")
               result = 0
               i=0
-              while i<vbank:
+              while vbanks[i]<vbank:
                   result += (vindex[i]) + 1  # 1 is added for each 0 index
                   i+=1
               result = result + vid
@@ -423,7 +423,7 @@ class Video:
                    vbank = entry.bank
                    if not vbank in banks:
                        banks.append(vbank)
-                   if entry.midi.type == "note_on":  # if the sample has a video clip
+                   if entry.midi.type == "note_on" and entry.page == c.VIDEO_PAGE:  # if the sample has a video clip
 
                        vid = (entry.midi.note - q.PAD_START)
                        if c.APPLY_START_OFFSET:
@@ -434,7 +434,7 @@ class Video:
                        print(vt)
                        input.append((vid,vt,vbank))
 
-                   # If the video clip is manually sequenced from the video page
+                   # If the video clip is manually sequenced from the video page (VIDEO ONLY, NO ASSOCIATED AUDIO)
                    elif entry.page == q.VIDEO_PAGE and entry.midi.type == "note_on":  # if the videos are hand sequenced in page 15
                         vid = (entry.midi.note - q.PAD_START)
                         vt = ((entry.bar_position * bar_length)/bpm)*spm*4  ## 1.34 measures * 4 beats per measure * / 120 beats per minute * 60 seconds per minute bpm 120 / 4 beats   ((1.34 * 4)/120)*60 = seconds
@@ -506,7 +506,7 @@ class Video:
           #
           print("Assembling Video Data")
           print(input)
-          new = self.assemble(vdata,input,x=self.w,y=self.h,tframes=mlen,framerate=self.framerate, vdimen=self.dimensions, vindex=folder_sizes)
+          new = self.assemble(vdata,input,x=self.w,y=self.h,tframes=mlen,framerate=self.framerate, vdimen=self.dimensions, vindex=folder_sizes, vbanks = banks)
           #print(f"NEW {new}")
 
           """fill in the empty frames at the beginning of the video with the first non-empty frame"""
@@ -582,7 +582,7 @@ class Video:
 
 
 # vfilenames = ["goat.mov","chicken.mov", "allie.mov"]
-
-v = Video()
-output = v.test_vfilenames()
-v.test_vid_assembly(output[0],output[1])
+#
+# v = Video()
+# output = v.test_vfilenames()
+# v.test_vid_assembly(output[0],output[1])
