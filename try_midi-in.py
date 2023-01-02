@@ -1,4 +1,3 @@
-import rtmidi
 import mido
 from mido.ports import MultiPort
 import time

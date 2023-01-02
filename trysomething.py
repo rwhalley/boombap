@@ -23,7 +23,7 @@ import skvideo.datasets
 import numpy as np
 import numpy.ma as ma
 from skimage.transform import resize
-from numba import jit, cuda
+# from numba import jit, cuda
 import math
 
 # sine oscillating!!!!
