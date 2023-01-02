@@ -300,11 +300,14 @@ class MidiControl:
 
 
     def reload_kit(self,kit_num,page_num, include_videos = False):
-        path = self.basepath+'/'+c.RECORDED_SAMPLES_FOLDER+'/'+str(kit_num)+'/'
+        if include_videos:
+            path = self.basepath+'/'+c.VIDEO_RECORDING_FOLDER+'/'+f"{kit_num:02}"+'/'
+        else:
+            path = self.basepath+'/'+c.RECORDED_SAMPLES_FOLDER+'/'+str(kit_num)+'/'
         if not exists(path):
-            os.makedirs(self.basepath+'/'+c.RECORDED_SAMPLES_FOLDER+'/'+str(kit_num)+'/')
+            os.makedirs(path)
         kit = self.get_empty_kit(name=str(kit_num),path = path)
-        samples = [f for f in sorted(listdir(kit.path)) if isfile(join(kit.path, f))]
+        samples = [f for f in sorted(listdir(kit.path)) if (f.endswith(".wav") and isfile(join(kit.path, f)))]
         print("RELOAD KIT")
         print(f"PAGE NUM {page_num}")
         print(f"KIT NUM {kit_num}")
@@ -467,6 +470,7 @@ class MidiControl:
     def load_all_samples(self):
         pages = (sorted(self.get_immediate_subdirectories(self.basepath)))
         kits_names = self.get_all_kit_dirs(self.basepath)
+        print(kits_names)
         self.all_sounds = [self.get_empty_page()] * 16
         for i, page in enumerate(pages):
             kits = [self.get_empty_kit()] * 16
@@ -971,6 +975,7 @@ class MidiControl:
         if self.is_mode_shift_pressed:
             mode_num = midi.note - self.button.PAD_START
             if mode_num == self.button.VIDEO_SEQ:
+                self.vSlicer.get_vframerate(c.VIDEO_OUTPUT_PATH+f"{c.CURRENT_BANK:02d}"+"/"+"00.mp4")
                 self.videoseq.assemble_sequence(self.metronome.midi_recorder.my_loop,self.metronome.bpm, all_sounds=self.all_sounds, vdimen=self.vSlicer.dimensions, framerate=self.vSlicer.vframerate, framerate_str=self.vSlicer.vframerate_str,on_loops=self.metronome.midi_recorder.active_loops)
                 self.videoseq.export_video_with_audio(self.audio_render.last_output_filename)
                 self.videoseq.concatenate_videos()
@@ -1179,6 +1184,7 @@ class MidiControl:
                     print(f"current page: {self.current_page}")
             except IndexError:
                 self.current_bank = old_bank  # Stay on current bank
+                c.CURRENT_BANK = old_bank
                 self.current_page = old_page
 
     def switch_bank(self,midi):
@@ -1187,12 +1193,14 @@ class MidiControl:
             #page_factor = self.current_page*self.max_page_size  # Zero indexed
             #print(midi.note)
             self.current_bank = midi.note-self.button.PAD_START #page_factor + midi.note-self.button.PAD_START
+            c.CURRENT_BANK = self.current_bank
             #print(self.current_bank)
             try:
                 self.sounds = self.all_sounds[self.current_page].kits[self.current_bank]
                 print(f"Changing kit to {self.current_bank}")
             except IndexError:
                 self.current_bank = old_bank  # Stay on current bank
+                c.CURRENT_BANK = self.current_bank
                 print(f"IndexError: kit ID {self.current_bank} not found")
 
 
