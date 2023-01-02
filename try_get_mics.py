@@ -1,4 +1,3 @@
-import pyaudio
 import CONFIG as c
 p = pyaudio.PyAudio()
 

@@ -2,7 +2,7 @@ import pygame as pg
 import pickle as p
 import numpy as np
 import time
-import librosa
+
 
 # pg.mixer.init(frequency=44100, size=-16, channels=2, buffer=64)
 #
