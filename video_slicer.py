@@ -29,6 +29,7 @@ class vSlicer:
 
 
     def load_audio(self):
+        self.vfilename = c.VIDEO_INPUT_PATH+ os.listdir(c.VIDEO_INPUT_PATH)[0]
         audioclip = mp.AudioFileClip(self.vfilename)
         audioclip.write_audiofile(self.afilename)
 
@@ -91,6 +92,11 @@ class vSlicer:
         #onsets = self.zero_any_negatives(self.left_shift_onsets(self.remove_close_onsets(self.onsets),0.03))
 
 
+    def get_vframerate(self,fn):
+        self.vmeta = skvideo.io.ffprobe(fn)['video']
+        self.vframerate_str = self.vmeta['@avg_frame_rate']
+        self.vframerate = (float(self.vmeta['@nb_frames'])/float(self.vmeta['@duration']))
+
 
     def slice_video(self):
         # load video as numpy
@@ -143,15 +149,16 @@ class vSlicer:
     def export_audio(self,kitnum):
         # send audio and video to folders
 
-        afolder = c.USB + c.RECORDED_SAMPLES_FOLDER + '/'+str(kitnum)+'/'
+        afolder = c.USB + c.VIDEO_RECORDING_FOLDER + '/'+f"{kitnum:02}"+'/'
         print(f"writing new audio samples to file")
         print(f"aoutputs {len(self.aoutputs)}")
         for i,sound in enumerate(self.aoutputs):
+            #TODO: Make dir if not exist
             write(afolder+"{:02d}".format(i)+".wav",self.samplerate,sound)
 
 
     def export_video(self):
-        vfolder = c.VIDEO_OUTPUT_PATH
+        vfolder = c.VIDEO_OUTPUT_PATH +f"{c.CURRENT_BANK:02d}"+"/"
         for i,video in enumerate(self.voutputs):
             print(f"writing new videio samples to file")
             print(video)
